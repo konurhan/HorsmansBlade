@@ -133,6 +133,7 @@ MonoBehaviour:
   bodyPartName: leg
   damageMultiplier: 5
   armour: {fileID: 0}
+  health: {fileID: 0}
 --- !u!1 &898903332148084611
 GameObject:
   m_ObjectHideFlags: 0
@@ -332,7 +333,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.2
+  m_Radius: 0.4
   m_Height: 1.8
   m_Direction: 1
   m_Center: {x: 0, y: 0.9, z: 0}
@@ -391,8 +392,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sword: {fileID: 0}
+  shield: {fileID: 0}
   SwordHandTransform: {fileID: 7182194308006776944}
   SwordSheatTransform: {fileID: 3349721402327932705}
+  ShieldHandTransform: {fileID: 644059638095175288}
 --- !u!114 &2600720063732542372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1578,6 +1581,7 @@ MonoBehaviour:
   bodyPartName: arm
   damageMultiplier: 2
   armour: {fileID: 0}
+  health: {fileID: 0}
 --- !u!1 &4909364724497538199
 GameObject:
   m_ObjectHideFlags: 0
@@ -1745,6 +1749,7 @@ MonoBehaviour:
   bodyPartName: torso
   damageMultiplier: 8
   armour: {fileID: 0}
+  health: {fileID: 0}
 --- !u!1 &5264664430201230133
 GameObject:
   m_ObjectHideFlags: 0
@@ -2138,6 +2143,7 @@ MonoBehaviour:
   bodyPartName: arm
   damageMultiplier: 2
   armour: {fileID: 0}
+  health: {fileID: 0}
 --- !u!1 &6371265102356425739
 GameObject:
   m_ObjectHideFlags: 0
@@ -2202,6 +2208,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3413394789864814354}
+  - {fileID: 644059638095175288}
   m_Father: {fileID: 1418456680155539635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6528605786204550178
@@ -2426,6 +2433,7 @@ MonoBehaviour:
   bodyPartName: head
   damageMultiplier: 10
   armour: {fileID: 0}
+  health: {fileID: 0}
 --- !u!1 &6799772034687074537
 GameObject:
   m_ObjectHideFlags: 0
@@ -2993,6 +3001,7 @@ MonoBehaviour:
   bodyPartName: leg
   damageMultiplier: 5
   armour: {fileID: 0}
+  health: {fileID: 0}
 --- !u!65 &6799189832951760932
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3014,6 +3023,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.15, y: 0.95, z: 0.2}
   m_Center: {x: -0.1, y: 1.5990582, z: -0.024458028}
+--- !u!1 &8170818137212338630
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 644059638095175288}
+  m_Layer: 8
+  m_Name: ShieldTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &644059638095175288
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8170818137212338630}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.5, y: -0.5, z: -0.5, w: 0.5}
+  m_LocalPosition: {x: -0.03, y: 0.12, z: -0.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2974657892119679952}
+  m_LocalEulerAnglesHint: {x: -90, y: -90, z: 0}
 --- !u!1 &8318246936309405606
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,19 +5,23 @@ using UnityEngine;
 
 public class BodyPart : MonoBehaviour
 {
-    private PlayerHealth health;
+    
 
     public string bodyPartName;//provide in the editor
     public int damageMultiplier;//provide in the editor
     public GameObject armour;
 
+    public GameObject player { get; private set;}//player reference: i.e. owner of the bodypart. assigned in the awake of Player script
+    [SerializeField] private PlayerHealth health;
+
     private void Awake()
     {
-        health = transform.parent.gameObject.GetComponent<PlayerHealth>();//getting the script reference from the Player object
+        
     }
 
     void Start()
     {
+        health = player.GetComponent<PlayerHealth>();//getting the script reference from the Player object
         PutOnCurrentArmour();
     }
 
@@ -41,9 +45,9 @@ public class BodyPart : MonoBehaviour
         }
     }
 
-    public void SetPlayerReference(GameObject game)
+    public void SetPlayerReference(GameObject owner)
     {
-
+        player = owner;
     }
 
     public void PutOnCurrentArmour()

@@ -62,14 +62,14 @@ public class PlayerMovement : MonoBehaviour
                 isGrounded = true;
                 transform.position = new Vector3(transform.position.x, 0, transform.position.z);
                 animator.applyRootMotion = true;
-                Debug.Log("on ground");
+                //Debug.Log("on ground");
             }
         }
         else
         {
             isGrounded = false;
             animator.applyRootMotion = false;
-            Debug.Log("in air");
+            //Debug.Log("in air");
         }
     }
 

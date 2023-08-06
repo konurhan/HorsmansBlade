@@ -37,6 +37,6 @@ public class CameraController : MonoBehaviour
         }*/
         Vector3 rotation = Vector3.zero;
         rotation.y = yRotation;
-        target.transform.eulerAngles += rotation * rotationSpeed;
+        target.transform.localEulerAngles += rotation * rotationSpeed;
     }
 }
