@@ -56,7 +56,8 @@ public class EnemyAttackState : EnemyState
         {
             //attack
             Debug.Log("close enough, enemy will attack now!!");
-            enemyObj.GetComponent<EnemyNPCAttack>().HandleAttackDefence();
+            enemyObj.GetComponent<EnemyNPCAttack>().HandleDefence();
+            enemyObj.GetComponent<EnemyNPCAttack>().HandleAttack();
             return;
         }
     }

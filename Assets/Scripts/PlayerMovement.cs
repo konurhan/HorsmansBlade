@@ -23,7 +23,8 @@ public class PlayerMovement : MonoBehaviour
 
 
     [Header("Flags")]
-    private bool isGrounded;
+    [SerializeField]private bool isGrounded;
+    public bool isMovementRoationalEnabled;
     private float lastHorizontalSpeed;
 
     private void Awake()
@@ -31,8 +32,7 @@ public class PlayerMovement : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         isGrounded = true;
-
-        
+        isMovementRoationalEnabled = true;
     }
 
 
@@ -107,13 +107,45 @@ public class PlayerMovement : MonoBehaviour
         }
 
         float x = 0;
-        if (Input.GetKey(KeyCode.D))
+        float speedBuff = 0.1f;
+        if (Input.GetKey(KeyCode.D) && isMovementRoationalEnabled)
         {
             x += 1;
+            
         }
-        else if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.A) && isMovementRoationalEnabled)
         {
             x -= 1;
+            
+        }
+        if(x > 0)
+        {
+            if (animator.GetFloat("SpeedZ") < speedBuff && animator.GetFloat("SpeedZ") > -speedBuff) 
+            {
+                animator.SetBool("TurnRight", true);
+            }
+            else
+            {
+                animator.SetBool("TurnRight", false);
+            }
+            animator.SetBool("TurnLeft", false);
+        }
+        else if (x < 0)
+        {
+            if (animator.GetFloat("SpeedZ") < speedBuff && animator.GetFloat("SpeedZ") > -speedBuff)
+            {
+                animator.SetBool("TurnLeft", true);
+            }
+            else
+            {
+                animator.SetBool("TurnLeft", false);
+            } 
+            animator.SetBool("TurnRight", false);
+        }
+        else
+        {
+            animator.SetBool("TurnLeft", false);
+            animator.SetBool("TurnRight", false);
         }
         transform.Rotate(0, x * turnSpeed, 0);
     }
@@ -166,6 +198,13 @@ public class PlayerMovement : MonoBehaviour
         animator.SetFloat("SpeedZ", speed);
     }
 
+    public void SetRotationAnimationSpeed()//foot movements should become faster as the character levels-up and become faster.
+    {
+
+    }
+
+
+    #region Animation Events
     public void GoInToMovementLayer()//animation event
     {
         animator.ResetTrigger("Sheat");//improper fix: 
@@ -173,4 +212,16 @@ public class PlayerMovement : MonoBehaviour
         animator.SetLayerWeight(2, 0f);
         animator.SetLayerWeight(0, 1f);
     }
+
+    public void EnableRotationalMovement()
+    {
+        isMovementRoationalEnabled = true;
+    }
+
+    public void DisableRotationalMovement()
+    {
+        isMovementRoationalEnabled = false;
+    }
+
+    #endregion
 }

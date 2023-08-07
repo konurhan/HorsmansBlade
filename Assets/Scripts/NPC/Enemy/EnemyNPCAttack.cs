@@ -12,17 +12,22 @@ public class EnemyNPCAttack : MonoBehaviour
     public GameObject target;
     public Animator targetAnimator;
 
+    public EnemyNPCMovement movement;
+
     public bool blocking;
 
     private void Awake()
     {
         blocking = false;
+
+        movement = GetComponent<EnemyNPCMovement>();
+        animator = GetComponent<Animator>();
+        agent = GetComponent<NavMeshAgent>();
     }
 
     void Start()
     {
-        animator = GetComponent<Animator>();
-        agent = GetComponent<NavMeshAgent>();
+        
     }
 
 
@@ -31,12 +36,15 @@ public class EnemyNPCAttack : MonoBehaviour
         
     }
 
-    public void HandleAttackDefence()//will be called from fsm attack state
+    public void HandleDefence()//will be called from fsm attack state every frame when the npc is in attack state
     {
         CacheTarget();
+        if (blocking) return;
+        if (!IsTargetFacingToMe()) return;//if target is not swinging towards you, no need to block
+        if (IsInSafeDistance(movement.attackRadius)) return;//if have a safe distance with the target, no need to block
+        
         if(CheckAttackDownward() || CheckAttackInward() || CheckAttackOutward())
         {
-            if (blocking) return;
             Debug.Log("angle is: " + GetAngleToTarget());
             //StartCoroutine(Shieldblock());
             if(GetAngleToTarget() < 0)
@@ -46,7 +54,17 @@ public class EnemyNPCAttack : MonoBehaviour
             {
                 StartCoroutine(TurnRightToBlock(GetAngleToTarget()));
             }
+            else
+            {
+                Debug.Log("looking towards the target");
+                StartCoroutine(Shieldblock());
+            }
         }
+    }
+
+    public void HandleAttack()
+    {
+        if (blocking) return;
         DecideAndAttack();
     }
 
@@ -56,9 +74,23 @@ public class EnemyNPCAttack : MonoBehaviour
         targetAnimator = target.GetComponent<Animator>();
     }
 
-    public void DecideAndAttack()
+    public void DecideAndAttack()//enemy will decide which attack action to perform
     {
         //animator.SetTrigger("InwardSlash");
+
+    }
+
+    public bool IsTargetFacingToMe()
+    {
+        float angle = GetAngleToTarget();
+        if(angle > -70 && angle < 70) return true;
+        return false;
+    }
+
+    public bool IsInSafeDistance(float defenceDistance)
+    {
+        if (movement.GetDistanceTotarget() <= defenceDistance) return false;
+        return true;
     }
 
     public IEnumerator Shieldblock()
@@ -74,10 +106,9 @@ public class EnemyNPCAttack : MonoBehaviour
 
     public IEnumerator TurnLeftToBlock(float angle)
     {
-        blocking = true;
         Debug.Log("TurnLeftToBlock, angle is: " + angle);
         RaiseShield();
-        float speed = 1f;
+        float speed = 1.5f;
         float rotated = 0f;
         agent.updateRotation = false;
         while (rotated < angle)
@@ -89,15 +120,13 @@ public class EnemyNPCAttack : MonoBehaviour
         }
         LowerShield();
         agent.updateRotation = true;
-        blocking = false;
     }
 
     public IEnumerator TurnRightToBlock(float angle) 
     {
-        blocking = true;
         Debug.Log("TurnRightToBlock, angle is: " + angle);
         RaiseShield();
-        float speed = 1f;
+        float speed = 1.5f;
         float rotated = 0f;
         agent.updateRotation = false;
         while (rotated < angle) 
@@ -109,18 +138,19 @@ public class EnemyNPCAttack : MonoBehaviour
         }
         LowerShield();
         agent.updateRotation = true;
-        blocking = false;
     }
 
 
     public void RaiseShield()
     {
+        blocking = true;
         Debug.Log("RaiseShield is called");
         animator.SetBool("Shield", true);
     }
 
     public void LowerShield()
     {
+        blocking = false;
         animator.SetBool("Shield", false);
     }
 

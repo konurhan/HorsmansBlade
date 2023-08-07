@@ -2798,9 +2798,10 @@ MonoBehaviour:
   detectionRadius: 5
   attackRadius: 1.7
   triggerentryDistance: 0
+  isMovementRoationalEnabled: 0
   speed: 0
-  velocity: {x: 0, y: 0}
-  smoothDeltaPos: {x: 0, y: 0}
+  angularVelocity: {x: 0, y: 0, z: 0}
+  velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &392956731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2915,7 +2916,7 @@ Animator:
   m_GameObject: {fileID: 392956729}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: ba9bb0a5e36ff854a9ada7c8394bb6dc, type: 3}
-  m_Controller: {fileID: 9100000, guid: abc6673c273d10548a8dc6dd9402c8a3, type: 2}
+  m_Controller: {fileID: 9100000, guid: 56e533113b67ecd4e8437e545cde986a, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -2934,7 +2935,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 392956729}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.9987933, z: 0, w: 0.04911144}
+  m_LocalRotation: {x: 0, y: -0.66906565, z: 0, w: 0.74320334}
   m_LocalPosition: {x: 0.8, y: 0, z: 5.29}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2944,7 +2945,7 @@ Transform:
   - {fileID: 1489013672}
   - {fileID: 1666205233}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -174.37, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -83.99, z: 0}
 --- !u!195 &392956740
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -3037,6 +3038,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   targetAnimator: {fileID: 0}
+  movement: {fileID: 0}
   blocking: 0
 --- !u!1 &396564926
 GameObject:
@@ -16171,6 +16173,8 @@ MonoBehaviour:
   turnSpeed: 0.2
   RBvelocity: {x: 0, y: 0, z: 0}
   speed: 0
+  isGrounded: 0
+  isMovementRoationalEnabled: 0
 --- !u!1 &1955006640673871400
 GameObject:
   m_ObjectHideFlags: 0

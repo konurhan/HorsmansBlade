@@ -13,34 +13,47 @@ public class EnemyNPCMovement : MonoBehaviour
     public float detectionRadius;
     public float attackRadius;
     public float triggerentryDistance;
+    public bool isMovementRoationalEnabled;
 
     [SerializeField] private float speed;
-    [SerializeField] private Vector2 velocity;
-    [SerializeField] private Vector2 smoothDeltaPos;
-    void Start()
+    //[SerializeField] private Vector2 velocity;
+    //[SerializeField] private Vector2 smoothDeltaPos;
+    public Vector3 angularVelocity;
+    public Vector3 velocity;
+    private Rigidbody rb;
+
+    private float lastYEulerAngle;
+
+    private void Awake()
     {
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         sphereCollider = GetComponent<SphereCollider>();
+        rb = GetComponent<Rigidbody>();
+    }
 
+    void Start()
+    {
         animator.applyRootMotion = true;
         agent.updatePosition = false;
         agent.updateRotation = true;
+
+        lastYEulerAngle = transform.rotation.eulerAngles.y;
     }
 
     void Update()
     {
-        //SynchronizePositionWithRootMotion();
-        //Debug.Log("update");
-        animator.SetFloat("SpeedZ", agent.velocity.magnitude);
+        animator.SetFloat("SpeedZ", agent.velocity.magnitude);//refactor this so that animation speed, agent speed and character speeds all together work in a conforming way
         sphereCollider.radius = detectionRadius;//move this into a method
+        angularVelocity = rb.angularVelocity;
+        velocity = rb.velocity;
+        PlayFootAnimOnRotation();
     }
 
     private void OnAnimatorMove()
     {
-        //Debug.Log("OnAnimatorMove");
         Vector3 rootPosition = animator.rootPosition;
-        //rootPosition.y = agent.nextPosition.y;//to make agent enable to change vertical position for instance while climbing
+        rootPosition.y = agent.nextPosition.y;//to make agent enable to change vertical position for instance while climbing
         transform.position = rootPosition;
         agent.nextPosition = rootPosition;//manually updating agent movement
     }
@@ -75,20 +88,6 @@ public class EnemyNPCMovement : MonoBehaviour
         }
     }*/
 
-    /*public void CheckForThePlayer()
-    {
-        
-    }*/
-
-    public void Chase()
-    {
-
-    }
-
-    public void Attack()
-    {
-
-    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -125,6 +124,40 @@ public class EnemyNPCMovement : MonoBehaviour
         //if (target == null) return -1;//already checking before this method gets called
         
         return (transform.position - target.transform.position).magnitude;
+    }
+
+    public void PlayFootAnimOnRotation()
+    {
+        if (agent.updateRotation)//animation will only be played while the npc rotation is being manually updated
+        {
+            animator.SetBool("TurnLeft", false);
+            animator.SetBool("TurnRight", false);
+            return;
+        }
+
+        float newAngle = transform.rotation.eulerAngles.y;
+        
+        if (Mathf.Abs(newAngle - lastYEulerAngle) < 0.102f)
+        {
+            animator.SetBool("TurnLeft", false);
+            animator.SetBool("TurnRight", false);
+            return;
+        }
+
+        if(newAngle > lastYEulerAngle)
+        {
+            Debug.Log("turning right");
+            animator.SetBool("TurnLeft", false);
+            if (!animator.GetBool("TurnRight")) animator.SetBool("TurnRight", true);
+        }
+        else if(newAngle < lastYEulerAngle)
+        {
+            Debug.Log("turning left");
+            animator.SetBool("TurnRight", false);
+            if (!animator.GetBool("TurnLeft")) animator.SetBool("TurnLeft", true);
+        }
+        lastYEulerAngle = newAngle;
+        //transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, newAngle, transform.rotation.eulerAngles.z));
     }
 
     public void SetDetectionRadiusOnLoad(float radius)//take this value from the save file

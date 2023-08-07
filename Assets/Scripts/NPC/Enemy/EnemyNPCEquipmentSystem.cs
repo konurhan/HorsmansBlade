@@ -34,51 +34,6 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
         //HandleCombatActions();
     }
 
-    public void HandleCombatActions()
-    {
-        /*if (Input.GetKeyDown(KeyCode.F) && CanDrawWeapon())
-        {
-            animator.ResetTrigger("InwardSlash");
-            animator.ResetTrigger("OutwardSlash");
-            animator.SetTrigger("Draw");
-            animator.SetLayerWeight(1, 1f);
-            animator.SetLayerWeight(2, 1f);
-        }
-        if (Input.GetKeyDown(KeyCode.G) && CanSheatWeapon())
-        {
-            animator.SetTrigger("Sheat");
-        }
-        HandleAttack();
-        HandleShield();
-        */
-    }
-
-    public void HandleAttack()
-    {
-        
-    }
-
-    public void IsReachedAttackTarget()
-    {
-
-    }
-
-    public void FindDirectionAndHit()
-    {
-        if(Input.GetAxis("Mouse X") < -0.15f && Input.GetAxis("Mouse Y") < 0.15f && Input.GetAxis("Mouse Y") > -0.15f)//coming from right
-        {
-            animator.SetTrigger("InwardSlash");
-        }
-        else if(Input.GetAxis("Mouse X") > 0.15f && Input.GetAxis("Mouse Y") < 0.15f && Input.GetAxis("Mouse Y") > -0.15f)//coming from left
-        {
-            animator.SetTrigger("OutwardSlash");
-        }
-        else if (Input.GetAxis("Mouse Y") < -0.15f && Input.GetAxis("Mouse X") < 0.15f && Input.GetAxis("Mouse X") > -0.15f)//coming down from above
-        {
-            animator.SetTrigger("DownwardSlash");
-        }
-    }
-
     public void Sheat()
     {
         if (CanSheatWeapon())
