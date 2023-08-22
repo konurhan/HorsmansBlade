@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[DefaultExecutionOrder(1)]
 public class EnemyController : MonoBehaviour
 {
     [Header("Body Parts")]
@@ -16,20 +17,25 @@ public class EnemyController : MonoBehaviour
     public EnemyStateMachine stateMachine;
     public EnemyIdleState idleState;
     public EnemyChasingState chasingState;
+    public EnemyClosingInState closingInState;
     public EnemyAttackState attackState;
     public EnemyFleeState fleeState;
     #endregion
 
+    [SerializeField] private string curState;
 
     private void Awake()
     {
         stateMachine = new EnemyStateMachine();
         idleState = new EnemyIdleState(this, stateMachine);
         chasingState = new EnemyChasingState(this, stateMachine);
+        closingInState = new EnemyClosingInState(this, stateMachine);
         attackState = new EnemyAttackState(this, stateMachine);
         fleeState = new EnemyFleeState(this, stateMachine);
 
         SetbodyPartReferences();
+        NPCManager.Instance.enemyNPCs.Add(this);
+        NPCManager.Instance.SetEnemyDestinationOffsets();
     }
 
     void Start()
@@ -40,6 +46,7 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         stateMachine.currentstate.Update();
+        curState = stateMachine.currentstate.ToString();
     }
 
     private void FixedUpdate()

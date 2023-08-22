@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,11 +11,18 @@ public class EnemyNPCMovement : MonoBehaviour
     public NavMeshAgent agent { get; private set; }
     private SphereCollider sphereCollider;
 
+    private EnemyNPCAttack attack;
+
     public GameObject target;
     public float detectionRadius;
+    public float closingInRadius;
     public float attackRadius;
+    public float surroundingRadius;
     public float triggerentryDistance;
     public bool isMovementRoationalEnabled;
+    public bool isClosingIn;
+
+    public Vector3 destinationOffset;
 
     [SerializeField] private float speed;
     //[SerializeField] private Vector2 velocity;
@@ -23,6 +32,8 @@ public class EnemyNPCMovement : MonoBehaviour
     private Rigidbody rb;
 
     private float lastYEulerAngle;
+    //private float agentRotationY;
+    //private bool agentIsManullayRotating;
 
     private void Awake()
     {
@@ -30,6 +41,10 @@ public class EnemyNPCMovement : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         sphereCollider = GetComponent<SphereCollider>();
         rb = GetComponent<Rigidbody>();
+
+        isMovementRoationalEnabled = true;
+        //agentIsManullayRotating = false;
+        isClosingIn = false;
     }
 
     void Start()
@@ -37,13 +52,18 @@ public class EnemyNPCMovement : MonoBehaviour
         animator.applyRootMotion = true;
         agent.updatePosition = false;
         agent.updateRotation = true;
-
+        
+        attack = GetComponent<EnemyNPCAttack>();
         lastYEulerAngle = transform.rotation.eulerAngles.y;
+        //agentRotationY = transform.rotation.eulerAngles.y;
     }
 
     void Update()
     {
-        animator.SetFloat("SpeedZ", agent.velocity.magnitude);//refactor this so that animation speed, agent speed and character speeds all together work in a conforming way
+        if (agent.hasPath)
+        {
+            animator.SetFloat("SpeedZ", agent.velocity.magnitude);//refactor this so that animation speed, agent speed and character speeds all together work in a conforming way
+        }
         sphereCollider.radius = detectionRadius;//move this into a method
         angularVelocity = rb.angularVelocity;
         velocity = rb.velocity;
@@ -105,9 +125,8 @@ public class EnemyNPCMovement : MonoBehaviour
     public bool TargetOutOfRange()//call in chase
     {
         float buffer = 0.2f;
-        if((target.transform.position - transform.position).magnitude > triggerentryDistance+buffer || target == null)
-        {
-            Debug.Log((target.transform.position - transform.position).magnitude);
+        if(GetDistanceTotarget() > triggerentryDistance+buffer || target == null)
+        { 
             target = null;
             return true;
         }
@@ -120,15 +139,118 @@ public class EnemyNPCMovement : MonoBehaviour
     }
 
     public float GetDistanceTotarget()
+    {        
+        return ((target.transform.position) - transform.position).magnitude;
+    }
+
+    public float GetDistanceToSurroundingDestination()
     {
-        //if (target == null) return -1;//already checking before this method gets called
-        
-        return (transform.position - target.transform.position).magnitude;
+        Vector3 destination = target.transform.position + target.transform.forward * destinationOffset.z + target.transform.right * destinationOffset.x;
+        return ((destination) - transform.position).magnitude;
+    }
+
+    public IEnumerator StrafeTowardsTarget()//used for closing in to target 
+    {
+        float lerpSpeed = 5f;
+        GameObject cachedTarget = target;
+        isClosingIn = true;
+        float speedZ = 0.5f;
+        float speedX = UnityEngine.Random.Range(-1f, 1f);
+        speedX = speedX < 0 ? 1f : 1f;//animations are not enough, walking left and approaching doesn't work together
+        animator.SetFloat("SpeedZ", speedZ);
+        animator.SetFloat("SpeedX", speedX);
+        while (true)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime*lerpSpeed);
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    public IEnumerator StrafeAroundTheTarget(float duration)
+    {
+        attack.attacking = true;
+        GameObject cachedTarget = target;
+        animator.SetFloat("SpeedZ", 0);
+        float speedX = UnityEngine.Random.Range(-1f, 1f);
+        speedX = speedX < 0 ? -1f : 1f;
+
+        Func<float, float, float> speedModel;
+        if (speedX > 0)
+        {
+            speedModel = NegativeParabolicBy2PeakSpeed;
+        }
+        else
+        {
+            speedModel = ParabolicBy2PeakSpeed;
+        }
+
+        float strafeDur = duration;
+        float time = 0f;
+        while (time < strafeDur)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position,Vector3.up);
+            transform.rotation = lookRotation;
+            float xAxPos = ((time / (strafeDur/2)) - 1);//progress of speedup/slow-downi fitted on [-1,1] interval on the x axis
+            float curSpeedX = speedModel(speedX, xAxPos);
+
+            animator.SetFloat("SpeedX", curSpeedX);
+            time += Time.deltaTime;
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+        animator.SetFloat("SpeedZ", 0);
+        animator.SetFloat("SpeedX", 0);
+        attack.attacking = false;
+    }
+
+    public void OnStopStrafing()
+    {
+        animator.SetFloat("SpeedZ", 0);
+        animator.SetFloat("SpeedX", 0);
+        isClosingIn = false;
+    }
+
+    public float NegativeParabolicBy2PeakSpeed(float peakSpeed, float xAxPos)//peakSpeed - x^2, called if peakSpeed > 0
+    {
+        float xAxPosClamped = Mathf.Sqrt(peakSpeed) * xAxPos;
+        return peakSpeed - Mathf.Pow(xAxPosClamped, 2);
+    }
+
+    public float ParabolicBy2PeakSpeed(float peakSpeed, float xAxPos)//peakSpeed + x^2, call if peakSpeed < 0
+    {
+        float xAxPosClamped = Mathf.Sqrt(-peakSpeed) * xAxPos;
+        return peakSpeed + Mathf.Pow(xAxPosClamped, 2);
+    }
+
+    public IEnumerator AgentRotateTowardsTarget()
+    {
+        float angle = attack.GetAngleToTarget();
+        float rotated = 0f;
+        float speed = 1.5f;
+        int sign = 0;
+        agent.updateRotation = false;
+        if (angle < 0)//turning left
+        {
+            sign = -1;
+        }
+        else if (angle > 1)//turning right
+        {
+            sign = 1;
+        }
+        while (rotated < angle*sign)
+        {
+            float step = sign * angle * Time.deltaTime * speed;
+            transform.Rotate(new Vector3(0, sign * step, 0));
+            rotated += step;
+            yield return new WaitForEndOfFrame();
+        }
+        //agentRotationY += angle;
+        agent.updateRotation = true;
     }
 
     public void PlayFootAnimOnRotation()
     {
-        if (agent.updateRotation)//animation will only be played while the npc rotation is being manually updated
+        if (agent.updateRotation || animator.GetFloat("SpeedZ") > 0.01f)//animation will only be played while the npc rotation is being manually updated
         {
             animator.SetBool("TurnLeft", false);
             animator.SetBool("TurnRight", false);
@@ -136,28 +258,27 @@ public class EnemyNPCMovement : MonoBehaviour
         }
 
         float newAngle = transform.rotation.eulerAngles.y;
-        
-        if (Mathf.Abs(newAngle - lastYEulerAngle) < 0.102f)
+
+        if (Mathf.Abs(newAngle - lastYEulerAngle) < 0.05f)
         {
             animator.SetBool("TurnLeft", false);
             animator.SetBool("TurnRight", false);
             return;
         }
 
-        if(newAngle > lastYEulerAngle)
+        if (newAngle > lastYEulerAngle)
         {
-            Debug.Log("turning right");
+            //Debug.Log("turning right");
             animator.SetBool("TurnLeft", false);
             if (!animator.GetBool("TurnRight")) animator.SetBool("TurnRight", true);
         }
-        else if(newAngle < lastYEulerAngle)
+        else if (newAngle < lastYEulerAngle)
         {
-            Debug.Log("turning left");
+            //Debug.Log("turning left");
             animator.SetBool("TurnRight", false);
             if (!animator.GetBool("TurnLeft")) animator.SetBool("TurnLeft", true);
         }
         lastYEulerAngle = newAngle;
-        //transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.eulerAngles.x, newAngle, transform.rotation.eulerAngles.z));
     }
 
     public void SetDetectionRadiusOnLoad(float radius)//take this value from the save file
@@ -165,7 +286,7 @@ public class EnemyNPCMovement : MonoBehaviour
         detectionRadius = radius;
     }
 
-    public void StartSpeedUp()
+    /*public void StartSpeedUp()
     {
         StartCoroutine(SpeedUp());
     }
@@ -175,20 +296,49 @@ public class EnemyNPCMovement : MonoBehaviour
         StartCoroutine(SlowDown());
     }
 
+    public IEnumerator SpeedUpStrafe()
+    {
+        float speed = 0;
+        while (speed < 1f)//speed up will take 0.8 seconds
+        {
+            speed += 0.01f;
+            animator.SetFloat("SpeedX", speed);
+            yield return new WaitForSeconds(0.008f);
+        }
+        speed = 1f;
+        animator.SetFloat("SpeedX", speed);
+        StartCoroutine(SlowDownStrafe());
+        yield break;
+    }
+
+    public IEnumerator SlowDownStrafe()
+    {
+        float speed = 1f;
+        while (speed > 0)//slow down will take 0.8 seconds
+        {
+            speed -= 0.01f;
+            animator.SetFloat("SpeedX", speed);
+            yield return new WaitForSeconds(0.008f);
+        }
+        speed = 0f;
+        animator.SetFloat("SpeedX", speed);
+        yield break;
+    }
+
     public IEnumerator SpeedUp()
     {
         Debug.Log("speeding up");
         float speed = animator.GetFloat("SpeedZ");
         Debug.Log("speedZ is: " + speed);
-        
-        while(speed < 2f)
+
+        while (speed < 2f)
         {
             speed += 0.01f;
             animator.SetFloat("SpeedZ", speed);
             yield return new WaitForEndOfFrame();
         }
         speed = 2f;
-        animator.SetFloat("SpeedZ",speed);
+        animator.SetFloat("SpeedZ", speed);
         yield break;
     }
 
@@ -204,9 +354,10 @@ public class EnemyNPCMovement : MonoBehaviour
         speed = 0f;
         animator.SetFloat("SpeedZ", speed);
         yield break;
-    }
+    }*/
 
-    public void GoInToMovementLayer()//animation event
+    #region Animation Events
+    public void GoInToMovementLayer()
     {
         animator.ResetTrigger("Sheat");//improper fix: 
         animator.SetLayerWeight(1, 0f);
@@ -214,4 +365,15 @@ public class EnemyNPCMovement : MonoBehaviour
         animator.SetLayerWeight(0, 1f);
     }
 
+    public void EnableRotationalMovement()
+    {
+        isMovementRoationalEnabled = true;
+    }
+
+    public void DisableRotationalMovement()
+    {
+        isMovementRoationalEnabled = false;
+    }
+
+    #endregion
 }

@@ -39,4 +39,9 @@ public class CameraController : MonoBehaviour
         rotation.y = yRotation;
         target.transform.localEulerAngles += rotation * rotationSpeed;
     }
+
+    public void AimingMode()
+    {
+
+    }
 }

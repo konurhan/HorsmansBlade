@@ -11,7 +11,7 @@ public class PlayerHealth : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        LoadPlayerHealth();
     }
 
     // Update is called once per frame
@@ -68,8 +68,8 @@ public class PlayerHealth : MonoBehaviour
 
     }
 
-    public void LoadStats()
+    public void LoadPlayerHealth()
     {
-        //should work with savesystem script, fetch the values and assign them to body part health values. 
+
     }
 }

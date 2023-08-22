@@ -19,7 +19,7 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
         animator = GetComponent<Animator>();
 
         sword = Instantiate(Resources.Load("Prefabs/LongSword"), SwordSheatTransform) as GameObject;
-        sword.transform.GetChild(0).GetComponent<WeaponDamageController>().SetOwnerReference(gameObject);
+        sword.GetComponent<MeleeWeaponDamageController>().SetOwnerReference(gameObject);
 
         shield = Instantiate(Resources.Load("Prefabs/Shield"), ShieldHandTransform) as GameObject;
         shield.SetActive(false);
@@ -95,12 +95,12 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
     #region Animation Events
     public void StartDealingDamage()//animation event
     {
-        sword.transform.GetChild(0).GetComponent<WeaponDamageController>().StartDealingDamage();
+        sword.transform.GetChild(0).GetComponent<MeleeWeaponDamageController>().StartDealingDamage();
     }
 
     public void EndDealingDamage()//animation event
     {
-        sword.transform.GetChild(0).GetComponent<WeaponDamageController>().EndDealingDamage();
+        sword.transform.GetChild(0).GetComponent<MeleeWeaponDamageController>().EndDealingDamage();
     }
 
     public void DrawWeapon()//animation event

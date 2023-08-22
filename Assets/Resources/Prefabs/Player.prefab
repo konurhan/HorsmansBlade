@@ -248,6 +248,8 @@ GameObject:
   - component: {fileID: 5137284062999154336}
   - component: {fileID: 2600720063732542372}
   - component: {fileID: 3800347465211031996}
+  - component: {fileID: 5825350360456668990}
+  - component: {fileID: 2708871271880236786}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -314,6 +316,8 @@ MonoBehaviour:
   turnSpeed: 0.2
   RBvelocity: {x: 0, y: 0, z: 0}
   speed: 0
+  isGrounded: 0
+  isMovementRoationalEnabled: 0
 --- !u!136 &5425226532700960244
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -386,16 +390,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1447161863769730558}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 197d1f984c7fc294690a26b619b86923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sword: {fileID: 0}
-  shield: {fileID: 0}
-  SwordHandTransform: {fileID: 7182194308006776944}
-  SwordSheatTransform: {fileID: 3349721402327932705}
-  ShieldHandTransform: {fileID: 644059638095175288}
 --- !u!114 &2600720063732542372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -424,12 +423,58 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcc342cd2ee08b74f91c9e8be1b4206b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 0
+  angularSpeed: 0
+  jumpHeight: 0
+  strength: 0
+  oneHandedSkillLevel: 0
+  twoHandedSkillLevel: 0
+  rangedSkillLevel: 0
+  combatJumpHeight: 0
   head: {fileID: 6792900737014555938}
   torso: {fileID: 5119531291807299056}
   armLeft: {fileID: 4834419733427780739}
   armRight: {fileID: 6341819839009425241}
   legLeft: {fileID: 8140224591267855111}
   legRight: {fileID: 855654104854906392}
+--- !u!114 &5825350360456668990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1447161863769730558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c216234e8c926488fad2a574b986d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meleeWeaponOneHanded: {fileID: 0}
+  meleeWeaponTwoHanded: {fileID: 0}
+  rangedWeapon: {fileID: 0}
+  shield: {fileID: 0}
+  MeleeHandTransform: {fileID: 0}
+  MeleeSheatTransform: {fileID: 0}
+  RangedHandTransform: {fileID: 0}
+  RangedSheatTransform: {fileID: 0}
+  ShieldHandTransform: {fileID: 0}
+  inwardSlash: 0
+  outwardSlash: 0
+  downwardSlash: 0
+  shooting: 0
+--- !u!114 &2708871271880236786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1447161863769730558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24a2895a7124aa14e974e72cf0d6fa45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
 --- !u!1 &1821896336707595084
 GameObject:
   m_ObjectHideFlags: 0

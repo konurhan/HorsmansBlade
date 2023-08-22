@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
 
-public class EquipmentSystem : MonoBehaviour
+public class EquipmentSystem222 : MonoBehaviour
 {
-    [SerializeField] private GameObject sword;
+    /*[SerializeField] private GameObject sword;
     [SerializeField] private GameObject shield;
     public Transform SwordHandTransform;
     public Transform SwordSheatTransform;
@@ -24,7 +24,7 @@ public class EquipmentSystem : MonoBehaviour
         animator = GetComponent<Animator>();
 
         sword = Instantiate(Resources.Load("Prefabs/LongSword"), SwordSheatTransform) as GameObject;
-        sword.transform.GetChild(0).GetComponent<WeaponDamageController>().SetOwnerReference(gameObject);
+        sword.transform.GetChild(0).GetComponent<MeleeWeaponDamageController>().SetOwnerReference(gameObject);
 
         shield = Instantiate(Resources.Load("Prefabs/Shield"), ShieldHandTransform) as GameObject;
         shield.SetActive(false);
@@ -67,14 +67,6 @@ public class EquipmentSystem : MonoBehaviour
         {
             FindDirectionAndHit();
         }
-        /*if (Input.GetMouseButtonDown(0))
-        {
-            animator.SetTrigger("InwardSlash");
-        }
-        if (Input.GetMouseButtonDown(1))
-        {
-            animator.SetTrigger("OutwardSlash");
-        }*/
     }
 
     public void FindDirectionAndHit()
@@ -166,4 +158,5 @@ public class EquipmentSystem : MonoBehaviour
         shield.SetActive(false);
     }
     #endregion
+    */
 }

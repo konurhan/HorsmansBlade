@@ -2,15 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyChasingState : EnemyState
 {
     GameObject enemyObj;
     EnemyNPCMovement movement;
     EnemyNPCEquipmentSystem equipmentSystem;
+    NavMeshAgent agent;
     public EnemyChasingState(EnemyController enemy, EnemyStateMachine fsm) : base(enemy, fsm)
     {
         enemyObj = enemy.gameObject;
+        agent = enemy.GetComponent<NavMeshAgent>();
         equipmentSystem = enemyObj.GetComponent<EnemyNPCEquipmentSystem>();
         movement = enemyObj.GetComponent<EnemyNPCMovement>();
     }
@@ -19,10 +22,13 @@ public class EnemyChasingState : EnemyState
     {
         base.EnterState();
         equipmentSystem.Draw();
-        movement.agent.SetDestination(movement.target.transform.position);
-        //movement.agent.destination = movement.target.transform.position;
-        Debug.Log("setting destination to: "+movement.target.transform.position);
-        //movement.StartSpeedUp();
+        //agent.updateRotation = true;
+        Vector3 destination = movement.target.transform.position + movement.target.transform.forward * movement.destinationOffset.z + movement.target.transform.right * movement.destinationOffset.x;
+        movement.agent.SetDestination(destination);
+        Debug.Log(destination);
+        if (agent.updateRotation) Debug.Log("agent can rotate");
+
+
         Debug.Log("Entered to chasing state");
     }
 
@@ -42,27 +48,31 @@ public class EnemyChasingState : EnemyState
         if (!movement.DoesHaveTarget())
         {
             Debug.Log("doesnt have a target anymore");
-            //movement.StartSlowDown();
             fsm.ChangeState(enemy.idleState);
             return;
         }
         if (movement.TargetOutOfRange())
         {
             Debug.Log("target is lost");
-            //movement.StartSlowDown();
             fsm.ChangeState(enemy.idleState);
             return;
         }
-        if (movement.GetDistanceTotarget() <= movement.attackRadius && movement.GetDistanceTotarget() != -1)
+        if (movement.GetDistanceToSurroundingDestination() <= agent.stoppingDistance)
         {
-            //Debug.Log("target moved inside of attack range, start attacking. Distance: " + movement.GetDistanceTotarget());
-            //Debug.Log("GetDistanceTotarget: enemyPos = " + enemyObj.transform.position + " || targetPos = " + movement.target.transform.position);
-            //Debug.Log("target is close, npc will start attacking");
-            //movement.StartSlowDown();
-            fsm.ChangeState(enemy.attackState);
+            agent.ResetPath();//doesn't update rotation when there are no paths present
+            /*Quaternion lookRotation = Quaternion.LookRotation(movement.target.transform.position  - enemyObj.transform.position, Vector3.up);
+            enemyObj.transform.rotation = lookRotation;*/
+            fsm.ChangeState(enemy.closingInState);
             return;
         }
-        movement.agent.SetDestination(movement.target.transform.position);
-        //movement.agent.destination = movement.target.transform.position;
+        else
+        {
+            //Debug.Log("did not arrive to surrounding distance");
+            //Debug.Log("sur dist: " + movement.GetDistanceToSurroundingDestination());
+        }
+
+        Vector3 destination = movement.target.transform.position + movement.target.transform.forward * movement.destinationOffset.z + movement.target.transform.right * movement.destinationOffset.x;
+        movement.agent.SetDestination(destination);
+        //Debug.Log(destination);
     }
 }

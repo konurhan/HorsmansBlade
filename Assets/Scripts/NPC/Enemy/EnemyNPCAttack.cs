@@ -15,14 +15,20 @@ public class EnemyNPCAttack : MonoBehaviour
     public EnemyNPCMovement movement;
 
     public bool blocking;
+    public bool attacking;
+
+    private Coroutine strafeAroundCoroutine;
 
     private void Awake()
     {
         blocking = false;
+        attacking = false;
 
         movement = GetComponent<EnemyNPCMovement>();
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
+
+        strafeAroundCoroutine = null;
     }
 
     void Start()
@@ -40,12 +46,13 @@ public class EnemyNPCAttack : MonoBehaviour
     {
         CacheTarget();
         if (blocking) return;
+        if (attacking) return;
         if (!IsTargetFacingToMe()) return;//if target is not swinging towards you, no need to block
-        if (IsInSafeDistance(movement.attackRadius)) return;//if have a safe distance with the target, no need to block
+        if (IsInSafeDistance(movement.attackRadius + 1f)) return;//if have a safe distance with the target, no need to block
         
         if(CheckAttackDownward() || CheckAttackInward() || CheckAttackOutward())
         {
-            Debug.Log("angle is: " + GetAngleToTarget());
+            //Debug.Log("angle is: " + GetAngleToTarget());
             //StartCoroutine(Shieldblock());
             if(GetAngleToTarget() < 0)
             {
@@ -65,6 +72,7 @@ public class EnemyNPCAttack : MonoBehaviour
     public void HandleAttack()
     {
         if (blocking) return;
+        if (attacking) return;
         DecideAndAttack();
     }
 
@@ -76,8 +84,40 @@ public class EnemyNPCAttack : MonoBehaviour
 
     public void DecideAndAttack()//enemy will decide which attack action to perform
     {
-        //animator.SetTrigger("InwardSlash");
+        int rand = Random.Range(0, 4);
+        switch (rand)
+        {
+            case 0:
+                attacking = true;
+                animator.SetTrigger("InwardSlash");
+                StartCoroutine(AttackCoolDown(2f));
+                break;
+            case 1:
+                attacking = true;
+                animator.SetTrigger("OutwardSlash");
+                StartCoroutine(AttackCoolDown(2f));
+                break;
+            case 2:
+                attacking = true;
+                animator.SetTrigger("DownwardSlash");
+                StartCoroutine(AttackCoolDown(2f));
+                break;
+            case 3:
+                //doing nothing: can strafe in this phase, or reposition
+                strafeAroundCoroutine = movement.StartCoroutine(movement.StrafeAroundTheTarget(2));
+                break;
+        }
+    }
 
+    public IEnumerator AttackCoolDown(float duration)
+    {
+        float passed = 0f;
+        while (passed < duration)
+        {
+            passed += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+        attacking = false;
     }
 
     public bool IsTargetFacingToMe()
@@ -140,6 +180,7 @@ public class EnemyNPCAttack : MonoBehaviour
         agent.updateRotation = true;
     }
 
+    
 
     public void RaiseShield()
     {
@@ -156,8 +197,9 @@ public class EnemyNPCAttack : MonoBehaviour
 
     public float GetAngleToTarget()
     {
+        if (!target) return 0;
         Vector3 relativeToTarget = target.transform.position - transform.position;
-        Vector3 axis = Vector3.Cross(relativeToTarget, transform.forward);//if doesn't work change this: the axis which with respect to the angle is calculated
+        //Vector3 axis = Vector3.Cross(relativeToTarget, transform.forward);//changes its sign with the sign of the angle, so it causes sign to be always negative or always positive
         return Vector3.SignedAngle(transform.forward, relativeToTarget.normalized, Vector3.up);
     }
 
@@ -165,7 +207,6 @@ public class EnemyNPCAttack : MonoBehaviour
     {
         Vector3 relativeToTarget = target.transform.position - transform.position;
         float dotProduct = Vector3.Dot(transform.forward, relativeToTarget.normalized);
-        //perpendicular cases should also be considered
         if (dotProduct > 0)
         {
             return true;
@@ -184,7 +225,7 @@ public class EnemyNPCAttack : MonoBehaviour
 
     public bool CheckAttackInward()
     {
-        if (target.GetComponent<EquipmentSystem>().inwardSlash)
+        if (target.GetComponent<PlayerAttack>().inwardSlash)
         {
             return true;
         }
@@ -193,7 +234,7 @@ public class EnemyNPCAttack : MonoBehaviour
 
     public bool CheckAttackOutward()
     {
-        if (target.GetComponent<EquipmentSystem>().outwardSlash)
+        if (target.GetComponent<PlayerAttack>().outwardSlash)
         {
             return true;
         }
@@ -202,7 +243,7 @@ public class EnemyNPCAttack : MonoBehaviour
 
     public bool CheckAttackDownward()
     {
-        if (target.GetComponent<EquipmentSystem>().downwardSlash)
+        if (target.GetComponent<PlayerAttack>().downwardSlash)
         {
             return true;
         }

@@ -22,7 +22,7 @@ public class BodyPart : MonoBehaviour
     void Start()
     {
         health = player.GetComponent<PlayerHealth>();//getting the script reference from the Player object
-        PutOnCurrentArmour();
+        //PutOnCurrentArmour();
     }
 
     void Update()
@@ -50,7 +50,12 @@ public class BodyPart : MonoBehaviour
         player = owner;
     }
 
-    public void PutOnCurrentArmour()
+    public void PutOnArmour()
+    {
+
+    }
+
+    public void PutOnCurrentArmour()//call this in inventory code
     {
         //string name = get current armor name from save file
 

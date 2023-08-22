@@ -1,15 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyAttackState : EnemyState
 {
     GameObject enemyObj;
     EnemyNPCMovement movement;
     EnemyNPCEquipmentSystem equipmentSystem;
+    NavMeshAgent agent;
     public EnemyAttackState(EnemyController enemy, EnemyStateMachine fsm) : base(enemy, fsm)
     {
         enemyObj = enemy.gameObject;
+        agent = enemyObj.GetComponent<NavMeshAgent>();
         equipmentSystem = enemyObj.GetComponent<EnemyNPCEquipmentSystem>();
         movement = enemyObj.GetComponent<EnemyNPCMovement>();
     }
@@ -35,30 +38,25 @@ public class EnemyAttackState : EnemyState
         base.Update();
         if(!movement.DoesHaveTarget())//target is destroyed
         {
-            equipmentSystem.Sheat();
+            Debug.Log("doesnt have a target anymore");
             fsm.ChangeState(enemy.idleState);
             return;
         }
         if (movement.TargetOutOfRange())
         {
-            equipmentSystem.Sheat();
+            Debug.Log("target is lost");
             fsm.ChangeState(enemy.idleState);
             return;
         }
-        if(movement.GetDistanceTotarget() <= movement.detectionRadius && movement.GetDistanceTotarget() > movement.attackRadius + 0.1f)
+        if(movement.GetDistanceTotarget() > movement.attackRadius + 0.2f)
         {
-            //Debug.Log("target moved outside of attack range, start chasing. Distance: " + movement.GetDistanceTotarget());
-            //Debug.Log("GetDistanceTotarget: enemyPos = " + enemyObj.transform.position + " || targetPos = " + movement.target.transform.position);
-            fsm.ChangeState(enemy.chasingState);//draw will be triggered again in chasingState.EnterState()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            Debug.Log("target moved outside of attack range, start closingIn.");
+            //agent.ResetPath();//actually no need, agent wont have any path during the attack state
+            fsm.ChangeState(enemy.closingInState);//draw will be triggered again in chasingState.EnterState()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             return;
         }
-        if(movement.GetDistanceTotarget() <= movement.attackRadius)
-        {
-            //attack
-            Debug.Log("close enough, enemy will attack now!!");
-            enemyObj.GetComponent<EnemyNPCAttack>().HandleDefence();
-            enemyObj.GetComponent<EnemyNPCAttack>().HandleAttack();
-            return;
-        }
+        //Debug.Log("close enough, enemy will attack now!!");
+        enemyObj.GetComponent<EnemyNPCAttack>().HandleDefence();
+        enemyObj.GetComponent<EnemyNPCAttack>().HandleAttack();
     }
 }

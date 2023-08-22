@@ -79,6 +79,8 @@ public class PlayerMovement : MonoBehaviour
         {
             Vector3 velocity = animator.deltaPosition / Time.deltaTime;
             rb.velocity = new Vector3(velocity.x, rb.velocity.y, velocity.z);
+
+            InventoryUI.Instance.MakeClosestCollectibleItemVisible();
         }    
     }
 
@@ -205,13 +207,6 @@ public class PlayerMovement : MonoBehaviour
 
 
     #region Animation Events
-    public void GoInToMovementLayer()//animation event
-    {
-        animator.ResetTrigger("Sheat");//improper fix: 
-        animator.SetLayerWeight(1, 0f);
-        animator.SetLayerWeight(2, 0f);
-        animator.SetLayerWeight(0, 1f);
-    }
 
     public void EnableRotationalMovement()
     {
