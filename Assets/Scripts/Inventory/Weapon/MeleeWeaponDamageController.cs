@@ -14,7 +14,7 @@ public class MeleeWeaponDamageController : MonoBehaviour
     private Rigidbody rBody;
     private MeleeWeapon melee;
 
-    [SerializeField] private GameObject weaponOwner;
+    //[SerializeField] private GameObject weaponOwner;
     private Animator animator;
     private int targetLayer;
 
@@ -24,7 +24,7 @@ public class MeleeWeaponDamageController : MonoBehaviour
         cutThroughEnemies = new List<GameObject>();
 
         rBody = GetComponent<Rigidbody>();
-        rBody.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        //rBody.collisionDetectionMode = CollisionDetectionMode.Discrete;
         melee = GetComponent<MeleeWeapon>();
         
         canDealDamage = false;
@@ -33,11 +33,26 @@ public class MeleeWeaponDamageController : MonoBehaviour
 
     void Start()
     {
-        animator = weaponOwner.GetComponent<Animator>();
+        /*animator = weaponOwner.GetComponent<Animator>();
         GetTargetLayer();
 
         weaponOwner.GetComponent<PlayerController>().onLevelUp += UpdateDamage;//damage will be updated each time the user levels up
+        UpdateDamage();//sets the initial damage*/
+    }
+
+    public void OnEquippedMelee()
+    {
+        animator = melee.owner.GetComponent<Animator>();
+        GetTargetLayer();
+
+        melee.owner.GetComponent<PlayerController>().onLevelUp += UpdateDamage;//damage will be updated each time the user levels up
         UpdateDamage();//sets the initial damage
+    }
+
+    public void OnDroppedMelee()
+    {
+        animator = null;
+        melee.owner.GetComponent<PlayerController>().onLevelUp -= UpdateDamage;
     }
 
     public void UpdateDamage()
@@ -46,21 +61,21 @@ public class MeleeWeaponDamageController : MonoBehaviour
         float strength;
         if (isOneHanded)
         {
-            meleeSkill = weaponOwner.GetComponent<PlayerController>().oneHandedSkillLevel;
+            meleeSkill = melee.owner.GetComponent<PlayerController>().oneHandedSkillLevel;
         }
         else
         {
-            meleeSkill = weaponOwner.GetComponent<PlayerController>().twoHandedSkillLevel;
+            meleeSkill = melee.owner.GetComponent<PlayerController>().twoHandedSkillLevel;
         }
-        strength = weaponOwner.GetComponent<PlayerController>().strength;
+        strength = melee.owner.GetComponent<PlayerController>().strength;
 
         damage = melee.MaxDamage * (meleeSkill/100) * (strength/100);
     }
 
     private void GetTargetLayer()
     {
-        if (weaponOwner.layer == 8) targetLayer = 9;
-        else if (weaponOwner.layer == 9) targetLayer = 8;
+        if (melee.owner.layer == 8) targetLayer = 9;
+        else if (melee.owner.layer == 9) targetLayer = 8;
     }
 
     private void OnTriggerEnter(Collider target)
@@ -108,23 +123,21 @@ public class MeleeWeaponDamageController : MonoBehaviour
         }
     }
 
-    public void StartDealingDamage()
+    public void StartDealingDamage()//called from animation event method
     {
-        //rBody.collisionDetectionMode = CollisionDetectionMode.Continuous;//for performance
         canDealDamage = true;
         cutThroughObjects.Clear();
     }
 
-    public void EndDealingDamage()
+    public void EndDealingDamage()//called from animation event method
     {
-        //rBody.collisionDetectionMode = CollisionDetectionMode.Discrete;//for performance
         canDealDamage = false;
         DealDamage();
         cutThroughObjects.Clear();
         cutThroughEnemies.Clear();
-        if (weaponOwner.GetComponent<PlayerAttack>())
+        if (melee.owner.GetComponent<PlayerAttack>())
         {
-            PlayerAttack equipmentSystem = weaponOwner.GetComponent<PlayerAttack>();
+            PlayerAttack equipmentSystem = melee.owner.GetComponent<PlayerAttack>();
             equipmentSystem.outwardSlash = false;
             equipmentSystem.inwardSlash = false;
             equipmentSystem.downwardSlash = false;
@@ -143,10 +156,5 @@ public class MeleeWeaponDamageController : MonoBehaviour
             enemy.GetComponent<Animator>().SetTrigger("TakeHit");
             //enemy.GetComponent<Animator>().SetTrigger("TakeHit");
         }
-    }
-
-    public void SetOwnerReference(GameObject owner)
-    {
-        weaponOwner = owner;
     }
 }

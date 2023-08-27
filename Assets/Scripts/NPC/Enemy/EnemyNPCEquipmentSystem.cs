@@ -18,10 +18,10 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
     {
         animator = GetComponent<Animator>();
 
-        sword = Instantiate(Resources.Load("Prefabs/LongSword"), SwordSheatTransform) as GameObject;
-        sword.GetComponent<MeleeWeaponDamageController>().SetOwnerReference(gameObject);
+        sword = Instantiate(Resources.Load("Prefabs/Weapons/Melee/SimpleLongSword"), SwordSheatTransform) as GameObject;
+        //sword.GetComponent<MeleeWeaponDamageController>().SetOwnerReference(gameObject);
 
-        shield = Instantiate(Resources.Load("Prefabs/Shield"), ShieldHandTransform) as GameObject;
+        shield = Instantiate(Resources.Load("Prefabs/SimpleShield"), ShieldHandTransform) as GameObject;
         shield.SetActive(false);
     }
     void Start()

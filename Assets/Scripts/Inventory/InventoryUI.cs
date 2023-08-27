@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -13,12 +14,12 @@ public class InventoryUI : MonoBehaviour
     public GameObject Player;
     
     public Transform InventorySlotsTransform;
-    public Dictionary<string, InventorySlot> slots;
+    public List<InventorySlot> slots;
 
     private void Awake()
     {
         Instance = this;
-        slots = new Dictionary<string, InventorySlot>();
+        slots = new List<InventorySlot>();
         LoadSlots();
         collectText.gameObject.SetActive(false);
     }
@@ -28,7 +29,7 @@ public class InventoryUI : MonoBehaviour
         CollectClosestItem();
     }
 
-    public void AddSlot(int amount, string itemName, InventoryItem itemClass)
+    public void AddSlot(int amount, ItemDescriptor itemDesc)
     {
         int rowCount = InventorySlotsTransform.childCount;
         for(int i = 0; i < rowCount; i++)
@@ -36,23 +37,36 @@ public class InventoryUI : MonoBehaviour
             if (InventorySlotsTransform.GetChild(i).childCount == 4) continue;
             GameObject newSlot = Instantiate(Resources.Load("Prefabs/UI/InventorySlot")) as GameObject;
             newSlot.transform.SetParent(InventorySlotsTransform.GetChild(i), false);
-            newSlot.GetComponent<InventorySlot>().Initialize(itemName, amount, Player.GetComponent<InventoryController>(), itemClass);
+            newSlot.GetComponent<InventorySlot>().Initialize(amount, Player.GetComponent<InventoryController>(), itemDesc);
             //newSlot.GetComponent<InventorySlot>().AddActionCallback(Player,itemClass);
-            slots.Add(itemName, newSlot.GetComponent<InventorySlot>());
+            slots.Add(newSlot.GetComponent<InventorySlot>());
             break;
         }
     }
 
-    public void DestroySlot(string itemName)
+    public void DestroySlot(ItemDescriptor itemDesc)//call FindSlotByItemDescriptor
     {
-        GameObject slotObj = slots[itemName].gameObject;
-        slots.Remove(itemName);
-        Destroy(slotObj);
+        foreach (InventorySlot slot in slots.ToList())
+        {
+            if (slot.itemDescriptor.itemName == itemDesc.itemName)
+            {
+                GameObject slotObj = slot.gameObject;
+                slots.Remove(slot);
+                Destroy(slotObj);
+                return;
+            }
+        }
+        
     }
 
-    public void UpdateSlotAmount(int newVal, string itemName)
+    public void UpdateSlotAmount(int newVal, ItemDescriptor itemDesc)
     {
-        slots[itemName].UpdateAmount(newVal);
+        InventorySlot inventorySlot = FindSlotByItemDescriptor(itemDesc);
+        if (inventorySlot == null)
+        {
+            Debug.LogError("Trying to update the Amount of a non-existent slot");
+        }
+        inventorySlot.UpdateAmount(newVal);
     }
 
     public void LoadSlots()
@@ -84,18 +98,8 @@ public class InventoryUI : MonoBehaviour
             }
         }
 
-        /*if (dist > Player.GetComponent<InventoryController>().collectRadius) 
-        { 
-            closest = null;
-            return;
-        }*/
-        
-
         collectText.gameObject.SetActive(true);
         collectText.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Press (F) to collect "+closest.Name;
-        //find closest collectible item from the list in inventory controller script.
-        //print a message to the screen with the name of the item and the button to collect it
-        //after button trigger collect that item
     }
 
     public void CollectClosestItem()
@@ -110,5 +114,17 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    public InventorySlot FindSlotByItemDescriptor(ItemDescriptor itemDescriptor)
+    {
+        foreach (InventorySlot inventorySlot in slots)
+        {
+            if (inventorySlot.itemDescriptor == itemDescriptor)
+            {
+                return inventorySlot;
+            }
+        }
+
+        return null;
+    }
     
 }

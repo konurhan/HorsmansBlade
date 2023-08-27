@@ -4,15 +4,6 @@ using UnityEngine;
 
 public class Weapon : InventoryItem
 {
-    /*[SerializeField] protected string wName;
-    [SerializeField] protected float weight;
-    [SerializeField] protected float price;
-    public string Name { get { return wName; } set { wName = value; } }
-    public float Weight { get { return weight; } set { weight = value; } }
-    public float Price { get { return price; } set { price = value; } }*/
-
-    
-
     [SerializeField] protected float requiredSkillLevel;
 
     void Start()
@@ -25,8 +16,13 @@ public class Weapon : InventoryItem
         base.Update();
     }
 
-    /*public void SetOwnerReference(GameObject owner)
+    /*public override void OnEquipped()
     {
-        this.owner = owner;
+        base.OnEquipped();
+    }
+
+    public override void OnDropped()
+    {
+        base.OnDropped();
     }*/
 }

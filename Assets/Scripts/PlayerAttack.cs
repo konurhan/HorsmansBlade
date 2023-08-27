@@ -15,6 +15,7 @@ public class PlayerAttack : MonoBehaviour
     public Transform MeleeSheatTransform;
     public Transform RangedHandTransform;
     public Transform RangedSheatTransform;
+    public Transform RangedQuiverTransform;
     public Transform ShieldHandTransform;
 
     private Animator animator;
@@ -61,12 +62,6 @@ public class PlayerAttack : MonoBehaviour
     {
         HandleCombatActions();
         //UpdateRecentMeleeWeapon();
-    }
-
-    private void UpdateRecentMeleeWeapon()
-    {
-        if (usingOneHanded) recentMeleeWeapon = meleeWeaponOneHanded;
-        else if (usingTwoHanded) recentMeleeWeapon = meleeWeaponTwoHanded;
     }
 
     public void HandleCombatActions()

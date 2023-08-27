@@ -33,12 +33,18 @@ public class Armour : InventoryItem
     {
 
     }
+
+    public ArmourType GetArmourType()
+    {
+        return armourType;
+    }
 }
 
 public enum ArmourType
 {
     Head,
     Torso,
-    Arms,
-    Legs
+    Hands,
+    Legs,
+    Feet
 }

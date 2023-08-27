@@ -32,17 +32,33 @@ public class InventoryItem : MonoBehaviour
         HandeleCollection();
     }
 
+    public virtual void OnEquipped()
+    {
+
+    }
+
+    public virtual void OnDropped() 
+    {
+        owner = null;
+        transform.SetParent(null);
+
+    }
+
     public void HandeleCollection()
     {
         Debug.Log("HandeleCollection is called");
-        if (owner != null)
+        if (owner != null && collectibleFlag)
         {
             BecomeNonCollectibleByPlayer();
             return;
         }
+        else if (owner != null && !collectibleFlag)
+        {
+            return;
+        }
 
         float distance = (transform.position - player.transform.position).magnitude;
-        Debug.Log("dist: " + distance);
+        //Debug.Log("dist: " + distance);
         if (distance <= 4f && !collectibleFlag)
         {
             BecomeCollectibleByPlayer();

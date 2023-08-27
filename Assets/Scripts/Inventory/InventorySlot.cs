@@ -17,7 +17,9 @@ public class InventorySlot : MonoBehaviour
     Button ActionButton;
 
     InventoryController inventoryController;
-    InventoryItem inventoryItem;
+    public ItemDescriptor itemDescriptor;
+    public GameObject itemInstance;
+    //public bool isInstantiated;
 
     private void Awake()
     {
@@ -26,14 +28,16 @@ public class InventorySlot : MonoBehaviour
         ItemImage = transform.GetChild(2);
         ActionButton = transform.GetChild(3).GetComponent<Button>();
         RemoveButton = transform.GetChild(4).GetComponent<Button>();
+        itemInstance = null;
+        //isInstantiated = false;
     }
 
-    public void Initialize(string spriteName, int amount, InventoryController controller, InventoryItem item)
+    public void Initialize(int amount, InventoryController controller, ItemDescriptor itemDesc)
     {
         Amount.gameObject.GetComponent<TextMeshProUGUI>().text = amount.ToString();
-        ItemImage.gameObject.GetComponent<Image>().sprite = Resources.Load<Sprite>("UI/ItemSprites/"+spriteName);
+        ItemImage.gameObject.GetComponent<Image>().sprite = Resources.Load<Sprite>("UI/ItemSprites/"+ itemDesc.itemName);
         inventoryController = controller;
-        inventoryItem = item;
+        itemDescriptor = itemDesc;
     }
 
     public void UpdateAmount(int newVal) 
@@ -44,24 +48,88 @@ public class InventorySlot : MonoBehaviour
     public void ActionCallback()//if it is a weapon call equip, if it is a consumable call consume, if it is an armour call equip/wear
     {
         Debug.Log("action button is pressed");
-        if (inventoryItem.GetComponent<Weapon>()) 
-        { 
-            inventoryController.EquipWeapon(inventoryItem.GetComponent<Weapon>());
-        }
-        else if (inventoryItem.GetComponent<Shield>())
+        if (itemInstance != null) return;//do not instantiate the item if it already has
+        if (itemDescriptor.itemType == ItemType.Weapon) 
         {
-            inventoryController.EquipShield(inventoryItem.GetComponent<Shield>());
+            GameObject weapon = Instantiate(Resources.Load(itemDescriptor.itemPrefabPath+itemDescriptor.itemName)) as GameObject;
+            weapon.GetComponent<InventoryItem>().SetOwnerReference(inventoryController.gameObject);
+            weapon.GetComponentInChildren<Rigidbody>().isKinematic = true;
+            weapon.GetComponentInChildren<BoxCollider>().isTrigger = true;
+            inventoryController.EquipWeapon(weapon.GetComponent<Weapon>());
+            itemInstance = weapon;
         }
-        else if (inventoryItem.GetComponent<Armour>())
+        else if (itemDescriptor.itemType == ItemType.Shield)
         {
-            inventoryController.EquipArmour(inventoryItem.GetComponent<Armour>());
+            GameObject shield = Instantiate(Resources.Load(itemDescriptor.itemPrefabPath + itemDescriptor.itemName)) as GameObject;
+            shield.GetComponent<InventoryItem>().SetOwnerReference(inventoryController.gameObject);
+            shield.GetComponentInChildren<Rigidbody>().isKinematic = true;
+            shield.GetComponentInChildren<BoxCollider>().isTrigger = true;
+            inventoryController.EquipShield(shield.GetComponent<Shield>());
+            itemInstance = shield;
+        }
+        else if (itemDescriptor.itemType == ItemType.Armour)
+        {
+            GameObject armour = Instantiate(Resources.Load(itemDescriptor.itemPrefabPath + itemDescriptor.itemName)) as GameObject;
+            armour.GetComponent<InventoryItem>().SetOwnerReference(inventoryController.gameObject);
+            
+            armour.GetComponent<Rigidbody>().isKinematic = true;
+            BoxCollider[] colls = armour.GetComponents<BoxCollider>();
+            foreach (BoxCollider col in colls)
+            {
+                col.enabled = false;
+            }
+            armour.GetComponent<MeshRenderer>().enabled = false;
+            
+            inventoryController.EquipArmour(armour, itemDescriptor);
+            itemInstance = armour;
+        }
+        else if (itemDescriptor.itemType == ItemType.Consumable)
+        {
+            //fill
         }
     }
 
     public void RemoveCallback()
     {
-        string itemName = inventoryItem.Name;
-        inventoryController.DropAllSlotItems(itemName);
-        inventoryController.RemoveSlot(itemName);
+        if (itemDescriptor.itemType == ItemType.Armour && itemInstance != null)
+        {
+            itemInstance.GetComponent<Rigidbody>().isKinematic = false;
+            BoxCollider[] colls = itemInstance.GetComponents<BoxCollider>();
+            foreach (BoxCollider col in colls)
+            {
+                col.enabled = true;
+            }
+            itemInstance.GetComponent<MeshRenderer>().enabled = true;
+            inventoryController.UnequipArmour(itemInstance.GetComponent<Armour>());// destroys the itemInstance, so call drop uninstantiated method
+
+            inventoryController.DropUninstantiatedSlot(itemDescriptor);
+            inventoryController.RemoveSlot(itemDescriptor);
+            return;
+        }
+
+        if (itemInstance != null)
+        {
+            inventoryController.DropInstantiatedSlot(itemDescriptor,itemInstance);
+        }
+        else
+        {
+            inventoryController.DropUninstantiatedSlot(itemDescriptor);
+        }
+        
+        inventoryController.RemoveSlot(itemDescriptor);
+    }
+
+    public void DropSingleItemCallback()
+    {
+        int curAmount = inventoryController.items[itemDescriptor] - 1;
+        inventoryController.DropSingleItem(itemDescriptor);
+        if (curAmount > 0)
+        {
+            Amount.gameObject.GetComponent<TextMeshProUGUI>().text = curAmount.ToString();
+        }
+        else
+        {
+            inventoryController.RemoveSlot(itemDescriptor);
+        }
     }
 }

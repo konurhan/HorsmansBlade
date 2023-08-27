@@ -20,4 +20,16 @@ public class MeleeWeapon : Weapon
     {
         base.Update();
     }
+
+    public override void OnEquipped()
+    {
+        base.OnEquipped();
+        gameObject.GetComponent<MeleeWeaponDamageController>().OnEquippedMelee();
+    }
+
+    public override void OnDropped()
+    {
+        gameObject.GetComponent<MeleeWeaponDamageController>().OnDroppedMelee();
+        base.OnDropped();
+    }
 }

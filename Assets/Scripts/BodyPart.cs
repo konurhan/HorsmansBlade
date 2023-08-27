@@ -5,11 +5,9 @@ using UnityEngine;
 
 public class BodyPart : MonoBehaviour
 {
-    
-
-    public string bodyPartName;//provide in the editor
+    private string bodyPartName;//provide in the editor
     public int damageMultiplier;//provide in the editor
-    public GameObject armour;
+    public Armour armour;
 
     public GameObject player { get; private set;}//player reference: i.e. owner of the bodypart. assigned in the awake of Player script
     [SerializeField] private PlayerHealth health;
@@ -35,7 +33,7 @@ public class BodyPart : MonoBehaviour
         float effectiveDamage = incomingDamage * damageMultiplier;
         if (armour != null) //first, the damage has to pass through the armour
         {
-            float remainingDamage = armour.GetComponent<Armour>().TakeDamage(effectiveDamage);
+            float remainingDamage = armour.TakeDamage(effectiveDamage);
             effectiveDamage = remainingDamage;
         }
 
@@ -50,9 +48,14 @@ public class BodyPart : MonoBehaviour
         player = owner;
     }
 
-    public void PutOnArmour()
+    public void PutOnArmour(Armour armour)
     {
+        this.armour = armour;
+    }
 
+    public void RemoveArmour()
+    {
+        armour = null;
     }
 
     public void PutOnCurrentArmour()//call this in inventory code

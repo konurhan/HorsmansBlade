@@ -39,24 +39,50 @@ public class Bow : RangedWeapon
     {
         InventoryController inventoryController = owner.GetComponent<InventoryController>();
 
-        foreach (string itemName in inventoryController.items.Keys)
+        foreach (ItemDescriptor itemDesc in inventoryController.items.Keys)
         {
-            if (itemName == "Arrow")
+            if (itemDesc.itemName == "Arrow")
             {
-                foreach (InventoryItem arrowItem in inventoryController.items[itemName].ToList())
+                int count = inventoryController.items[itemDesc];
+                for (int i = 0; i < count; i++)
                 {
-                    ammos.Add(arrowItem.GetComponent<Arrow>());
+                    GameObject arrow = Instantiate(Resources.Load(itemDesc.itemPrefabPath+itemName)) as GameObject;
+                    ammos.Add(arrow.GetComponent<Arrow>());
                 }
-                inventoryController.items.Remove(itemName);
-                inventoryController.RemoveSlot(itemName);
+                inventoryController.items.Remove(itemDesc);
+                inventoryController.RemoveSlot(itemDesc);
+
+                break;
             }
         }
     }
 
-    private void ReturnAmmosToInventory()
+    private void ReturnAmmosToInventory()//arrow are already created gameobjects
     {
         InventoryController inventoryController = owner.GetComponent<InventoryController>();
-        if (inventoryController.items.ContainsKey("Arrow"))
+
+        ItemDescriptor arrowDescriptor;
+
+        int count = ammos.Count;
+
+        for (int i = 0;i < count;i++)
+        {
+            Destroy(ammos[i].gameObject);
+        }
+        ammos.Clear();
+
+        arrowDescriptor = inventoryController.FindDescriptionInPlayerInventory("Arrow");
+        if (arrowDescriptor != null)
+        {
+            inventoryController.items[arrowDescriptor] += count;
+        }
+        else
+        {
+            arrowDescriptor = inventoryController.FindDescriptionInWorldInventory("Arrow");
+            inventoryController.items.Add(arrowDescriptor, count);
+            inventoryController.AddSlot(count, arrowDescriptor);
+        }
+        /*if (inventoryController.items.ContainsKey("Arrow"))
         {
             foreach (Arrow arrow in ammos.ToList())
             {
@@ -73,7 +99,7 @@ public class Bow : RangedWeapon
             }
             inventoryController.AddSlot(ammos.Count,"Arrow", ammos[0]);
             ammos.Clear() ;
-        }
+        }*/
     }
 
     public override void Reload()
