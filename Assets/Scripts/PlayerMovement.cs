@@ -14,8 +14,8 @@ public class PlayerMovement : MonoBehaviour
     public float turnSpeed = 1f;
     public Vector3 RBvelocity;
 
-
-
+    public float SpeedZUpper;
+    public float SpeedZLower;
     
 
     [Header("Character Stats")]
@@ -33,6 +33,9 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         isGrounded = true;
         isMovementRoationalEnabled = true;
+
+        SpeedZUpper = 2f;
+        SpeedZLower = -2f;
     }
 
 
@@ -93,13 +96,13 @@ public class PlayerMovement : MonoBehaviour
             if (Input.GetKey(KeyCode.W))
             {
                 forwardSpeed += 0.01f;
-                if (forwardSpeed > 2) forwardSpeed = 2;
+                if (forwardSpeed > SpeedZUpper) forwardSpeed = SpeedZUpper;
                 animator.SetFloat("SpeedZ", forwardSpeed);
             }
             if (Input.GetKey(KeyCode.S))
             {
                 forwardSpeed -= 0.01f;
-                if (forwardSpeed < -2) forwardSpeed = -2;
+                if (forwardSpeed < SpeedZLower) forwardSpeed = SpeedZLower;
                 animator.SetFloat("SpeedZ", forwardSpeed);
             }
         }

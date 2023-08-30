@@ -51,6 +51,7 @@ public class MeleeWeaponDamageController : MonoBehaviour
 
     public void OnDroppedMelee()
     {
+        canDealDamage = false;
         animator = null;
         melee.owner.GetComponent<PlayerController>().onLevelUp -= UpdateDamage;
     }
@@ -137,10 +138,10 @@ public class MeleeWeaponDamageController : MonoBehaviour
         cutThroughEnemies.Clear();
         if (melee.owner.GetComponent<PlayerAttack>())
         {
-            PlayerAttack equipmentSystem = melee.owner.GetComponent<PlayerAttack>();
-            equipmentSystem.outwardSlash = false;
-            equipmentSystem.inwardSlash = false;
-            equipmentSystem.downwardSlash = false;
+            PlayerAttack attack = melee.owner.GetComponent<PlayerAttack>();
+            attack.outwardSlash = false;
+            attack.inwardSlash = false;
+            attack.downwardSlash = false;
         }
     }
 
@@ -154,7 +155,6 @@ public class MeleeWeaponDamageController : MonoBehaviour
         foreach (GameObject enemy in cutThroughEnemies)
         {
             enemy.GetComponent<Animator>().SetTrigger("TakeHit");
-            //enemy.GetComponent<Animator>().SetTrigger("TakeHit");
         }
     }
 }

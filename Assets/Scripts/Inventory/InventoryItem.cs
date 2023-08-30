@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class InventoryItem : MonoBehaviour
 {
-    private GameObject player;
+    [SerializeField]private GameObject player;
     private InventoryController playerInventory;
 
     public GameObject owner;
@@ -19,11 +19,10 @@ public class InventoryItem : MonoBehaviour
 
     [SerializeField] private bool collectibleFlag;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         player = InventoryUI.Instance.Player;
         playerInventory = player.GetComponent<InventoryController>();
-
         collectibleFlag = false;
     }
 
@@ -41,7 +40,6 @@ public class InventoryItem : MonoBehaviour
     {
         owner = null;
         transform.SetParent(null);
-
     }
 
     public void HandeleCollection()

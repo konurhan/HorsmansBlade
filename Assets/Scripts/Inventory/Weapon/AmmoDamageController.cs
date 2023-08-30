@@ -15,9 +15,4 @@ public class AmmoDamageController : MonoBehaviour
     {
         
     }
-
-    public void Loose()
-    {
-
-    }
 }

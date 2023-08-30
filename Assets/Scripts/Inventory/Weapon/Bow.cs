@@ -1,13 +1,16 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class Bow : RangedWeapon
 {
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         hasNockedAmmo = false;
         knockedAmmo = null;
 
@@ -25,13 +28,20 @@ public class Bow : RangedWeapon
         base.Update();
     }
 
-    private void OnEnable()
+    private void OnDestroy()
     {
+        ReturnAmmosToInventory();
+    }
+
+    public override void OnEquipped()
+    {
+        base.OnEquipped();
         InitializeAmmoList();
     }
 
-    private void OnDisable()
+    public override void OnDropped()
     {
+        base.OnDropped();
         ReturnAmmosToInventory();
     }
 
@@ -41,12 +51,17 @@ public class Bow : RangedWeapon
 
         foreach (ItemDescriptor itemDesc in inventoryController.items.Keys)
         {
-            if (itemDesc.itemName == "Arrow")
+            if (itemDesc.itemName == "ArrowLongBow")
             {
                 int count = inventoryController.items[itemDesc];
                 for (int i = 0; i < count; i++)
                 {
-                    GameObject arrow = Instantiate(Resources.Load(itemDesc.itemPrefabPath+itemName)) as GameObject;
+                    Debug.Log(itemDesc.itemPrefabPath + itemDesc.itemName);
+                    GameObject arrow = Instantiate(Resources.Load(itemDesc.itemPrefabPath+ itemDesc.itemName)) as GameObject;
+                    arrow.GetComponent<InventoryItem>().SetOwnerReference(owner);
+                    arrow.GetComponent<Rigidbody>().isKinematic = true;
+                    arrow.GetComponent<BoxCollider>().isTrigger = true;
+                    arrow.SetActive(false);
                     ammos.Add(arrow.GetComponent<Arrow>());
                 }
                 inventoryController.items.Remove(itemDesc);
@@ -82,24 +97,6 @@ public class Bow : RangedWeapon
             inventoryController.items.Add(arrowDescriptor, count);
             inventoryController.AddSlot(count, arrowDescriptor);
         }
-        /*if (inventoryController.items.ContainsKey("Arrow"))
-        {
-            foreach (Arrow arrow in ammos.ToList())
-            {
-                inventoryController.items["Arrow"].Add(arrow);
-            }
-            ammos.Clear();
-        }
-        else
-        {
-            inventoryController.items.Add("Arrow", new List<InventoryItem>());
-            foreach (Arrow arrow in ammos.ToList())
-            {
-                inventoryController.items["Arrow"].Add(arrow);
-            }
-            inventoryController.AddSlot(ammos.Count,"Arrow", ammos[0]);
-            ammos.Clear() ;
-        }*/
     }
 
     public override void Reload()
@@ -111,7 +108,7 @@ public class Bow : RangedWeapon
             hasNockedAmmo = true;
             knockedAmmo = (Arrow)ammos[0];
             ammos.Remove(knockedAmmo);
-            owner.GetComponent<Animator>().SetTrigger("KnockArrow");
+            //owner.GetComponent<Animator>().SetTrigger("KnockArrow");
         }
     }
 
@@ -119,22 +116,36 @@ public class Bow : RangedWeapon
     {
         base.Aim();
         owner.GetComponent<Animator>().SetTrigger("DrawArrow");
+        GetComponent<Animator>().SetBool("Draw", true);
         hasDrawn = true;
     }
 
     public override void UnAim()
     {
         base.UnAim();
-        owner.GetComponent<Animator>().SetTrigger("UnDrawArrow");
+        owner.GetComponent<Animator>().SetTrigger("AbortDrawArrow");
+        GetComponent<Animator>().SetBool("Draw", false);
         hasDrawn = false;
     }
 
     public override void Loose()
     {
+        Vector3 camForward = owner.GetComponent<CameraController>().aimCamera.transform.forward;
+
         base.Loose();
         owner.GetComponent<Animator>().SetTrigger("ReleaseArrow");
-        knockedAmmo.GetComponent<AmmoDamageController>().Loose();
+        GetComponent<Animator>().SetTrigger("ShootArrow");
+        Invoke(nameof(SetDrawFalse), 0.1f);//so that animator doesn't go into abort draw state
+
+        float skill = owner.GetComponent<PlayerController>().rangedSkillLevel / 100f;
+        knockedAmmo.GetComponent<Ammo>().Shoot(maximumForce*skill, camForward);
         knockedAmmo = null;
         hasNockedAmmo = false;
+        hasDrawn = false;
+    }
+
+    public void SetDrawFalse()
+    {
+        GetComponent<Animator>().SetBool("Draw", false);
     }
 }

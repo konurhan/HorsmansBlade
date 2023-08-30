@@ -42,7 +42,7 @@ public class InventorySlot : MonoBehaviour
 
     public void UpdateAmount(int newVal) 
     {
-        Amount.gameObject.GetComponent<TextMeshProUGUI>().text += newVal.ToString();
+        Amount.gameObject.GetComponent<TextMeshProUGUI>().text = newVal.ToString();
     }
 
     public void ActionCallback()//if it is a weapon call equip, if it is a consumable call consume, if it is an armour call equip/wear

@@ -55,11 +55,11 @@ public class InventoryController : MonoBehaviour
         }
         else if (weapon.gameObject.GetComponent<RangedWeapon>() != null)
         {
-            //if (GetComponent<PlayerAttack>().rangedWeapon.GetComponent<Weapon>() == weapon) return;
             if (GetComponent<PlayerAttack>().rangedWeapon != null)//if already equipped a same type of weapon
             {
                 UnequipWeapon(GetComponent<PlayerAttack>().rangedWeapon);//first destroy that GameObject and mark on inventory as uninstantiated
             }
+            GetComponent<PlayerAttack>().RangedQuiverTransform.GetChild(0).gameObject.SetActive(true);
             GetComponent<PlayerAttack>().rangedWeapon = weapon.gameObject;
             weapon.gameObject.transform.SetParent(gameObject.GetComponent<PlayerAttack>().RangedSheatTransform, false);
             weapon.gameObject.transform.localPosition = Vector3.zero;
@@ -82,7 +82,7 @@ public class InventoryController : MonoBehaviour
         }
         else if (weaponObj.GetComponent<RangedWeapon>() != null)
         {
-            
+            GetComponent<PlayerAttack>().RangedQuiverTransform.GetChild(0).gameObject.SetActive(false);
         }
 
         string itemName = weaponObj.GetComponent<InventoryItem>().Name;
@@ -121,7 +121,7 @@ public class InventoryController : MonoBehaviour
             case ArmourType.Head:
                 if (controller.ArmourSlots.GetChild(0).gameObject.GetComponent<SkinnedMeshRenderer>().enabled)
                 {
-                    UnequipArmour(armour);
+                    UnequipArmour(controller.head.GetComponent<BodyPart>().armour);
                 }
                 controller.ArmourSlots.GetChild(0).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = true;
                 controller.ArmourSlots.GetChild(0).gameObject.GetComponent<SkinnedMeshRenderer>().sharedMesh = Resources.Load<Mesh>("Meshes/Armour/"+itemDesc.itemName);
@@ -130,7 +130,7 @@ public class InventoryController : MonoBehaviour
             case ArmourType.Torso:
                 if (controller.ArmourSlots.GetChild(1).gameObject.GetComponent<SkinnedMeshRenderer>().enabled)
                 {
-                    UnequipArmour(armour);
+                    UnequipArmour(controller.torso.GetComponent<BodyPart>().armour);
                 }
                 controller.NakedParts.GetChild(1).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = false;
                 controller.ArmourSlots.GetChild(1).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = true;
@@ -142,7 +142,7 @@ public class InventoryController : MonoBehaviour
             case ArmourType.Feet:
                 if (controller.ArmourSlots.GetChild(2).gameObject.GetComponent<SkinnedMeshRenderer>().enabled)
                 {
-                    UnequipArmour(armour);
+                    UnequipArmour(controller.legLeftLower.GetComponent<BodyPart>().armour);
                 }
                 controller.NakedParts.GetChild(2).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = false;
                 controller.ArmourSlots.GetChild(2).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = true;
@@ -153,7 +153,7 @@ public class InventoryController : MonoBehaviour
             case ArmourType.Hands:
                 if (controller.ArmourSlots.GetChild(3).gameObject.GetComponent<SkinnedMeshRenderer>().enabled)
                 {
-                    UnequipArmour(armour);
+                    UnequipArmour(controller.leftForearm.GetComponent<BodyPart>().armour);
                 }
                 controller.NakedParts.GetChild(3).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = false;
                 controller.ArmourSlots.GetChild(3).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = true;
@@ -164,7 +164,7 @@ public class InventoryController : MonoBehaviour
             case ArmourType.Legs:
                 if (controller.ArmourSlots.GetChild(4).gameObject.GetComponent<SkinnedMeshRenderer>().enabled)
                 {
-                    UnequipArmour(armour);
+                    UnequipArmour(controller.legLeftUpper.GetComponent<BodyPart>().armour);
                 }
                 controller.NakedParts.GetChild(4).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = false;
                 controller.ArmourSlots.GetChild(4).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = true;
@@ -230,23 +230,6 @@ public class InventoryController : MonoBehaviour
             toBeDropped.GetComponent<Rigidbody>().AddForce(dropOffset, ForceMode.Impulse);
         }
         items.Remove(item);
-
-        /*//List<InventoryItem> toBeRemoved = items[itemName];
-        //Vector3 dropOffset = gameObject.transform.forward * 2f + Vector3.up * 1.5f;
-        foreach (InventoryItem item in toBeRemoved)
-        {
-            item.SetOwnerReference(null);
-
-            item.gameObject.transform.SetParent(null, true);
-            item.gameObject.SetActive(true);
-
-            item.gameObject.transform.position += dropOffset;
-
-            item.gameObject.GetComponentInChildren<Rigidbody>().isKinematic = false;
-            item.gameObject.GetComponentInChildren<BoxCollider>().isTrigger = false;
-            //item.AddComponent<Rigidbody>();
-        }
-        items.Remove(itemName);*/
     }
 
     public void DropInstantiatedSlot(ItemDescriptor itemDesc, GameObject itemInstance)
@@ -284,7 +267,7 @@ public class InventoryController : MonoBehaviour
         InventoryUI.Instance.AddSlot(amount, itemDesc);
     }
 
-    public void DropSingleItem(ItemDescriptor item)//will be called from inventory slot button callback
+    public void DropSingleItem(ItemDescriptor item)//will be called from inventory slot button callback --> for uninstantiated items
     {
         items[item]--;
         if (items[item] == 0)
@@ -321,17 +304,6 @@ public class InventoryController : MonoBehaviour
                 items.Add(newItemDesc, 1);
                 InventoryUI.Instance.AddSlot(1, newItemDesc);
             }
-            /*if (items.ContainsKey(invItem.Name))
-            {
-                items[invItem.Name].Add(invItem);
-                InventoryUI.Instance.UpdateSlotAmount(items[invItem.Name].Count, invItem.Name);
-            }
-            else
-            {
-                //create a slot
-                items.Add(invItem.Name, new List<InventoryItem> { invItem});
-                InventoryUI.Instance.AddSlot(1, invItem.Name, invItem);
-            }*/
         }
 
         Destroy(gathered,0.1f);//delaying the destruction so that closest paramater of InventoryUI script doesn't reference a destroyed object 
@@ -345,43 +317,38 @@ public class InventoryController : MonoBehaviour
 
     public void LoadInventoryTest()//assign longsword to inventory
     {
-        //Transform MeleeHandTransform = gameObject.GetComponent<PlayerAttack>().MeleeHandTransform;
-        /*GameObject longSword;
-        longSword = Instantiate(Resources.Load("Prefabs/LongSword")) as GameObject;//not assigned to and parented by a sheat transform
-        longSword.SetActive(false);
-        longSword.GetComponent<InventoryItem>().SetOwnerReference(gameObject);
-        longSword.GetComponent<MeleeWeaponDamageController>().SetOwnerReference(gameObject);//take this from weapon object attached
-        InventoryItem invItem1 = longSword.GetComponent<InventoryItem>();
-        InventoryUI.Instance.AddSlot(1, invItem1.Name, invItem1);*/
         ItemDescriptor longSword = new ItemDescriptor("SimpleLongSword","Prefabs/Weapons/Melee/", ItemType.Weapon);
         items.Add(longSword, 1);
 
-        ItemDescriptor shield = new ItemDescriptor("SimpleShield","Prefabs/", ItemType.Shield);
+        ItemDescriptor shield = new ItemDescriptor("SimpleShield","Prefabs/Shields/", ItemType.Shield);
         items.Add(shield, 1);
 
         ItemDescriptor archerBodyArmour = new ItemDescriptor("ArcherBodyArmour", "Prefabs/Armours/", ItemType.Armour);
         items.Add(archerBodyArmour, 1);
 
+        ItemDescriptor knightBodyArmour = new ItemDescriptor("KnightBodyArmour", "Prefabs/Armours/", ItemType.Armour);
+        items.Add(knightBodyArmour, 1);
+
+        ItemDescriptor simpleLongBow = new ItemDescriptor("SimpleLongBow", "Prefabs/Weapons/Ranged/", ItemType.Weapon);
+        items.Add(simpleLongBow, 1);
+
+        ItemDescriptor longBowArrow = new ItemDescriptor("ArrowLongBow", "Prefabs/Weapons/Ranged/", ItemType.Ammo);
+        items.Add(longBowArrow, 15);
+
         InventoryUI.Instance.AddSlot(1, longSword);
         InventoryUI.Instance.AddSlot(1, shield);
         InventoryUI.Instance.AddSlot(1, archerBodyArmour);
+        InventoryUI.Instance.AddSlot(1, knightBodyArmour);
+        InventoryUI.Instance.AddSlot(1, simpleLongBow);
+        InventoryUI.Instance.AddSlot(15, longBowArrow);
 
         WorldInventory.Instance.worldItemDescriptions.Add(longSword);
         WorldInventory.Instance.worldItemDescriptions.Add(shield);
         WorldInventory.Instance.worldItemDescriptions.Add(archerBodyArmour);
+        WorldInventory.Instance.worldItemDescriptions.Add(knightBodyArmour);
+        WorldInventory.Instance.worldItemDescriptions.Add(simpleLongBow);
+        WorldInventory.Instance.worldItemDescriptions.Add(longBowArrow);
 
-        /*GameObject shield;
-        shield = Instantiate(Resources.Load("Prefabs/Shield")) as GameObject;//not assigned to and parented by a sheat transform
-        shield.SetActive(false);
-        shield.GetComponent<InventoryItem>().SetOwnerReference(gameObject);
-        InventoryItem invItem2 = shield.GetComponent<InventoryItem>();
-        InventoryUI.Instance.AddSlot(1, invItem2.Name, invItem2);*/
-
-        /*longSword.transform.SetParent(gameObject.transform, false);
-        shield.transform.SetParent(gameObject.transform, false);
-
-        items.Add(invItem1.Name, new List<InventoryItem>{ invItem1});
-        items.Add(invItem2.Name, new List<InventoryItem> { invItem2 });*/
     }
 
     public ItemDescriptor FindDescriptionInPlayerInventory(string itemName)

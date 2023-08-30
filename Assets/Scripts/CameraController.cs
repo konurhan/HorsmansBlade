@@ -6,12 +6,15 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     public GameObject target;
-    public CinemachineVirtualCamera virtualCamera;
+    public CinemachineVirtualCamera mainVCamera;
+    public CinemachineVirtualCamera aimCamera;
     public float rotationSpeed;
+
+    private PlayerAttack attack;
 
     private void Awake()
     {
-        
+        attack = GetComponent<PlayerAttack>();
     }
     void Start()
     {
@@ -21,26 +24,44 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        RotateCameraFollowTarget();
+        
+        //make this changes triggered from player attack script for efficiency
+        if (attack.aiming)
+        {
+            RotateCameraFollowTarget();
+            if (aimCamera.gameObject.activeSelf) 
+            {
+                attack.HandleSpineLookAt();
+                return;
+            } 
+            aimCamera.gameObject.SetActive(true);
+            mainVCamera.gameObject.SetActive(false);
+            attack.HandleSpineLookAt();
+        }
+        else
+        {
+            if (mainVCamera.gameObject.activeSelf)
+            {
+                RotateCameraFollowTarget();
+                return;
+            }
+            aimCamera.gameObject.SetActive(false);
+            mainVCamera.gameObject.SetActive(true);
+            RotateCameraFollowTarget();
+        }
     }
 
     public void RotateCameraFollowTarget()
     {
         float yRotation = Input.GetAxis("Mouse X");
-        /*if (Input.GetKey(KeyCode.Q))
-        {
-            yRotation -= 1;
-        }
-        else if (Input.GetKey(KeyCode.E))
-        {
-            yRotation += 1;
-        }*/
+        float xRotation = Input.GetAxis("Mouse Y");
         Vector3 rotation = Vector3.zero;
         rotation.y = yRotation;
+        rotation.x = xRotation;
         target.transform.localEulerAngles += rotation * rotationSpeed;
     }
 
-    public void AimingMode()
+    public void ChooseCameraModeMode()
     {
 
     }

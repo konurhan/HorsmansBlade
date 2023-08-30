@@ -11,6 +11,7 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] public GameObject rangedWeapon;
     [SerializeField] public GameObject shield;
 
+    public Transform ArrowSlot;
     public Transform MeleeHandTransform;
     public Transform MeleeSheatTransform;
     public Transform RangedHandTransform;
@@ -18,7 +19,9 @@ public class PlayerAttack : MonoBehaviour
     public Transform RangedQuiverTransform;
     public Transform ShieldHandTransform;
 
-    private Animator animator;
+    public Transform spine;
+    public Transform spineLookAt;
+    public Transform Crosshair;
 
     private bool usingOneHanded;
     private bool usingTwoHanded;
@@ -28,25 +31,25 @@ public class PlayerAttack : MonoBehaviour
     public bool inwardSlash;
     public bool outwardSlash;
     public bool downwardSlash;
+    public bool aiming;
     public bool shooting;
     #endregion
 
     private GameObject recentMeleeWeapon;
+    private GameObject recentRangedWeapon;
+
+    private Animator animator;
+    private CameraController cameraController;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
-
-        //instantiate weapons on player controller or in inventory controller
-        /*meleeWeapon = Instantiate(Resources.Load("Prefabs/LongSword"), MeleeSheatTransform) as GameObject;
-        meleeWeapon.transform.GetChild(0).GetComponent<MeleeWeaponDamageController>().SetOwnerReference(gameObject);
-
-        shield = Instantiate(Resources.Load("Prefabs/Shield"), ShieldHandTransform) as GameObject;
-        shield.SetActive(false);*/
+        cameraController = GetComponent<CameraController>();
 
         inwardSlash = false;
         outwardSlash = false;
         downwardSlash = false;
+        aiming = false;
         shooting = false;
 
         usingOneHanded = false;
@@ -64,6 +67,18 @@ public class PlayerAttack : MonoBehaviour
         //UpdateRecentMeleeWeapon();
     }
 
+    private void OnAnimatorIK(int layerIndex)
+    {
+        if (!aiming)
+        {
+            animator.SetLookAtWeight(0f);
+            return;
+        }
+        
+        animator.SetLookAtWeight(1,1,1,1);
+        animator.SetLookAtPosition(spineLookAt.position);
+    }
+
     public void HandleCombatActions()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1) && CanDrawWeaponOneHanded())
@@ -76,11 +91,12 @@ public class PlayerAttack : MonoBehaviour
             animator.SetLayerWeight(1, 1f);
             animator.SetLayerWeight(2, 1f);
         }
-        if (Input.GetKeyDown(KeyCode.Alpha1) && CanSheatWeaponOneHanded())
+        else if (Input.GetKeyDown(KeyCode.Alpha1) && CanSheatWeaponOneHanded())
         {
             usingOneHanded = false;
             animator.SetTrigger("Sheat");
         }
+
         if (Input.GetKeyDown(KeyCode.Alpha2) && CanDrawWeaponTwoHanded())
         {
             usingTwoHanded = true;
@@ -91,25 +107,32 @@ public class PlayerAttack : MonoBehaviour
             animator.SetLayerWeight(3, 1f);
             animator.SetLayerWeight(4, 1f);
         }
-        if (Input.GetKeyDown(KeyCode.Alpha2) && CanSheatWeaponTwoHanded())
+        else if (Input.GetKeyDown(KeyCode.Alpha2) && CanSheatWeaponTwoHanded())
         {
             usingTwoHanded = false;
             animator.SetTrigger("Sheat");
         }
+
         if (Input.GetKeyDown(KeyCode.Alpha3) && CanDrawWeaponRanged())
         {
             usingRanged = true;
-            //animator.ResetTrigger("InwardSlash");
-            //animator.ResetTrigger("OutwardSlash");
-            animator.SetTrigger("Draw");
+            recentRangedWeapon = rangedWeapon;
+            animator.SetTrigger("EquipBow");
             animator.SetLayerWeight(5, 1f);
             animator.SetLayerWeight(6, 1f);
+
+            LimitSpeedWhileAiming();
+            Crosshair.gameObject.SetActive(true);
         }
-        if (Input.GetKeyDown(KeyCode.Alpha3) && CanSheatWeaponRanged())
+        else if (Input.GetKeyDown(KeyCode.Alpha3) && CanSheatWeaponRanged())
         {
             usingRanged = false;
-            animator.SetTrigger("Sheat");
+            animator.SetTrigger("DisarmBow");
+
+            RemoveSpeedLimit();
+            Crosshair.gameObject.SetActive(false);
         }
+
         HandleAttack();
         HandleShield();
     }
@@ -126,24 +149,45 @@ public class PlayerAttack : MonoBehaviour
         }
         else if (usingRanged)//if ranged, implement ranged weapon aim look around and camera controls
         {
+            //return;//debug later
             RangedWeapon rw = rangedWeapon.GetComponent<RangedWeapon>();
-            if (!rw.hasNockedAmmo) rw.Reload();
+            if (!rw.hasNockedAmmo) rw.Reload();//make active later
             if (!rw.hasNockedAmmo) return;
             if (Input.GetMouseButtonDown(1) && !rw.hasDrawn)
             {
+                //HandleSpineLookAt();
+                aiming = true;
                 rw.Aim();
             }
             if (Input.GetMouseButtonUp(1) && rw.hasDrawn)
             {
+                aiming = false;
                 rw.UnAim();
             }
             if (Input.GetMouseButton(1) && Input.GetMouseButtonDown(0) && rw.hasDrawn)
             {
+                aiming = false;
                 rw.Loose();
             }
         }
         
 
+    }
+
+    public void HandleSpineLookAt()
+    {
+        GameObject aimCam = cameraController.aimCamera.gameObject;
+
+        RaycastHit hit;
+        if (Physics.Raycast(aimCam.transform.position,aimCam.transform.forward, out hit))
+        {
+            spineLookAt.position = hit.point;
+            Debug.Log(hit.transform.name+" is on crosshair");
+        }
+        else
+        {
+            spineLookAt.position = gameObject.transform.position + aimCam.transform.forward*5;
+        }
     }
 
     public void FindDirectionAndHit()
@@ -247,6 +291,17 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
+    public void LimitSpeedWhileAiming()
+    {
+        gameObject.GetComponent<PlayerMovement>().SpeedZUpper = 1f;
+        gameObject.GetComponent<PlayerMovement>().SpeedZLower = -1f;
+    }
+
+    public void RemoveSpeedLimit()
+    {
+        gameObject.GetComponent<PlayerMovement>().SpeedZUpper = 2f;
+        gameObject.GetComponent<PlayerMovement>().SpeedZLower = -2f;
+    }
 
     #region Animation Events
     public void MeleeStartDealingDamage()//call in both one handed and two handed layers
@@ -277,12 +332,12 @@ public class PlayerAttack : MonoBehaviour
 
     public void DrawRangedWeapon()//call in ranged layers
     {
-        recentMeleeWeapon.transform.SetParent(RangedHandTransform, false);
+        recentRangedWeapon.transform.SetParent(RangedHandTransform, false);
     }
 
     public void SheatRangedWeapon()//call in ranged layers
     {
-        recentMeleeWeapon.transform.SetParent(RangedSheatTransform, false);
+        recentRangedWeapon.transform.SetParent(RangedSheatTransform, false);
     }
 
     public void ActivateShield()//only call in one handed layer
@@ -308,5 +363,35 @@ public class PlayerAttack : MonoBehaviour
         
         animator.SetLayerWeight(0, 1f);
     }
+
+    public void InstantiateArrowInHand()//call when hand reaches the quiver
+    {
+        Ammo arrow = recentRangedWeapon.GetComponent<Bow>().knockedAmmo;
+
+        if (animator.GetCurrentAnimatorStateInfo(6).IsName("DrawArrow"))
+        {
+            arrow.gameObject.SetActive(true);
+            arrow.gameObject.transform.SetParent(ArrowSlot, false);
+            arrow.gameObject.transform.localPosition = Vector3.zero;
+        }
+        else if (animator.GetCurrentAnimatorStateInfo(6).IsName("AbortDraw"))
+        {
+            arrow.gameObject.SetActive(false);
+        }
+
+
+    }
+
+    public void ReturnArrowToQuiver()//not used
+    {
+        Ammo arrow = recentRangedWeapon.GetComponent<Bow>().knockedAmmo;
+        arrow.gameObject.SetActive(false);
+    }
+
+    public void ShootArrowLoose()
+    {
+
+    }
+
     #endregion
 }

@@ -29,6 +29,7 @@ public class ItemDescriptor
 public enum ItemType
 {
     Weapon,
+    Ammo,
     Shield,
     Armour,
     Consumable,
