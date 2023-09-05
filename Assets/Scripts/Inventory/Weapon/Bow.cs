@@ -8,6 +8,8 @@ using static UnityEngine.Rendering.DebugUI;
 public class Bow : RangedWeapon
 {
 
+    Coroutine currentSlowMoRoutine;
+
     protected override void Awake()
     {
         base.Awake();
@@ -26,6 +28,11 @@ public class Bow : RangedWeapon
     protected override void Update()
     {
         base.Update();
+        if ( hasDrawn )
+        {
+            Vector3 camForward = owner.GetComponent<CameraController>().aimCamera.transform.forward;
+            Debug.DrawRay(owner.GetComponent<CameraController>().aimCamera.transform.position, camForward * 100);
+        }
     }
 
     private void OnDestroy()
@@ -41,8 +48,8 @@ public class Bow : RangedWeapon
 
     public override void OnDropped()
     {
-        base.OnDropped();
         ReturnAmmosToInventory();
+        base.OnDropped();
     }
 
     private void InitializeAmmoList()
@@ -86,14 +93,14 @@ public class Bow : RangedWeapon
         }
         ammos.Clear();
 
-        arrowDescriptor = inventoryController.FindDescriptionInPlayerInventory("Arrow");
+        arrowDescriptor = inventoryController.FindDescriptionInPlayerInventory("ArrowLongBow");
         if (arrowDescriptor != null)
         {
             inventoryController.items[arrowDescriptor] += count;
         }
         else
         {
-            arrowDescriptor = inventoryController.FindDescriptionInWorldInventory("Arrow");
+            arrowDescriptor = inventoryController.FindDescriptionInWorldInventory("ArrowLongBow");
             inventoryController.items.Add(arrowDescriptor, count);
             inventoryController.AddSlot(count, arrowDescriptor);
         }
@@ -101,6 +108,7 @@ public class Bow : RangedWeapon
 
     public override void Reload()
     {
+        Debug.Log("Bow reload is called");
         base.Reload();
         //if (hasNockedAmmo) return;
         if(ammos.Count > 0)
@@ -108,6 +116,7 @@ public class Bow : RangedWeapon
             hasNockedAmmo = true;
             knockedAmmo = (Arrow)ammos[0];
             ammos.Remove(knockedAmmo);
+            knockedAmmo.OnEquipped();
             //owner.GetComponent<Animator>().SetTrigger("KnockArrow");
         }
     }
@@ -118,6 +127,14 @@ public class Bow : RangedWeapon
         owner.GetComponent<Animator>().SetTrigger("DrawArrow");
         GetComponent<Animator>().SetBool("Draw", true);
         hasDrawn = true;
+
+        if (currentSlowMoRoutine != null)
+        {
+            StopCoroutine(currentSlowMoRoutine);
+            currentSlowMoRoutine = null;
+        }
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
     }
 
     public override void UnAim()
@@ -137,15 +154,31 @@ public class Bow : RangedWeapon
         GetComponent<Animator>().SetTrigger("ShootArrow");
         Invoke(nameof(SetDrawFalse), 0.1f);//so that animator doesn't go into abort draw state
 
-        float skill = owner.GetComponent<PlayerController>().rangedSkillLevel / 100f;
-        knockedAmmo.GetComponent<Ammo>().Shoot(maximumForce*skill, camForward);
+        float skillMultiplier = owner.GetComponent<PlayerController>().rangedSkillLevel / 100f;
+        knockedAmmo.GetComponent<Ammo>().Shoot(maximumForce, skillMultiplier, camForward);
         knockedAmmo = null;
         hasNockedAmmo = false;
         hasDrawn = false;
+
+        currentSlowMoRoutine = StartCoroutine(nameof(SlowMoOnFireAmmo));
     }
 
     public void SetDrawFalse()
     {
         GetComponent<Animator>().SetBool("Draw", false);
+    }
+
+    public IEnumerator SlowMoOnFireAmmo()
+    {
+        Time.timeScale = 1f/10;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale / 8;
+        float passedTime = 0;
+        while (passedTime < 2)
+        {
+            passedTime += 0.1f;
+            yield return new WaitForSecondsRealtime(0.1f);
+        }
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
     }
 }

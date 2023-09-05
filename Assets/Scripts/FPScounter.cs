@@ -23,11 +23,11 @@ public class FPScounter : MonoBehaviour
     {
         if (last200Frames.Count < 200)
         {
-            last200Frames.Add(Time.deltaTime);
+            last200Frames.Add(Time.unscaledDeltaTime);
             return;
         }
 
-        last200Frames.Add(Time.deltaTime);
+        last200Frames.Add(Time.unscaledDeltaTime);
         last200Frames.RemoveAt(0);
 
         float totalTime = 0f;

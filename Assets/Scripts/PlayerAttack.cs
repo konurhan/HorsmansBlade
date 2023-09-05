@@ -306,7 +306,7 @@ public class PlayerAttack : MonoBehaviour
     #region Animation Events
     public void MeleeStartDealingDamage()//call in both one handed and two handed layers
     {
-        recentMeleeWeapon.transform.GetChild(0).GetComponent<MeleeWeaponDamageController>().StartDealingDamage();
+        recentMeleeWeapon.GetComponent<MeleeWeaponDamageController>().StartDealingDamage();
         if (animator.GetCurrentAnimatorStateInfo(1).IsName("OutwardSlash")) outwardSlash = true;
         else if (animator.GetCurrentAnimatorStateInfo(1).IsName("InwardSlash")) inwardSlash = true;
         else if (animator.GetCurrentAnimatorStateInfo(1).IsName("DownwardSlash")) downwardSlash = true;
@@ -314,7 +314,7 @@ public class PlayerAttack : MonoBehaviour
 
     public void MeleeEndDealingDamage()//call in both one handed and two handed layers
     {
-        recentMeleeWeapon.transform.GetChild(0).GetComponent<MeleeWeaponDamageController>().EndDealingDamage();
+        recentMeleeWeapon.GetComponent<MeleeWeaponDamageController>().EndDealingDamage();
         inwardSlash = false;
         outwardSlash = false;
         downwardSlash = false;

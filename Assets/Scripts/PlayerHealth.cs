@@ -8,9 +8,12 @@ public class PlayerHealth : MonoBehaviour
     public float torsoHealth;
     public float armsHealth;
     public float legsHealth;
+
+    public bool isDead;
     // Start is called before the first frame update
     void Start()
     {
+        isDead = false;
         LoadPlayerHealth();
     }
 
@@ -65,7 +68,8 @@ public class PlayerHealth : MonoBehaviour
 
     private void Die()
     {
-
+        isDead = true;
+        GetComponent<Animator>().SetBool("Died", true);
     }
 
     public void LoadPlayerHealth()

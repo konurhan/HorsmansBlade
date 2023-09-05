@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Ammo : InventoryItem
 {
-    [SerializeField] protected float damage;
+    [SerializeField] protected float damage;//maximum damage of an ammo out of 100
     [SerializeField] protected float launchForce;
 
     [SerializeField] private bool canDealDamage;
@@ -16,6 +16,7 @@ public class Ammo : InventoryItem
 
     private Animator animator;
     [SerializeField] private int targetLayer;
+
 
     protected override void Awake()
     {
@@ -32,10 +33,13 @@ public class Ammo : InventoryItem
     protected override void Update()
     {
         base.Update();
-        //transform.rotation = Quaternion.LookRotation(rb.velocity);
+        if ( canDealDamage )
+        {
+            transform.rotation = Quaternion.LookRotation(rb.velocity);//making arrow head follow the projectile motion of the arrow
+        }
     }
 
-    public void Shoot(float force, Vector3 shootingDir)
+    public void Shoot(float bowMaxForce , float skillMultiplier, Vector3 shootingDir)//skillMultiplier: float b/w [0,1] determined by the skill level of attacker and the maximum force of the ranged weapon
     {
         gameObject.GetComponent<InventoryItem>().OnDropped();
         transform.rotation = Quaternion.LookRotation(shootingDir);
@@ -45,36 +49,47 @@ public class Ammo : InventoryItem
 
         canDealDamage = true;
 
-        launchForce = force;
-        effectiveDamage = damage * force;
+        launchForce = bowMaxForce * skillMultiplier;//multiply this with maximum force of the bow
+        effectiveDamage = damage * skillMultiplier * bowMaxForce/100;//best archer can deal the full damage while using the best bow -> assuming that the maximum possible force of a ranged weapon can be 100
 
         rb.isKinematic = false;
 
-        rb.AddForce(shootingDir * launchForce, ForceMode.Impulse);
+        float ammoFineTune = 0.01f;
+
+        rb.AddForce(shootingDir * launchForce * ammoFineTune, ForceMode.Impulse);
+
+        /*Time.timeScale = 0.1f;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;*/
+
+        
     }
 
     private void OnTriggerEnter(Collider collider)
     {
-        Debug.Log("arrow collided to "+ collider.gameObject.name);
         if (canDealDamage)
         {
             if (collider.gameObject.layer == targetLayer)//if hit to enemy
             {
-                if (!collider.isTrigger) return;//temporary solution for the bug caused by the player capsule collider
-                
-                //GameObject enemy = target.gameObject.GetComponent<BodyPart>().player;
-                DealDamage(collider, effectiveDamage);
-                StickIntoEnemy();
+                Debug.Log("arrow collided to " + collider.gameObject.name);
+                if (!collider.gameObject.GetComponent<BodyPart>()) return;
+                BodyPart part = collider.gameObject.GetComponent<BodyPart>();
+                DealDamage(part, effectiveDamage);
+                StickIntoEnemy(part);
+                /*Time.timeScale = 1f;
+                Time.fixedDeltaTime = 0.02f;*/
             }
             else if (collider.gameObject.layer == 11)//attack will get parried with shield
             {
                 //shouldn't get parried by it's own sword and shield, cover that case
                 GetDeflected();
+                /*Time.timeScale = 1f;
+                Time.fixedDeltaTime = 0.02f;*/
             }
             else if (collider.gameObject.layer == 12)
             {
-                Debug.Log("arrow will be deflected by map surface");
-                GetDeflected();
+                StickIntoMapSurface();
+                /*Time.timeScale = 1f;
+                Time.fixedDeltaTime = 0.02f;*/
             }
         }
     }
@@ -98,20 +113,36 @@ public class Ammo : InventoryItem
         else if (owner.layer == 9) targetLayer = 8;
     }
 
-    private void DealDamage(Collider target, float damageDealt) 
+    private void DealDamage(BodyPart part, float damageDealt) 
     {
-        target.gameObject.GetComponent<BodyPart>().TakeDamage(damageDealt);
-        //enemy.GetComponent<Animator>().SetTrigger("TakeHit");//play take hit anim
-        //successful hit, level up player skill
+        part.TakeDamage(damageDealt);
+        part.player.GetComponent<Animator>().SetTrigger("TakeHit");//play take hit anim
+        //successful hit, make player gain skill
     }
 
-    private void StickIntoEnemy()
+    private void StickIntoEnemy(BodyPart part)
     {
         canDealDamage = false;
         rb.isKinematic = true;
         boxCollider.enabled = false;
 
-        Destroy(gameObject, 2f);//stay on the enmy for a moment
+        //stay on the enmy only as a mesh
+        GameObject arrowMesh = Instantiate(Resources.Load("Meshes/Weapon/Ranged/ArrowLongBowMesh")) as GameObject;
+        arrowMesh.transform.SetParent(part.gameObject.transform);
+        arrowMesh.transform.position = gameObject.transform.position;
+        arrowMesh.transform.rotation = Quaternion.LookRotation(gameObject.transform.forward);
+
+        //Debug.Break();
+        Destroy(gameObject);
+    }
+
+    private void StickIntoMapSurface()
+    {
+        canDealDamage = false;
+        rb.isKinematic = true;
+        //boxCollider.isTrigger = false;
+        boxCollider.enabled = false;
+        //rb.velocity = Vector3.zero;
     }
 
     private void GetDeflected()
@@ -120,4 +151,6 @@ public class Ammo : InventoryItem
         boxCollider.isTrigger = false;
         rb.isKinematic = false;
     }
+
+    
 }

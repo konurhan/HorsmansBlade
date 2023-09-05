@@ -9,12 +9,16 @@ public class InventoryUI : MonoBehaviour
     public static InventoryUI Instance;
 
     private InventoryItem closest;
+    private ItemContainer closestContainer;
     public Transform collectText;
     
     public GameObject Player;
     
     public Transform InventorySlotsTransform;
     public List<InventorySlot> slots;
+
+    public Transform ContainerSlotsTransform;
+    public List<ContainerSlot> containerSlots;
 
     private void Awake()
     {
@@ -27,6 +31,8 @@ public class InventoryUI : MonoBehaviour
     private void Update()
     {
         CollectClosestItem();
+        LootClosestContainer();
+        OpenCloseInventory();
     }
 
     public void AddSlot(int amount, ItemDescriptor itemDesc)
@@ -102,6 +108,34 @@ public class InventoryUI : MonoBehaviour
         collectText.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Press (F) to collect "+closest.Name;
     }
 
+    public void MakeClosestLootableContainerVisible()//call when the character moves
+    {
+        List<ItemContainer> lootables = Player.GetComponent<InventoryController>().lootableContainers;
+
+        if (lootables.Count == 0)
+        {
+            //collectText.gameObject.SetActive(false);
+            closestContainer = null;
+            return;
+        }
+
+        closestContainer = lootables[0];
+        float dist = (closestContainer.gameObject.transform.position - Player.transform.position).magnitude;
+
+        for (int i = 1; i < lootables.Count; i++)
+        {
+            float newDist = (lootables[i].gameObject.transform.position - Player.transform.position).magnitude;
+            if (newDist < dist)
+            {
+                closestContainer = lootables[i];
+                dist = newDist;
+            }
+        }
+
+        collectText.gameObject.SetActive(true);
+        collectText.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Press (L) to loot " + closestContainer.Name;
+    }
+
     public void CollectClosestItem()
     {
         if (closest == null) return;
@@ -110,6 +144,19 @@ public class InventoryUI : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F))
         {
             Player.GetComponent<InventoryController>().CollectSingleItem(closest.gameObject);
+            collectText.gameObject.SetActive(false);
+        }
+    }
+
+    public void LootClosestContainer()
+    {
+        if (closestContainer == null) return;
+        if (!collectText.gameObject.activeSelf) return;
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            //open
+            closestContainer.OnOpenedByPlayer();
             collectText.gameObject.SetActive(false);
         }
     }
@@ -123,8 +170,32 @@ public class InventoryUI : MonoBehaviour
                 return inventorySlot;
             }
         }
-
         return null;
     }
-    
+
+    public void OpenCloseInventory()
+    {
+        if (Input.GetKeyDown(KeyCode.I) && InventorySlotsTransform.parent.gameObject.activeInHierarchy)
+        {
+            InventorySlotsTransform.parent.gameObject.SetActive(false);
+        }else if (Input.GetKeyDown(KeyCode.I) && !InventorySlotsTransform.parent.gameObject.activeInHierarchy)
+        {
+            InventorySlotsTransform.parent.gameObject.SetActive(true);
+        }
+    }
+
+    public void OnContainerPanelClosedByPlayer()//call from container close button
+    {
+        ContainerSlotsTransform.parent.gameObject.SetActive(false);
+        DestroyAllSlots();
+    }
+
+    public void DestroyAllSlots()//same ui panel will be used for all containers in the game so it has to be reset each time the panel is deactivated in the canvas
+    {
+        foreach (ContainerSlot slot in InventoryUI.Instance.containerSlots.ToList())
+        {
+            Destroy(slot.gameObject);
+        }
+        InventoryUI.Instance.containerSlots.Clear();
+    }
 }

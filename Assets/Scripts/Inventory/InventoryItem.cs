@@ -28,7 +28,7 @@ public class InventoryItem : MonoBehaviour
 
     protected virtual void Update()
     {
-        HandeleCollection();
+        HandleCollection();
     }
 
     public virtual void OnEquipped()
@@ -42,9 +42,8 @@ public class InventoryItem : MonoBehaviour
         transform.SetParent(null);
     }
 
-    public void HandeleCollection()
+    public void HandleCollection()
     {
-        Debug.Log("HandeleCollection is called");
         if (owner != null && collectibleFlag)
         {
             BecomeNonCollectibleByPlayer();

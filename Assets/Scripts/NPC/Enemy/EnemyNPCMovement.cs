@@ -25,15 +25,11 @@ public class EnemyNPCMovement : MonoBehaviour
     public Vector3 destinationOffset;
 
     [SerializeField] private float speed;
-    //[SerializeField] private Vector2 velocity;
-    //[SerializeField] private Vector2 smoothDeltaPos;
     public Vector3 angularVelocity;
     public Vector3 velocity;
     private Rigidbody rb;
 
     private float lastYEulerAngle;
-    //private float agentRotationY;
-    //private bool agentIsManullayRotating;
 
     private void Awake()
     {

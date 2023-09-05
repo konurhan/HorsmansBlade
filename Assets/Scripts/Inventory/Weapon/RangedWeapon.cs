@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RangedWeapon : Weapon
 {
-    [SerializeField] protected float maximumForce;//maximum force that the ranged weapon can shoot an ammo with
+    [SerializeField] protected float maximumForce;//maximum force out of 100
     protected List<Ammo> ammos;
     public bool hasNockedAmmo;
     public bool hasDrawn;

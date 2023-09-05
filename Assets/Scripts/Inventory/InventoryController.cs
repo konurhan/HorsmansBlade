@@ -14,6 +14,7 @@ public class InventoryController : MonoBehaviour
     //public Dictionary<string,List<InventoryItem>> items = new Dictionary<string, List<InventoryItem>>();
     public PlayerController player;
     public List<InventoryItem> collectibleItems;
+    public List<ItemContainer> lootableContainers;
 
     private void Awake()
     {
@@ -206,7 +207,7 @@ public class InventoryController : MonoBehaviour
                 controller.rightForearm.GetComponent<BodyPart>().RemoveArmour();
                 break;
             case ArmourType.Legs:
-                controller.NakedParts.GetChild(4).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = false;
+                controller.NakedParts.GetChild(4).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = true;
                 controller.ArmourSlots.GetChild(4).gameObject.GetComponent<SkinnedMeshRenderer>().enabled = false;
                 controller.legLeftUpper.GetComponent<BodyPart>().RemoveArmour();
                 controller.legRightUpper.GetComponent<BodyPart>().RemoveArmour();
@@ -219,6 +220,7 @@ public class InventoryController : MonoBehaviour
 
     public void DropUninstantiatedSlot(ItemDescriptor item)//make non-weapon items drop in a sack: a container
     {
+        //don't need to call ondropped since onequipped is never called
         Vector3 dropOffset = gameObject.transform.forward * 0.3f + Vector3.up * 0.3f;
         int amount = items[item];
         for (int i = 0; i < amount; i++)
@@ -226,7 +228,14 @@ public class InventoryController : MonoBehaviour
             GameObject toBeDropped = Instantiate(Resources.Load(item.itemPrefabPath + item.itemName)) as GameObject;
             toBeDropped.transform.position = transform.position + transform.forward + transform.up;
             toBeDropped.GetComponentInChildren<Rigidbody>().isKinematic = false;// so that dropped items can fall to the ground
-            toBeDropped.GetComponentInChildren<BoxCollider>().isTrigger = false;
+            if (toBeDropped.GetComponentInChildren<BoxCollider>())
+            {
+                toBeDropped.GetComponentInChildren<BoxCollider>().isTrigger = false;
+            }
+            else if (toBeDropped.GetComponentInChildren<MeshCollider>())
+            {
+                toBeDropped.GetComponentInChildren<MeshCollider>().isTrigger = false;
+            }
             toBeDropped.GetComponent<Rigidbody>().AddForce(dropOffset, ForceMode.Impulse);
         }
         items.Remove(item);
@@ -265,6 +274,25 @@ public class InventoryController : MonoBehaviour
     public void AddSlot(int amount, ItemDescriptor itemDesc)
     {
         InventoryUI.Instance.AddSlot(amount, itemDesc);
+    }
+
+    public void AddItemByDescriptor(ItemDescriptor itemDesc)
+    {
+        ItemDescriptor localDesc = FindDescriptionInPlayerInventory(itemDesc.itemName);
+        if (localDesc != null)//search by name not the class instance itself
+        {
+            items[localDesc]++;
+            InventoryUI.Instance.UpdateSlotAmount(items[localDesc], localDesc);
+        }
+        else
+        {
+            items.Add(itemDesc, 1);
+            InventoryUI.Instance.AddSlot(1, itemDesc);
+            if (FindDescriptionInWorldInventory(itemDesc.itemName) == null)
+            {
+                WorldInventory.Instance.worldItemDescriptions.Add(itemDesc);
+            }
+        }
     }
 
     public void DropSingleItem(ItemDescriptor item)//will be called from inventory slot button callback --> for uninstantiated items
@@ -373,7 +401,7 @@ public class InventoryController : MonoBehaviour
                 return itemDesc;
             }
         }
-        Debug.LogError("Cannot find ItemDescriptor named " + itemName + " in the world inventory");
+        Debug.LogWarning("Cannot find ItemDescriptor named " + itemName + " in the world inventory");
         return null;
     }
 }

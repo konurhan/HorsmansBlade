@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class BodyPart : MonoBehaviour
 {
-    private string bodyPartName;//provide in the editor
+    [SerializeField] private string bodyPartName;//provide in the editor
     public int damageMultiplier;//provide in the editor
     public Armour armour;
 
@@ -29,8 +29,9 @@ public class BodyPart : MonoBehaviour
     }
 
     public void TakeDamage(float incomingDamage) 
-    { 
+    {
         float effectiveDamage = incomingDamage * damageMultiplier;
+        Debug.Log("Take damage is called for " + bodyPartName + ", effectiveDamage: " + effectiveDamage);
         if (armour != null) //first, the damage has to pass through the armour
         {
             float remainingDamage = armour.TakeDamage(effectiveDamage);

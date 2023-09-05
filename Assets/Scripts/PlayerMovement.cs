@@ -84,6 +84,7 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = new Vector3(velocity.x, rb.velocity.y, velocity.z);
 
             InventoryUI.Instance.MakeClosestCollectibleItemVisible();
+            InventoryUI.Instance.MakeClosestLootableContainerVisible();
         }    
     }
 

@@ -8,10 +8,14 @@ public class EnemyController : MonoBehaviour
     [Header("Body Parts")]
     public GameObject head;
     public GameObject torso;
-    public GameObject armLeft;
-    public GameObject armRight;
-    public GameObject legLeft;
-    public GameObject legRight;
+    public GameObject leftUpperArm;
+    public GameObject rightUpperArm;
+    public GameObject leftForearm;
+    public GameObject rightForearm;
+    public GameObject legLeftUpper;
+    public GameObject legRightUpper;
+    public GameObject legLeftLower;
+    public GameObject legRightLower;
 
     #region State Machine
     public EnemyStateMachine stateMachine;
@@ -58,9 +62,13 @@ public class EnemyController : MonoBehaviour
     {
         head.GetComponent<BodyPart>().SetPlayerReference(gameObject);
         torso.GetComponent<BodyPart>().SetPlayerReference(gameObject);
-        armLeft.GetComponent<BodyPart>().SetPlayerReference(gameObject);
-        armRight.GetComponent<BodyPart>().SetPlayerReference(gameObject);
-        legLeft.GetComponent<BodyPart>().SetPlayerReference(gameObject);
-        legRight.GetComponent<BodyPart>().SetPlayerReference(gameObject);
+        leftForearm.GetComponent<BodyPart>().SetPlayerReference(gameObject);
+        rightForearm.GetComponent<BodyPart>().SetPlayerReference(gameObject);
+        leftUpperArm.GetComponent<BodyPart>().SetPlayerReference(gameObject);
+        rightUpperArm.GetComponent<BodyPart>().SetPlayerReference(gameObject);
+        legRightUpper.GetComponent<BodyPart>().SetPlayerReference(gameObject);
+        legLeftUpper.GetComponent<BodyPart>().SetPlayerReference(gameObject);
+        legRightLower.GetComponent<BodyPart>().SetPlayerReference(gameObject);
+        legLeftLower.GetComponent<BodyPart>().SetPlayerReference(gameObject);
     }
 }

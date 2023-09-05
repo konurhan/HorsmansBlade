@@ -19,9 +19,10 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
         animator = GetComponent<Animator>();
 
         sword = Instantiate(Resources.Load("Prefabs/Weapons/Melee/SimpleLongSword"), SwordSheatTransform) as GameObject;
-        //sword.GetComponent<MeleeWeaponDamageController>().SetOwnerReference(gameObject);
+        sword.GetComponent<InventoryItem>().SetOwnerReference(gameObject);
 
-        shield = Instantiate(Resources.Load("Prefabs/SimpleShield"), ShieldHandTransform) as GameObject;
+        shield = Instantiate(Resources.Load("Prefabs/Shields/SimpleShield"), ShieldHandTransform) as GameObject;
+        shield.GetComponent<InventoryItem>().SetOwnerReference(gameObject);
         shield.SetActive(false);
     }
     void Start()
@@ -93,22 +94,22 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
     }
 
     #region Animation Events
-    public void StartDealingDamage()//animation event
+    public void MeleeStartDealingDamage()//animation event
     {
-        sword.transform.GetChild(0).GetComponent<MeleeWeaponDamageController>().StartDealingDamage();
+        sword.GetComponent<MeleeWeaponDamageController>().StartDealingDamage();
     }
 
-    public void EndDealingDamage()//animation event
+    public void MeleeEndDealingDamage()//animation event
     {
-        sword.transform.GetChild(0).GetComponent<MeleeWeaponDamageController>().EndDealingDamage();
+        sword.GetComponent<MeleeWeaponDamageController>().EndDealingDamage();
     }
 
-    public void DrawWeapon()//animation event
+    public void DrawMeleeWeapon()//animation event
     {
         sword.transform.SetParent(SwordHandTransform, false);
     }
 
-    public void SheatWeapon()//animation event
+    public void SheatMeleeWeapon()//animation event
     {
         sword.transform.SetParent(SwordSheatTransform, false);
     }
