@@ -5,6 +5,8 @@ using UnityEngine;
 [DefaultExecutionOrder(1)]
 public class EnemyController : MonoBehaviour
 {
+    public int npcID;
+
     [Header("Body Parts")]
     public GameObject head;
     public GameObject torso;

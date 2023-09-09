@@ -19,8 +19,6 @@ public class NPCManager : MonoBehaviour
         }
     }
 
-    //public GameObject target;
-    //public float surroundRadius = 2f;
     public List<EnemyController> enemyNPCs = new List<EnemyController>();
 
     private void Awake()
@@ -35,16 +33,12 @@ public class NPCManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+        LoadNPCHealth();
+
+        InventoryUI.Instance.onGameSaved += SaveNPCHealth;
     }
 
     public void SetEnemyDestinationOffsets()//call it every time an enemy is added, through enemy controller
@@ -58,13 +52,52 @@ public class NPCManager : MonoBehaviour
         
         for (int i=0; i < count; i++)
         {
-            //GameObject target = npc.GetComponent<EnemyNPCMovement>().target;
             float radius = enemyNPCs[i].GetComponent<EnemyNPCMovement>().surroundingRadius;
             float angle = i/count * npcSpan + startAngle;
-            Debug.Log("enemy will position it self at an angle of: " + angle + " degrees");
             float radians = angle * Mathf.Deg2Rad;
             enemyNPCs[i].GetComponent<EnemyNPCMovement>().destinationOffset = new Vector3(radius*Mathf.Cos(radians), 0, radius * Mathf.Sin(radians));
-            Debug.Log("dest offset: " + enemyNPCs[i].GetComponent<EnemyNPCMovement>().destinationOffset);
         }
+    }
+
+    #region save/load methods
+
+    public void LoadNPCHealth()
+    {
+        HealthData healthData;
+
+        NPCHealthCollection npcHealthDatas = SaveSystem.LoadData<NPCHealthCollection>("/NPCHealthDataCollection.json");
+        if (npcHealthDatas == null) return;
+
+        foreach (EnemyController controller in enemyNPCs)
+        {
+            int npcID = controller.npcID;
+            healthData = npcHealthDatas.healthDatas[npcID];
+            controller.gameObject.GetComponent<PlayerHealth>().SetHealthData(healthData);
+        }
+    }
+
+    public void SaveNPCHealth()
+    {
+        NPCHealthCollection npcHealthCollection = new NPCHealthCollection();
+        
+        foreach (EnemyController controller in enemyNPCs)
+        {
+            int npcID = controller.npcID;
+            HealthData healthData = new HealthData(gameObject.GetComponent<PlayerHealth>());
+            npcHealthCollection.healthDatas.Add(npcID, healthData);
+        }
+        
+        SaveSystem.SaveData("/NPCHealthDataCollection.json", npcHealthCollection);
+    }
+
+    #endregion
+}
+
+public class NPCHealthCollection
+{
+    public Dictionary<int, HealthData> healthDatas;
+    public NPCHealthCollection()
+    {
+        healthDatas = new Dictionary<int, HealthData>();
     }
 }

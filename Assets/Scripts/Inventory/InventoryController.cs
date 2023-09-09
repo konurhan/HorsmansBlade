@@ -25,6 +25,8 @@ public class InventoryController : MonoBehaviour
     {
         LoadInventoryTest();
         LoadInventory();
+
+        InventoryUI.Instance.onGameSaved += SaveInventory;
     }
 
     public void EquipWeapon(Weapon weapon)//called from slot action button click callback
@@ -341,6 +343,19 @@ public class InventoryController : MonoBehaviour
     {
         //implement after saveload system
         //load dict of itemdescriptors
+
+        InventoryData data = new InventoryData();
+        data = SaveSystem.LoadData<InventoryData>("/PlayerInventoryData.json");
+
+        items = data.items;
+    }
+
+    public void SaveInventory()
+    {
+        InventoryData data = new InventoryData();
+        data.items = items;
+
+        SaveSystem.SaveData("/PlayerInventoryData.json", data);
     }
 
     public void LoadInventoryTest()//assign longsword to inventory
@@ -405,3 +420,10 @@ public class InventoryController : MonoBehaviour
         return null;
     }
 }
+
+public class InventoryData
+{
+    public Dictionary<ItemDescriptor, int> items;
+}
+
+

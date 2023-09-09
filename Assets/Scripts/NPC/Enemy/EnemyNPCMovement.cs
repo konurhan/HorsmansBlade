@@ -74,37 +74,6 @@ public class EnemyNPCMovement : MonoBehaviour
         agent.nextPosition = rootPosition;//manually updating agent movement
     }
 
-    /*public void SynchronizePositionWithRootMotion()
-    {
-        Vector3 worldDeltaPosition = agent.nextPosition - transform.position;
-        worldDeltaPosition.y = 0;
-        // Map 'worldDeltaPosition' to local space
-        float dx = Vector3.Dot(transform.right, worldDeltaPosition);
-        float dy = Vector3.Dot(transform.forward, worldDeltaPosition);
-        Vector2 deltaPosition = new Vector2(dx, dy);
-
-        // Low-pass filter the deltaMove
-        float smooth = Mathf.Min(1, Time.deltaTime / 0.1f);
-        smoothDeltaPos = Vector2.Lerp(smoothDeltaPos, deltaPosition, smooth);
-
-        velocity = smoothDeltaPos / Time.deltaTime;
-        if (agent.remainingDistance <= agent.stoppingDistance)
-        {
-            velocity = Vector2.Lerp(Vector2.zero, velocity, agent.remainingDistance/agent.stoppingDistance);
-        }
-
-        bool shouldMove = velocity.magnitude > 0.5f && agent.remainingDistance > agent.stoppingDistance;
-        if (shouldMove)
-        {
-            animator.SetFloat("SpeedZ",velocity.magnitude);
-        }
-        else
-        {
-            animator.SetFloat("SpeedZ", 0);
-        }
-    }*/
-
-
     private void OnTriggerEnter(Collider other)
     {
         if(!other.isTrigger && other.gameObject.tag == "Player")

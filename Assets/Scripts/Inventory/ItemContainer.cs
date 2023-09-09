@@ -11,7 +11,7 @@ using static UnityEngine.UI.GridLayoutGroup;
 
 public class ItemContainer : MonoBehaviour//attach this script to a chest
 {
-
+    public int containerID;
     [SerializeField] protected string containerName;
     public string Name { get { return containerName; } set { containerName = value; } }
 
@@ -35,12 +35,13 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
 
     private void Awake()
     {
+        WorldInventory.Instance.worldItemContainers.Add(this);
+        LoadContainedItems();
     }
 
     void Start()
     {
-        LoadContainedItems();
-        LoadContainedItemsTest();
+        //LoadContainedItemsTest();
 
         player = InventoryUI.Instance.Player;
         playerInventory = player.GetComponent<InventoryController>();
@@ -92,14 +93,14 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
         }
     }
 
-    private void LoadContainedItems()//implement with saveload system
+    #region save/load
+    private void LoadContainedItems()
     {
-        //load descriptor values from the save file if any exists
         containedItems.Clear();
         for (int i = 0; i < PrefabNames.Count; i++)
         {
             ItemDescriptor worldDesc = FindDescriptionInWorldInventory(PrefabNames[i]);
-            if ( worldDesc == null)
+            if (worldDesc == null)
             {
                 ItemDescriptor newDesc = new ItemDescriptor(PrefabNames[i], PrefabPaths[i], ItemTypes[i]);
                 containedItems.Add(newDesc, amount[i]);
@@ -113,10 +114,22 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
         }
     }
 
-    private void LoadContainedItemsTest()
+    public void SerializeContainedItems()
     {
+        PrefabNames.Clear();
+        PrefabPaths.Clear();
+        ItemTypes.Clear();
+        amount.Clear();
 
+        foreach (ItemDescriptor itemDesc in containedItems.Keys)
+        {
+            PrefabNames.Add(itemDesc.itemName);
+            PrefabPaths.Add(itemDesc.itemPrefabPath);
+            ItemTypes.Add(itemDesc.itemType);
+            amount.Add(containedItems[itemDesc]);
+        }
     }
+    #endregion
 
     #region Interaction
     //enemy npc containers should become visible only after the death of th npc
@@ -267,4 +280,23 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
     }
 
     #endregion
+}
+
+public class ContainerData
+{
+    public int containerId;
+    public string containerName;
+    public Dictionary<ItemDescriptor, int> containedItems;
+
+    public ContainerData()
+    {
+        
+    }
+
+    public ContainerData(ItemContainer container)
+    {
+        containerId = container.containerID;
+        containerName = container.Name;
+        containedItems = container.containedItems;
+    }
 }

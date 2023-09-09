@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         LoadPlayerStats();
+        InventoryUI.Instance.onGameSaved += SavePlayerStats;
     }
 
     void Update()
@@ -75,7 +76,47 @@ public class PlayerController : MonoBehaviour
 
     public void LoadPlayerStats()
     {
-
+        PlayerStats playerStats = SaveSystem.LoadData<PlayerStats>("/PlayerStats.json");
+        if (playerStats == null) return;
+        speed = playerStats.speed;
+        angularSpeed = playerStats.angularSpeed;
+        jumpHeight = playerStats.jumpHeight;
+        strength = playerStats.strength;
+        oneHandedSkillLevel = playerStats.oneHandedSkillLevel;
+        twoHandedSkillLevel = playerStats.twoHandedSkillLevel;
+        rangedSkillLevel = playerStats.rangedSkillLevel;
+        combatJumpHeight = playerStats.combatJumpHeight;
     }
 
+    public void SavePlayerStats()
+    {
+        PlayerStats playerStats = new PlayerStats(this);
+        SaveSystem.SaveData("/PlayerStats.json", playerStats);
+    }
+
+}
+
+public class PlayerStats
+{
+    public float speed;
+    public float angularSpeed;
+    public float jumpHeight;
+    public float strength;
+
+    public float oneHandedSkillLevel;
+    public float twoHandedSkillLevel;
+    public float rangedSkillLevel;
+    public float combatJumpHeight;
+
+    public PlayerStats(PlayerController controller)
+    {
+        speed = controller.speed;
+        angularSpeed = controller.angularSpeed;
+        jumpHeight = controller.jumpHeight;
+        strength = controller.strength;
+        oneHandedSkillLevel = controller.oneHandedSkillLevel;
+        twoHandedSkillLevel = controller.twoHandedSkillLevel;
+        rangedSkillLevel = controller.rangedSkillLevel;
+        combatJumpHeight = controller.combatJumpHeight;
+    }
 }

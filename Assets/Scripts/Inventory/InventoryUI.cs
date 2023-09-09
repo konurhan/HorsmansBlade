@@ -20,6 +20,9 @@ public class InventoryUI : MonoBehaviour
     public Transform ContainerSlotsTransform;
     public List<ContainerSlot> containerSlots;
 
+    public delegate void OnGameSaved();
+    public event OnGameSaved onGameSaved;//invoke this upon button click
+
     private void Awake()
     {
         Instance = this;

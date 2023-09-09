@@ -75,21 +75,15 @@ public class Ammo : InventoryItem
                 BodyPart part = collider.gameObject.GetComponent<BodyPart>();
                 DealDamage(part, effectiveDamage);
                 StickIntoEnemy(part);
-                /*Time.timeScale = 1f;
-                Time.fixedDeltaTime = 0.02f;*/
             }
             else if (collider.gameObject.layer == 11)//attack will get parried with shield
             {
                 //shouldn't get parried by it's own sword and shield, cover that case
                 GetDeflected();
-                /*Time.timeScale = 1f;
-                Time.fixedDeltaTime = 0.02f;*/
             }
             else if (collider.gameObject.layer == 12)
             {
                 StickIntoMapSurface();
-                /*Time.timeScale = 1f;
-                Time.fixedDeltaTime = 0.02f;*/
             }
         }
     }
@@ -140,9 +134,7 @@ public class Ammo : InventoryItem
     {
         canDealDamage = false;
         rb.isKinematic = true;
-        //boxCollider.isTrigger = false;
         boxCollider.enabled = false;
-        //rb.velocity = Vector3.zero;
     }
 
     private void GetDeflected()
