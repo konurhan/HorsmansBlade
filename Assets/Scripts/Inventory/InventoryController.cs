@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,7 +12,6 @@ public class InventoryController : MonoBehaviour
 
     public Dictionary<ItemDescriptor,int> items = new Dictionary<ItemDescriptor,int>();
 
-    //public Dictionary<string,List<InventoryItem>> items = new Dictionary<string, List<InventoryItem>>();
     public PlayerController player;
     public List<InventoryItem> collectibleItems;
     public List<ItemContainer> lootableContainers;
@@ -23,7 +23,7 @@ public class InventoryController : MonoBehaviour
 
     void Start()
     {
-        LoadInventoryTest();
+        //LoadInventoryTest();
         LoadInventory();
 
         InventoryUI.Instance.onGameSaved += SaveInventory;
@@ -88,13 +88,7 @@ public class InventoryController : MonoBehaviour
             GetComponent<PlayerAttack>().RangedQuiverTransform.GetChild(0).gameObject.SetActive(false);
         }
 
-        string itemName = weaponObj.GetComponent<InventoryItem>().Name;
         Destroy(weaponObj);
-
-        //following are not necessary, reference will become null after destroy call anyways
-        ItemDescriptor itemDescriptor = FindDescriptionInPlayerInventory(itemName);
-        InventorySlot slot = InventoryUI.Instance.FindSlotByItemDescriptor(itemDescriptor);
-        slot.itemInstance = null;
     }
 
     public void EquipShield(Shield shield)
@@ -318,6 +312,8 @@ public class InventoryController : MonoBehaviour
         //trigger gathering animation
         if(gathered.GetComponent<InventoryItem>() != null)
         {
+            gameObject.GetComponent<Animator>().SetTrigger("Gather");//when knee is down collect the item or set active false
+
             InventoryItem invItem = gathered.GetComponent<InventoryItem>();
             invItem.SetOwnerReference(gameObject);
 
@@ -336,7 +332,7 @@ public class InventoryController : MonoBehaviour
             }
         }
 
-        Destroy(gathered,0.1f);//delaying the destruction so that closest paramater of InventoryUI script doesn't reference a destroyed object 
+        Destroy(gathered,1f);//delaying the destruction so that closest paramater of InventoryUI script doesn't reference a destroyed object 
     }
 
     public void LoadInventory()
@@ -344,19 +340,20 @@ public class InventoryController : MonoBehaviour
         //implement after saveload system
         //load dict of itemdescriptors
 
-        InventoryData data = new InventoryData();
-        data = SaveSystem.LoadData<InventoryData>("/PlayerInventoryData.json");
+        InventoryData data = SaveSystem.LoadData<InventoryData>("/PlayerInventoryData.json"); 
+        if (data == null) return;
 
-        items = data.items;
+        Dictionary<ItemDescriptor,int> loadedDict = new Dictionary<ItemDescriptor,int>();
+        items = data.items.ToDictionary(x => x.Key, x=> x.Value);
     }
 
     public void SaveInventory()
     {
-        InventoryData data = new InventoryData();
-        data.items = items;
+        InventoryData data = new InventoryData(this);
 
         SaveSystem.SaveData("/PlayerInventoryData.json", data);
     }
+
 
     public void LoadInventoryTest()//assign longsword to inventory
     {
@@ -421,9 +418,20 @@ public class InventoryController : MonoBehaviour
     }
 }
 
+[System.Serializable]
 public class InventoryData
 {
-    public Dictionary<ItemDescriptor, int> items;
+    public List<KeyValuePair<ItemDescriptor, int>> items;
+
+    public InventoryData()
+    {
+        items = new List<KeyValuePair<ItemDescriptor, int>>();
+    }
+
+    public InventoryData(InventoryController controller)
+    {
+        items = controller.items.ToList();
+    }
 }
 
 

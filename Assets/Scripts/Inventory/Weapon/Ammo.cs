@@ -17,6 +17,7 @@ public class Ammo : InventoryItem
     private Animator animator;
     [SerializeField] private int targetLayer;
 
+    private GameObject lastOwner;
 
     protected override void Awake()
     {
@@ -75,6 +76,10 @@ public class Ammo : InventoryItem
                 BodyPart part = collider.gameObject.GetComponent<BodyPart>();
                 DealDamage(part, effectiveDamage);
                 StickIntoEnemy(part);
+                if (lastOwner.GetComponent<PlayerController>() != null)
+                {
+                    lastOwner.GetComponent<PlayerController>().GainRangedXP();
+                }
             }
             else if (collider.gameObject.layer == 11)//attack will get parried with shield
             {
@@ -92,6 +97,7 @@ public class Ammo : InventoryItem
     {
         animator = owner.GetComponent<Animator>();
         GetTargetLayer();
+        lastOwner = owner;
     }
 
     public override void OnDropped()

@@ -83,21 +83,17 @@ public class MeleeWeaponDamageController : MonoBehaviour
     {
         if (canDealDamage)
         {
-            //Debug.Log("collided object layer is: " + target.gameObject.layer);
-            //Debug.Log("enemy layer: " + LayerMask.GetMask("Enemy"));
             if(target.gameObject.layer == targetLayer)
             {
                 if (!target.isTrigger) return;//temporary solution for the bug caused by the player capsule collider
                 if (!cutThroughObjects.Contains(target.gameObject)) 
                 { 
                     cutThroughObjects.Add(target.gameObject);
-                    //Debug.Log("sword hit to object: " + target.gameObject.name);
                 }
                 GameObject enemy = target.gameObject.GetComponent<BodyPart>().player;
                 if (!cutThroughEnemies.Contains(enemy))
                 {
                     cutThroughEnemies.Add(enemy);
-                    //Debug.Log("cutting through the enemy object with name: " + enemy.name);
                 }
             }
             else if(target.gameObject.layer == 10 || target.gameObject.layer == 11)//attack will get parried with sword and shield
@@ -107,16 +103,13 @@ public class MeleeWeaponDamageController : MonoBehaviour
                 if (animator.GetCurrentAnimatorStateInfo(1).IsName("InwardSlash"))
                 {
                     animator.Play("InwardSlashGetParried",1,1-currentFrame);
-                    //Debug.Log("Inward slash got parried on frametime: " + currentFrame);
                 }
                 else if (animator.GetCurrentAnimatorStateInfo(1).IsName("OutwardSlash"))
                 {
-                    //Debug.Log("Outward slash got parried on frametime: " + currentFrame);
                     animator.Play("OutwardSlashGetParried", 1, 1-currentFrame);
                 }
                 else if (animator.GetCurrentAnimatorStateInfo(1).IsName("DownswardSlash"))
                 {
-                    //Debug.Log("Outward slash got parried on frametime: " + currentFrame);
                     animator.Play("DownwardSlashGetParried", 1, 1 - currentFrame);
                 }
                 EndDealingDamage();
@@ -154,6 +147,17 @@ public class MeleeWeaponDamageController : MonoBehaviour
         }
         foreach (GameObject enemy in cutThroughEnemies)
         {
+            if(melee.owner.GetComponent<PlayerController>())
+            {
+                if (isOneHanded)
+                {
+                    melee.owner.GetComponent<PlayerController>().GainOneHandedXP();
+                }
+                else
+                {
+                    melee.owner.GetComponent<PlayerController>().GainTwoHandedXP();
+                }
+            }
             enemy.GetComponent<Animator>().SetTrigger("TakeHit");
         }
     }

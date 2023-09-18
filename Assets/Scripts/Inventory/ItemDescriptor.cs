@@ -4,6 +4,7 @@ using UnityEngine;
 
 
 //Description of an InventoryItem GameObject, items which are not instantiated are of this type
+[System.Serializable]
 public class ItemDescriptor
 {
     public string itemName;//same as the InventoryItem.Name and the Prefab name
@@ -15,6 +16,9 @@ public class ItemDescriptor
     public ItemDescriptor()
     {
         //isInstantiated = false;
+        itemName = string.Empty;
+        itemPrefabPath = string.Empty;
+        itemType = ItemType.Generic;
     }
 
     public ItemDescriptor(string name, string path, ItemType type)
@@ -26,6 +30,7 @@ public class ItemDescriptor
     }
 }
 
+[System.Serializable]
 public enum ItemType
 {
     Weapon,

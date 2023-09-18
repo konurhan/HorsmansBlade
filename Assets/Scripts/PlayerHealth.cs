@@ -123,6 +123,7 @@ public class PlayerHealth : MonoBehaviour
     }
 }
 
+[System.Serializable]
 public class HealthData
 {
     public float headHealth;

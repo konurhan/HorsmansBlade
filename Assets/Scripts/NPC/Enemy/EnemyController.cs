@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 [DefaultExecutionOrder(1)]
 public class EnemyController : MonoBehaviour
@@ -47,6 +48,8 @@ public class EnemyController : MonoBehaviour
     void Start()
     {
         stateMachine.Initialize(idleState, gameObject);
+
+        
     }
 
     void Update()
@@ -73,4 +76,6 @@ public class EnemyController : MonoBehaviour
         legRightLower.GetComponent<BodyPart>().SetPlayerReference(gameObject);
         legLeftLower.GetComponent<BodyPart>().SetPlayerReference(gameObject);
     }
+
+    
 }

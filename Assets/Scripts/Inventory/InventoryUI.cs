@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -19,6 +20,11 @@ public class InventoryUI : MonoBehaviour
 
     public Transform ContainerSlotsTransform;
     public List<ContainerSlot> containerSlots;
+
+    public Transform WeaponSlotsParent;
+    public Transform ArmourSlotsParent;
+    public Transform ItemInfoParent;
+    public Transform FloatingTextParent;
 
     public delegate void OnGameSaved();
     public event OnGameSaved onGameSaved;//invoke this upon button click
@@ -47,9 +53,36 @@ public class InventoryUI : MonoBehaviour
             GameObject newSlot = Instantiate(Resources.Load("Prefabs/UI/InventorySlot")) as GameObject;
             newSlot.transform.SetParent(InventorySlotsTransform.GetChild(i), false);
             newSlot.GetComponent<InventorySlot>().Initialize(amount, Player.GetComponent<InventoryController>(), itemDesc);
-            //newSlot.GetComponent<InventorySlot>().AddActionCallback(Player,itemClass);
             slots.Add(newSlot.GetComponent<InventorySlot>());
             break;
+        }
+    }
+
+    public void AddSlot(GameObject slot)
+    {
+        ArrangeSlotPositions();
+        slots.Add(slot.GetComponent<InventorySlot>());
+        int rowCount = InventorySlotsTransform.childCount;
+        for (int i = 0; i < rowCount; i++)
+        {
+            if (InventorySlotsTransform.GetChild(i).childCount == 4) continue;
+            slot.transform.SetParent(InventorySlotsTransform.GetChild(i), false);
+            slot.transform.localPosition = Vector3.zero;
+            break;
+        }
+    }
+
+    public void ArrangeSlotPositions()//call after a slot is destroyed or moved, so that no empty slots remain on top
+    {
+        int rowCount = InventorySlotsTransform.childCount;
+        foreach (InventorySlot slot in slots)
+        {
+            for(int i = 0; i < rowCount; i++)
+            {
+                if (InventorySlotsTransform.GetChild(i).childCount == 4) continue;
+                slot.gameObject.transform.SetParent(InventorySlotsTransform.GetChild(i), false);
+                break;
+            }
         }
     }
 
@@ -117,7 +150,6 @@ public class InventoryUI : MonoBehaviour
 
         if (lootables.Count == 0)
         {
-            //collectText.gameObject.SetActive(false);
             closestContainer = null;
             return;
         }
@@ -161,6 +193,9 @@ public class InventoryUI : MonoBehaviour
             //open
             closestContainer.OnOpenedByPlayer();
             collectText.gameObject.SetActive(false);
+
+            InventorySlotsTransform.parent.gameObject.SetActive(true);
+            RecreateInventorySlots();
         }
     }
 
@@ -181,9 +216,11 @@ public class InventoryUI : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I) && InventorySlotsTransform.parent.gameObject.activeInHierarchy)
         {
             InventorySlotsTransform.parent.gameObject.SetActive(false);
+            ClearInventoryPanel();
         }else if (Input.GetKeyDown(KeyCode.I) && !InventorySlotsTransform.parent.gameObject.activeInHierarchy)
         {
             InventorySlotsTransform.parent.gameObject.SetActive(true);
+            RecreateInventorySlots();
         }
     }
 
@@ -191,14 +228,40 @@ public class InventoryUI : MonoBehaviour
     {
         ContainerSlotsTransform.parent.gameObject.SetActive(false);
         DestroyAllSlots();
+
+        InventorySlotsTransform.parent.gameObject.SetActive(false);
+        ClearInventoryPanel();
     }
 
     public void DestroyAllSlots()//same ui panel will be used for all containers in the game so it has to be reset each time the panel is deactivated in the canvas
     {
-        foreach (ContainerSlot slot in InventoryUI.Instance.containerSlots.ToList())
+        foreach (ContainerSlot slot in containerSlots.ToList())
         {
             Destroy(slot.gameObject);
         }
-        InventoryUI.Instance.containerSlots.Clear();
+        containerSlots.Clear();
+    }
+
+    public void ClearInventoryPanel()
+    {
+        foreach (InventorySlot slot in slots.ToList())
+        {
+            Destroy(slot.gameObject);
+        }
+        slots.Clear();
+    }
+
+    public void RecreateInventorySlots()
+    {
+        Dictionary<ItemDescriptor, int> items = Player.GetComponent<InventoryController>().items;
+        foreach (ItemDescriptor item in items.Keys)
+        {
+            AddSlot(items[item], item);
+        }
+    }
+
+    public void SaveGameCall()
+    {
+        onGameSaved.Invoke();
     }
 }

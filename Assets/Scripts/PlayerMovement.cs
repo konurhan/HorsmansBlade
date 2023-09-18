@@ -1,6 +1,8 @@
 using UnityEngine;
 using Cinemachine;
 
+
+[DefaultExecutionOrder(1)]
 public class PlayerMovement : MonoBehaviour
 {
     //public CinemachineVirtualCamera vcam;
@@ -11,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
     public float jumpHeight = 0.5f;
     public float combatJumpHeight = 0.3f;
     public float gravity = 9.81f;
-    public float turnSpeed = 1f;
+    
     public Vector3 RBvelocity;
 
     public float SpeedZUpper;
@@ -20,7 +22,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Character Stats")]
     [SerializeField] private float speed;
-
+    public float angularSpeed = 1f;
 
     [Header("Flags")]
     [SerializeField]private bool isGrounded;
@@ -38,6 +40,16 @@ public class PlayerMovement : MonoBehaviour
         SpeedZLower = -2f;
     }
 
+    private void Start()
+    {
+        GetComponent<PlayerController>().onLevelUp += CachePlayerMovementStats;
+
+        speed = GetComponent<PlayerController>().speed;
+        angularSpeed = GetComponent<PlayerController>().angularSpeed;
+
+        animator.SetFloat("MovementSpeedMultiplier", speed);
+        animator.SetFloat("AngularSpeedMultiplier", angularSpeed * 5);
+    }
 
     private void Update()
     {
@@ -51,28 +63,29 @@ public class PlayerMovement : MonoBehaviour
           
     }
 
+    public void CachePlayerMovementStats()
+    {
+        speed = GetComponent<PlayerController>().speed;
+        angularSpeed = GetComponent<PlayerController>().angularSpeed;
+    }
+
     public void GroundedCeheck()
     {
         Vector3 rayOrigin = transform.position + GetComponent<CapsuleCollider>().center;
-        RaycastHit hit;
-        float searchDistance = GetComponent<CapsuleCollider>().height/2 + searchOffset;
-        if(Physics.Raycast(rayOrigin,Vector3.down, out hit, searchDistance)) 
+        float searchDistance = GetComponent<CapsuleCollider>().height / 2 + searchOffset;
+        if (Physics.Raycast(rayOrigin,Vector3.down, out RaycastHit hit, searchDistance)) 
         {
-            //Debug.Log("hit to: "+hit.transform.gameObject.name);
-            if(hit.transform.gameObject.tag != "Player")
+            if(!hit.transform.gameObject.CompareTag("Player"))
             {
-                //Debug.Log("collided objcet name is: " + hit.transform.gameObject.name);
                 isGrounded = true;
                 transform.position = new Vector3(transform.position.x, 0, transform.position.z);
                 animator.applyRootMotion = true;
-                //Debug.Log("on ground");
             }
         }
         else
         {
             isGrounded = false;
             animator.applyRootMotion = false;
-            //Debug.Log("in air");
         }
     }
 
@@ -80,6 +93,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if(isGrounded)
         {
+            if (Time.deltaTime == 0) return;
+
             Vector3 velocity = animator.deltaPosition / Time.deltaTime;
             rb.velocity = new Vector3(velocity.x, rb.velocity.y, velocity.z);
 
@@ -106,6 +121,7 @@ public class PlayerMovement : MonoBehaviour
                 if (forwardSpeed < SpeedZLower) forwardSpeed = SpeedZLower;
                 animator.SetFloat("SpeedZ", forwardSpeed);
             }
+            GetComponent<PlayerController>().GainSpeedXP();
         }
         else
         {
@@ -135,6 +151,7 @@ public class PlayerMovement : MonoBehaviour
                 animator.SetBool("TurnRight", false);
             }
             animator.SetBool("TurnLeft", false);
+            GetComponent<PlayerController>().GainAngularSpeedXP();
         }
         else if (x < 0)
         {
@@ -147,21 +164,23 @@ public class PlayerMovement : MonoBehaviour
                 animator.SetBool("TurnLeft", false);
             } 
             animator.SetBool("TurnRight", false);
+            GetComponent<PlayerController>().GainAngularSpeedXP();
         }
         else
         {
             animator.SetBool("TurnLeft", false);
             animator.SetBool("TurnRight", false);
         }
-        transform.Rotate(0, x * turnSpeed, 0);
+        //angularSpeed = GetComponent<PlayerController>().angularSpeed;
+        //animator.SetFloat("AngularSpeedMultiplier", angularSpeed * 5);
+        transform.Rotate(0, x * angularSpeed, 0);
     }
 
     public void HandleJump()
     {
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            float height = 0;
-            //isGrounded = false;//not necessary
+            float height;
             if(animator.GetLayerWeight(1)  == 1)
             {
                 animator.SetTrigger("CombatJump");
@@ -174,11 +193,11 @@ public class PlayerMovement : MonoBehaviour
             }
             
             searchOffset = -0.02f;//now raycast can't hit to the ground
-            rb.AddForce(Vector3.up*rb.mass*gravity* height, ForceMode.Impulse);
+
+            rb.AddForce(height * Physics.gravity.magnitude * rb.mass * Vector3.up, ForceMode.Impulse);
             Vector3 vel = rb.velocity;
             rb.velocity = Vector3.zero;
             rb.AddForce(vel, ForceMode.VelocityChange);
-            //Debug.Log("rbvel after impulse force: " + rb.velocity);
         }
         else
         {

@@ -4,15 +4,11 @@ using UnityEngine;
 
 public class RangedWeapon : Weapon
 {
-    [SerializeField] protected float maximumForce;//maximum force out of 100
+    public float maximumForce;//maximum force out of 100
     protected List<Ammo> ammos;
     public bool hasNockedAmmo;
     public bool hasDrawn;
     public Ammo knockedAmmo;
-    void Start()
-    {
-        
-    }
 
     protected override void Update()
     {

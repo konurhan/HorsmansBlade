@@ -1,5 +1,5 @@
 using System.IO;
-using Unity.Plastic.Newtonsoft.Json;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public static class SaveSystem
@@ -28,7 +28,7 @@ public static class SaveSystem
 
         if (!File.Exists(path))
         {
-            Debug.LogError($"Cannot load file at {path}. File does not exist!");
+            Debug.Log($"Cannot load file at {path}. File does not exist!");
             return default;
         }
 

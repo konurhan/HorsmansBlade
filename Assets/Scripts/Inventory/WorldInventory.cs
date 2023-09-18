@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static UnityEditor.Progress;
 
@@ -31,6 +32,7 @@ public class WorldInventory : MonoBehaviour
     {
         WorldInventoryData worldInventoryData = new WorldInventoryData();
         worldInventoryData = SaveSystem.LoadData<WorldInventoryData>("/WorldInventoryData.json");
+        if (worldInventoryData == null) return;
 
         worldItemDescriptions = worldInventoryData.worldItemDescriptions;
     }
@@ -56,7 +58,7 @@ public class WorldInventory : MonoBehaviour
             {
                 if (data.containerId == worldItemContainers[i].containerID)
                 {
-                    worldItemContainers[i].containedItems = data.containedItems;
+                    worldItemContainers[i].containedItems = data.containedItems.ToDictionary(x => x.Key, x => x.Value);
 #if UNITY_EDITOR
                     worldItemContainers[i].SerializeContainedItems();
 #endif
@@ -81,11 +83,13 @@ public class WorldInventory : MonoBehaviour
     #endregion
 }
 
+[System.Serializable]
 public class WorldInventoryData
 {
     public List<ItemDescriptor> worldItemDescriptions = new List<ItemDescriptor>();
 }
 
+[System.Serializable]
 public class ContainerDataCollection
 {
     public List<ContainerData> worldContainers;

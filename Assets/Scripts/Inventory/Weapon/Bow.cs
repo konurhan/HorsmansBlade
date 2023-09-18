@@ -81,6 +81,12 @@ public class Bow : RangedWeapon
 
     private void ReturnAmmosToInventory()//arrow are already created gameobjects
     {
+        if (owner == null)
+        {
+            Debug.Log("bow has no owner to return ammos");
+            return;
+        }
+
         InventoryController inventoryController = owner.GetComponent<InventoryController>();
 
         ItemDescriptor arrowDescriptor;

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Armour : InventoryItem
 {
     [SerializeField] protected ArmourType armourType;
-    [SerializeField] protected float protection;//provide in the editor for a prefab
+    public float protection;//provide in the editor for a prefab
 
     public float TakeDamage(float damage)
     {

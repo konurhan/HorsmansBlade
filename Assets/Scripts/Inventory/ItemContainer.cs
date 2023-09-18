@@ -185,12 +185,6 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
         CreateSlotsForAllItems();
     }
 
-    /*public void OnContainerPanelClosedByPlayer()//call from container close button
-    {
-        ContainerSlotsTransform.parent.gameObject.SetActive(false);
-        DestroyAllSlots();
-    }*/
-
     public void AddSlot(int amount, ItemDescriptor itemDesc)
     {
         int rowCount = ContainerSlotsTransform.childCount;
@@ -221,19 +215,12 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
 
     public void CreateSlotsForAllItems()//call when panel is activated
     {
-        foreach(ItemDescriptor item in containedItems.Keys)
+        InventoryUI.Instance.DestroyAllSlots();
+
+        foreach (ItemDescriptor item in containedItems.Keys)
         {
             AddSlot(containedItems[item], item);
         }
-    }
-
-    public void DestroyAllSlots()//same ui panel will be used for all containers in the game so it has to be reset each time the panel is deactivated in the canvas
-    {
-        foreach(ContainerSlot slot in InventoryUI.Instance.containerSlots.ToList())
-        {
-            Destroy(slot.gameObject);
-        }
-        InventoryUI.Instance.containerSlots.Clear();
     }
 
     #endregion
@@ -282,11 +269,12 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
     #endregion
 }
 
+[System.Serializable]
 public class ContainerData
 {
     public int containerId;
     public string containerName;
-    public Dictionary<ItemDescriptor, int> containedItems;
+    public List<KeyValuePair<ItemDescriptor, int>> containedItems;
 
     public ContainerData()
     {
@@ -297,6 +285,6 @@ public class ContainerData
     {
         containerId = container.containerID;
         containerName = container.Name;
-        containedItems = container.containedItems;
+        containedItems = container.containedItems.ToList();
     }
 }

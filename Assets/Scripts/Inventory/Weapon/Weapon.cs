@@ -5,24 +5,22 @@ using UnityEngine;
 public class Weapon : InventoryItem
 {
     [SerializeField] protected float requiredSkillLevel;
-
-    void Start()
-    {
-        
-    }
+    //bool isEquipped;
 
     protected override void Update()
     {
         base.Update();
     }
 
-    /*public override void OnEquipped()
+    public override void OnEquipped()
     {
         base.OnEquipped();
+        //isEquipped = true;
     }
 
     public override void OnDropped()
     {
         base.OnDropped();
-    }*/
+        //isEquipped = false;
+    }
 }

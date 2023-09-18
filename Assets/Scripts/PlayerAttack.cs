@@ -342,6 +342,7 @@ public class PlayerAttack : MonoBehaviour
 
     public void ActivateShield()//only call in one handed layer
     {
+        if (shield == null) return;
         shield.SetActive(true);
     }
 

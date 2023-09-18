@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UIElements;
 
 [DefaultExecutionOrder(0)]
@@ -39,6 +40,9 @@ public class NPCManager : MonoBehaviour
         LoadNPCHealth();
 
         InventoryUI.Instance.onGameSaved += SaveNPCHealth;
+
+        Menu.onGamePaused += ConfigureForPause;
+        Menu.onGameResumed += ConfigureForResume;
     }
 
     public void SetEnemyDestinationOffsets()//call it every time an enemy is added, through enemy controller
@@ -57,6 +61,41 @@ public class NPCManager : MonoBehaviour
             float radians = angle * Mathf.Deg2Rad;
             enemyNPCs[i].GetComponent<EnemyNPCMovement>().destinationOffset = new Vector3(radius*Mathf.Cos(radians), 0, radius * Mathf.Sin(radians));
         }
+    }
+
+
+    public void ConfigureForPause()
+    {
+        foreach(EnemyController enemyController in enemyNPCs)
+        {
+            GameObject enemy = enemyController.gameObject;
+            enemy.GetComponent<Animator>().enabled = false;
+            enemy.GetComponent<EnemyNPCMovement>().enabled = false;
+            enemy.GetComponent<EnemyNPCAttack>().enabled = false;
+            enemy.GetComponent<Rigidbody>().isKinematic = true;
+            enemy.GetComponent<PlayerHealth>().enabled = false;
+            enemy.GetComponent<NavMeshAgent>().enabled = false;
+            enemy.GetComponent<ItemContainer>().enabled = false;
+            enemy.GetComponent<EnemyNPCEquipmentSystem>().enabled = false;
+            enemy.GetComponent<EnemyController>().enabled = false;
+        }
+    }
+
+    public void ConfigureForResume()
+    {
+        foreach (EnemyController enemyController in enemyNPCs)
+        {
+            GameObject enemy = enemyController.gameObject;
+            enemy.GetComponent<Animator>().enabled = true;
+            enemy.GetComponent<EnemyNPCMovement>().enabled = true;
+            enemy.GetComponent<EnemyNPCAttack>().enabled = true;
+            enemy.GetComponent<Rigidbody>().isKinematic = false;
+            enemy.GetComponent<PlayerHealth>().enabled = true;
+            enemy.GetComponent<NavMeshAgent>().enabled = true;
+            enemy.GetComponent<ItemContainer>().enabled = true;
+            enemy.GetComponent<EnemyNPCEquipmentSystem>().enabled = true;
+            enemy.GetComponent<EnemyController>().enabled = true;
+        } 
     }
 
     #region save/load methods
@@ -83,7 +122,7 @@ public class NPCManager : MonoBehaviour
         foreach (EnemyController controller in enemyNPCs)
         {
             int npcID = controller.npcID;
-            HealthData healthData = new HealthData(gameObject.GetComponent<PlayerHealth>());
+            HealthData healthData = new HealthData(controller.gameObject.GetComponent<PlayerHealth>());
             npcHealthCollection.healthDatas.Add(npcID, healthData);
         }
         
@@ -93,6 +132,7 @@ public class NPCManager : MonoBehaviour
     #endregion
 }
 
+[System.Serializable]
 public class NPCHealthCollection
 {
     public Dictionary<int, HealthData> healthDatas;
