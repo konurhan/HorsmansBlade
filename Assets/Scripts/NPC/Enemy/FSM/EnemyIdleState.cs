@@ -36,7 +36,12 @@ public class EnemyIdleState : EnemyState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        if(movement.DoesHaveTarget())
+        if (movement.waypoints.Count > 0)
+        {
+            fsm.ChangeState(enemy.patrollingState);
+            return;
+        }
+        if (movement.DoesHaveTarget())
         {
             fsm.ChangeState(enemy.chasingState);
             return;

@@ -22,14 +22,8 @@ public class EnemyChasingState : EnemyState
     {
         base.EnterState();
         equipmentSystem.Draw();
-        //agent.updateRotation = true;
         Vector3 destination = movement.target.transform.position + movement.target.transform.forward * movement.destinationOffset.z + movement.target.transform.right * movement.destinationOffset.x;
         movement.agent.SetDestination(destination);
-        Debug.Log(destination);
-        if (agent.updateRotation) Debug.Log("agent can rotate");
-
-
-        Debug.Log("Entered to chasing state");
     }
 
     public override void ExitState()
@@ -59,9 +53,7 @@ public class EnemyChasingState : EnemyState
         }
         if (movement.GetDistanceToSurroundingDestination() <= agent.stoppingDistance)
         {
-            agent.ResetPath();//doesn't update rotation when there are no paths present
-            /*Quaternion lookRotation = Quaternion.LookRotation(movement.target.transform.position  - enemyObj.transform.position, Vector3.up);
-            enemyObj.transform.rotation = lookRotation;*/
+            agent.ResetPath();
             fsm.ChangeState(enemy.closingInState);
             return;
         }
@@ -73,6 +65,5 @@ public class EnemyChasingState : EnemyState
 
         Vector3 destination = movement.target.transform.position + movement.target.transform.forward * movement.destinationOffset.z + movement.target.transform.right * movement.destinationOffset.x;
         movement.agent.SetDestination(destination);
-        //Debug.Log(destination);
     }
 }

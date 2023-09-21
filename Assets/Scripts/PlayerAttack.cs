@@ -23,9 +23,9 @@ public class PlayerAttack : MonoBehaviour
     public Transform spineLookAt;
     public Transform Crosshair;
 
-    private bool usingOneHanded;
-    private bool usingTwoHanded;
-    private bool usingRanged;
+    public bool usingOneHanded;
+    public bool usingTwoHanded;
+    public bool usingRanged;
 
     #region AI signaling flags
     public bool inwardSlash;
@@ -348,6 +348,7 @@ public class PlayerAttack : MonoBehaviour
 
     public void DeactivateShield()//only call in one handed layer
     {
+        if (shield == null) return;
         shield.SetActive(false);
     }
 

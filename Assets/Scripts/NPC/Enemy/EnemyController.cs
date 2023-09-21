@@ -23,6 +23,7 @@ public class EnemyController : MonoBehaviour
     #region State Machine
     public EnemyStateMachine stateMachine;
     public EnemyIdleState idleState;
+    public EnemyPatrollingState patrollingState;
     public EnemyChasingState chasingState;
     public EnemyClosingInState closingInState;
     public EnemyAttackState attackState;
@@ -35,6 +36,7 @@ public class EnemyController : MonoBehaviour
     {
         stateMachine = new EnemyStateMachine();
         idleState = new EnemyIdleState(this, stateMachine);
+        patrollingState = new EnemyPatrollingState(this, stateMachine);
         chasingState = new EnemyChasingState(this, stateMachine);
         closingInState = new EnemyClosingInState(this, stateMachine);
         attackState = new EnemyAttackState(this, stateMachine);
@@ -48,8 +50,6 @@ public class EnemyController : MonoBehaviour
     void Start()
     {
         stateMachine.Initialize(idleState, gameObject);
-
-        
     }
 
     void Update()
@@ -76,6 +76,4 @@ public class EnemyController : MonoBehaviour
         legRightLower.GetComponent<BodyPart>().SetPlayerReference(gameObject);
         legLeftLower.GetComponent<BodyPart>().SetPlayerReference(gameObject);
     }
-
-    
 }

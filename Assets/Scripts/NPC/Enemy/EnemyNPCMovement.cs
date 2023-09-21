@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,7 +11,8 @@ public class EnemyNPCMovement : MonoBehaviour
     public Animator animator { get; private set; }
     public NavMeshAgent agent { get; private set; }
     private SphereCollider sphereCollider;
-
+    private Rigidbody rb;
+    private EnemyController controller;
     private EnemyNPCAttack attack;
 
     public GameObject target;
@@ -27,7 +29,10 @@ public class EnemyNPCMovement : MonoBehaviour
     [SerializeField] private float speed;
     public Vector3 angularVelocity;
     public Vector3 velocity;
-    private Rigidbody rb;
+
+    public Transform WaypointGraphParent;
+    public List<Transform> waypoints;
+    
 
     private float lastYEulerAngle;
 
@@ -37,10 +42,15 @@ public class EnemyNPCMovement : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         sphereCollider = GetComponent<SphereCollider>();
         rb = GetComponent<Rigidbody>();
+        controller = GetComponent<EnemyController>();
 
         isMovementRoationalEnabled = true;
-        //agentIsManullayRotating = false;
         isClosingIn = false;
+
+        for (int i = 0; i < WaypointGraphParent.childCount; i++)
+        {
+            waypoints.Add(WaypointGraphParent.GetChild(i).gameObject.transform);
+        }
     }
 
     void Start()
@@ -51,14 +61,18 @@ public class EnemyNPCMovement : MonoBehaviour
         
         attack = GetComponent<EnemyNPCAttack>();
         lastYEulerAngle = transform.rotation.eulerAngles.y;
-        //agentRotationY = transform.rotation.eulerAngles.y;
     }
 
     void Update()
     {
-        if (agent.hasPath)
+        if (agent.hasPath && controller.stateMachine.currentstate != controller.patrollingState)
         {
             animator.SetFloat("SpeedZ", agent.velocity.magnitude);//refactor this so that animation speed, agent speed and character speeds all together work in a conforming way
+        }else if (agent.hasPath && controller.stateMachine.currentstate == controller.patrollingState)
+        {
+            float clamped = agent.velocity.magnitude;
+            if (clamped > 1) clamped = 1;
+            animator.SetFloat("SpeedZ", clamped);
         }
         sphereCollider.radius = detectionRadius;//move this into a method
         angularVelocity = rb.angularVelocity;

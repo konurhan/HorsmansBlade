@@ -87,7 +87,8 @@ public class PlayerController : MonoBehaviour
         if (speedXP > 10000)
         {
             speedXP -= 10000;
-            speed += 0.1f ;
+            speed += 0.1f;
+            GetComponent<Animator>().SetFloat("MovementSpeedMultiplier", speed);
             LevelUp("speed");
         }
     }
@@ -99,6 +100,7 @@ public class PlayerController : MonoBehaviour
         {
             angularSpeedXP -= 10000;
             angularSpeed += 0.1f;
+            GetComponent<Animator>().SetFloat("AngularSpeedMultiplier", angularSpeed * 5);
             LevelUp("angularSpeed");
         }
     }

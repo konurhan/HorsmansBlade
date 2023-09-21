@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   owner: {fileID: 0}
-  itemName: ArcherHelmet
+  itemName: ArcherGuantlets
   weight: 0.05
   price: 30
   collectibleFlag: 0

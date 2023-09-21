@@ -171,8 +171,6 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("TurnLeft", false);
             animator.SetBool("TurnRight", false);
         }
-        //angularSpeed = GetComponent<PlayerController>().angularSpeed;
-        //animator.SetFloat("AngularSpeedMultiplier", angularSpeed * 5);
         transform.Rotate(0, x * angularSpeed, 0);
     }
 
