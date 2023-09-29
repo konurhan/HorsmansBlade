@@ -20,6 +20,7 @@ public class EnemyChasingState : EnemyState
 
     public override void EnterState()
     {
+        Debug.Log("enetered to chasing state");
         base.EnterState();
         equipmentSystem.Draw();
         Vector3 destination = movement.target.transform.position + movement.target.transform.forward * movement.destinationOffset.z + movement.target.transform.right * movement.destinationOffset.x;
@@ -42,13 +43,13 @@ public class EnemyChasingState : EnemyState
         if (!movement.DoesHaveTarget())
         {
             Debug.Log("doesnt have a target anymore");
-            fsm.ChangeState(enemy.idleState);
+            fsm.ChangeState(enemy.patrollingState);
             return;
         }
         if (movement.TargetOutOfRange())
         {
             Debug.Log("target is lost");
-            fsm.ChangeState(enemy.idleState);
+            fsm.ChangeState(enemy.patrollingState);
             return;
         }
         if (movement.GetDistanceToSurroundingDestination() <= agent.stoppingDistance)

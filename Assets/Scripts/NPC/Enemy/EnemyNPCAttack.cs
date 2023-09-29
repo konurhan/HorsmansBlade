@@ -84,7 +84,7 @@ public class EnemyNPCAttack : MonoBehaviour
 
     public void DecideAndAttack()//enemy will decide which attack action to perform
     {
-        int rand = Random.Range(0, 4);
+        int rand = Random.Range(3, 4);
         switch (rand)
         {
             case 0:
@@ -104,7 +104,7 @@ public class EnemyNPCAttack : MonoBehaviour
                 break;
             case 3:
                 //doing nothing: can strafe in this phase, or reposition
-                strafeAroundCoroutine = movement.StartCoroutine(movement.StrafeAroundTheTarget(2));
+                strafeAroundCoroutine = movement.StartCoroutine(movement.StrafeAroundTheTarget(3));
                 break;
         }
     }

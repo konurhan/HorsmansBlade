@@ -20,6 +20,10 @@ public class EnemyController : MonoBehaviour
     public GameObject legLeftLower;
     public GameObject legRightLower;
 
+    [Header("Skinned Mesh Parts")]
+    public Transform NakedParts;
+    public Transform ArmourSlots;
+
     #region State Machine
     public EnemyStateMachine stateMachine;
     public EnemyIdleState idleState;

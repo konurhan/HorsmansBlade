@@ -38,12 +38,32 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         itemInfo.SetActive(false);
     }
 
+    private void OnDestroy()
+    {
+        if(itemInfo != null)
+        {
+            if (!itemInfo.activeInHierarchy) return;
+            itemInfo.SetActive(false);
+            Destroy(itemInfo);
+        }
+    }
+
     public void Initialize(int amount, InventoryController controller, ItemDescriptor itemDesc)
     {
         Amount.gameObject.GetComponent<TextMeshProUGUI>().text = amount.ToString();
         ItemImage.gameObject.GetComponent<Image>().sprite = Resources.Load<Sprite>("UI/ItemSprites/"+ itemDesc.itemName);
         inventoryController = controller;
         itemDescriptor = itemDesc;
+
+        AddToWorldInventory();
+    }
+
+    private void AddToWorldInventory()
+    {
+        if (inventoryController.FindDescriptionInWorldInventory(itemDescriptor.itemName) == null) 
+        { 
+            WorldInventory.Instance.AddNewItemDescriptor(itemDescriptor);
+        }
     }
 
     public void SetupItemInfo()

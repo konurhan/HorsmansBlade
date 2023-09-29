@@ -109,8 +109,8 @@ public class Ammo : InventoryItem
 
     private void GetTargetLayer()
     {
-        if (owner.layer == 8) targetLayer = 9;
-        else if (owner.layer == 9) targetLayer = 8;
+        if (owner.layer == 8) targetLayer = 15;
+        else if (owner.layer == 9) targetLayer = 14;
     }
 
     private void DealDamage(BodyPart part, float damageDealt) 

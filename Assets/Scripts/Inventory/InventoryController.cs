@@ -309,7 +309,10 @@ public class InventoryController : MonoBehaviour
     public void CollectSingleItem(GameObject gathered)
     {
         //check weight limitation
+
         //trigger gathering animation
+
+
         if(gathered.GetComponent<InventoryItem>() != null)
         {
             gameObject.GetComponent<Animator>().SetTrigger("Gather");//when knee is down collect the item or set active false
@@ -326,9 +329,13 @@ public class InventoryController : MonoBehaviour
             }
             else
             {
-                ItemDescriptor newItemDesc = FindDescriptionInWorldInventory(invItem.Name);
-                items.Add(newItemDesc, 1);
-                InventoryUI.Instance.AddSlot(1, newItemDesc);
+                ItemDescriptor worldItemDesc = FindDescriptionInWorldInventory(invItem.Name);
+                /*if (worldItemDesc == null)
+                {
+                    WorldInventory.Instance.AddNewItemDescriptor()
+                }*/
+                items.Add(worldItemDesc, 1);
+                InventoryUI.Instance.AddSlot(1, worldItemDesc);
             }
         }
 

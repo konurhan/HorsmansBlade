@@ -29,7 +29,9 @@ public class CameraController : MonoBehaviour
         if (attack.aiming)
         {
             RotateCameraFollowTarget();
-            if (aimCamera.gameObject.activeSelf) 
+            //target.transform.localEulerAngles -= new Vector3(0,50,0);
+
+            if (aimCamera.gameObject.activeSelf)
             {
                 attack.HandleSpineLookAt();
                 return;

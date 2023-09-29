@@ -33,8 +33,10 @@ public class EnemyNPCMovement : MonoBehaviour
     public Transform WaypointGraphParent;
     public List<Transform> waypoints;
     
-
     private float lastYEulerAngle;
+
+    private Coroutine changeSpeedX;
+    private Coroutine changeSpeedZ;
 
     private void Awake()
     {
@@ -133,9 +135,11 @@ public class EnemyNPCMovement : MonoBehaviour
         float lerpSpeed = 5f;
         GameObject cachedTarget = target;
         isClosingIn = true;
-        float speedZ = 0.5f;
-        float speedX = UnityEngine.Random.Range(-1f, 1f);
-        speedX = speedX < 0 ? 1f : 1f;//animations are not enough, walking left and approaching doesn't work together
+
+        float speedZ = 0.5f;//bring this up/down gradually
+        float speedX = 1.5f;//bring this up/down gradually
+
+        //speedX = speedX <= 0 ? 1.5f : 1.5f;//animations are not enough, walking left and approaching doesn't work together
         animator.SetFloat("SpeedZ", speedZ);
         animator.SetFloat("SpeedX", speedX);
         while (true)
@@ -150,11 +154,24 @@ public class EnemyNPCMovement : MonoBehaviour
     {
         attack.attacking = true;
         GameObject cachedTarget = target;
-        animator.SetFloat("SpeedZ", 0);
+        
+        if (changeSpeedZ != null)
+        {
+            StopCoroutine(changeSpeedZ);
+        }
+        if (animator.GetFloat("SpeedZ") < 0)
+        {
+            StartSpeedUpZ(0);
+        }
+        else if (animator.GetFloat("SpeedZ") > 0)
+        {
+            StartSlowDownZ(0);
+        }
+        //animator.SetFloat("SpeedZ", 0);//bring this down gradually; buradaaa speedUp ve slowdown coroutinelerini kontrol edip onlari durdur
         float speedX = UnityEngine.Random.Range(-1f, 1f);
-        speedX = speedX < 0 ? -1f : 1f;
+        speedX = speedX <= 0 ? -1f : 1f;//change this gradually
 
-        Func<float, float, float> speedModel;
+        /*Func<float, float, float> speedModel;
         if (speedX > 0)
         {
             speedModel = NegativeParabolicBy2PeakSpeed;
@@ -166,39 +183,110 @@ public class EnemyNPCMovement : MonoBehaviour
 
         float strafeDur = duration;
         float time = 0f;
+        //float lerpSpeed = 15f;
+
         while (time < strafeDur)
         {
-            Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position,Vector3.up);
+            Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position, Vector3.up);
+            //transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lerpSpeed);
             transform.rotation = lookRotation;
-            float xAxPos = ((time / (strafeDur/2)) - 1);//progress of speedup/slow-downi fitted on [-1,1] interval on the x axis
+            float xAxPos = ((time / (strafeDur/2)) - 1);//progress of speedup/slow-down fitted on [-1,1] interval on the x axis
             float curSpeedX = speedModel(speedX, xAxPos);
 
             animator.SetFloat("SpeedX", curSpeedX);
             time += Time.deltaTime;
             yield return new WaitForSeconds(Time.deltaTime);
+        }*/
+
+        if (changeSpeedX != null)
+        {
+            StopCoroutine(changeSpeedX);
         }
-        animator.SetFloat("SpeedZ", 0);
-        animator.SetFloat("SpeedX", 0);
-        attack.attacking = false;
+        if (animator.GetFloat("SpeedX") < speedX)
+        {
+            StartSpeedUpX(speedX);//bunun ne kadar surecegini hesapla, onu total sureden dus ve o kadar sure 
+        }
+        else if (animator.GetFloat("SpeedX") > speedX)
+        {
+            StartSlowDownX(speedX);
+        }
+
+        float strafeDur = duration;
+        float time = 0f;
+
+        while (time < strafeDur)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position, Vector3.up);
+            //transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lerpSpeed);
+            transform.rotation = lookRotation;
+
+            
+            time += Time.deltaTime;
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+
+        OnStopStrafeAroundTheTarget();
     }
 
-    public void OnStopStrafing()
+    public void OnStopStrafeAroundTheTarget()
     {
-        animator.SetFloat("SpeedZ", 0);
-        animator.SetFloat("SpeedX", 0);
+        attack.attacking = false;
+
+        if (changeSpeedX != null) 
+        { 
+            StopCoroutine (changeSpeedX);
+        }
+
+        if (changeSpeedZ != null)
+        {
+            StopCoroutine (changeSpeedZ);
+        }
+
+        if (animator.GetFloat("SpeedX") < 0)
+        {
+            StartSpeedUpX(0);//bunun ne kadar surecegini hesapla, onu total sureden dus ve o kadar sure 
+        }
+        else if (animator.GetFloat("SpeedX") > 0)
+        {
+            StartSlowDownX(0);
+        }
+    }
+
+    public void OnStopStrafing()//when closing in stops
+    {
+        if (animator.GetFloat("SpeedZ") < 0)
+        {
+            StartSpeedUpZ(0);
+        }
+        else if (animator.GetFloat("SpeedZ") > 0)
+        {
+            StartSlowDownZ(0);
+        }
+
+        if (animator.GetFloat("SpeedX") < 0)
+        {
+            StartSpeedUpX(0);
+        }
+        else if (animator.GetFloat("SpeedX") > 0)
+        {
+            StartSlowDownX(0);
+        }
+
+        //animator.SetFloat("SpeedZ", 0);//bring down slowly
+        //animator.SetFloat("SpeedX", 0);//bring down slowly
         isClosingIn = false;
     }
 
     public float NegativeParabolicBy2PeakSpeed(float peakSpeed, float xAxPos)//peakSpeed - x^2, called if peakSpeed > 0
     {
         float xAxPosClamped = Mathf.Sqrt(peakSpeed) * xAxPos;
-        return peakSpeed - Mathf.Pow(xAxPosClamped, 2);
+        return peakSpeed - Mathf.Pow(xAxPosClamped, 4);
     }
 
     public float ParabolicBy2PeakSpeed(float peakSpeed, float xAxPos)//peakSpeed + x^2, call if peakSpeed < 0
     {
         float xAxPosClamped = Mathf.Sqrt(-peakSpeed) * xAxPos;
-        return peakSpeed + Mathf.Pow(xAxPosClamped, 2);
+        return peakSpeed + Mathf.Pow(xAxPosClamped, 4);
     }
 
     public IEnumerator AgentRotateTowardsTarget()
@@ -265,14 +353,40 @@ public class EnemyNPCMovement : MonoBehaviour
         detectionRadius = radius;
     }
 
-    /*public void StartSpeedUp()
+    public void StartSpeedUpX(float targetSpeed)
     {
-        StartCoroutine(SpeedUp());
+        if (changeSpeedX != null)
+        {
+            StopCoroutine(changeSpeedX);
+        }
+        changeSpeedX = StartCoroutine(SpeedUpX(targetSpeed));
     }
 
-    public void StartSlowDown()
+    public void StartSlowDownX(float targetSpeed)
     {
-        StartCoroutine(SlowDown());
+        if (changeSpeedX != null)
+        {
+            StopCoroutine(changeSpeedX);
+        }
+        changeSpeedX = StartCoroutine(SlowDownX(targetSpeed));
+    }
+
+    public void StartSpeedUpZ(float targetSpeed)
+    {
+        if (changeSpeedZ != null)
+        {
+            StopCoroutine(changeSpeedZ);
+        }
+        changeSpeedZ = StartCoroutine(SpeedUpZ(targetSpeed));
+    }
+
+    public void StartSlowDownZ(float targetSpeed)
+    {
+        if (changeSpeedZ != null)
+        {
+            StopCoroutine(changeSpeedZ);
+        }
+        changeSpeedZ = StartCoroutine(SlowDownZ(targetSpeed));
     }
 
     public IEnumerator SpeedUpStrafe()
@@ -304,36 +418,67 @@ public class EnemyNPCMovement : MonoBehaviour
         yield break;
     }
 
-    public IEnumerator SpeedUp()
+    public IEnumerator SpeedUpZ(float targetSpeed)
     {
-        Debug.Log("speeding up");
+        //Debug.Log("speeding up");
         float speed = animator.GetFloat("SpeedZ");
-        Debug.Log("speedZ is: " + speed);
+        //Debug.Log("speedZ is: " + speed);
 
-        while (speed < 2f)
+        while (speed < targetSpeed)
         {
             speed += 0.01f;
             animator.SetFloat("SpeedZ", speed);
             yield return new WaitForEndOfFrame();
         }
-        speed = 2f;
+        speed = targetSpeed;
         animator.SetFloat("SpeedZ", speed);
         yield break;
     }
 
-    public IEnumerator SlowDown()
+    public IEnumerator SpeedUpX(float targetSpeed)//do this in real time, not by frames
+    {
+        //Debug.Log("speeding up");
+        float speed = animator.GetFloat("SpeedX");
+        //Debug.Log("SpeedX is: " + speed);
+
+        while (speed < targetSpeed)
+        {
+            speed += 0.01f;
+            animator.SetFloat("SpeedX", speed);
+            yield return new WaitForEndOfFrame();
+        }
+        speed = targetSpeed;
+        animator.SetFloat("SpeedX", speed);
+        yield break;
+    }
+
+    public IEnumerator SlowDownZ(float targetSpeed)
     {
         float speed = animator.GetFloat("SpeedZ");
-        while (speed > 0f)
+        while (speed > targetSpeed)
         {
             speed -= 0.01f;
             animator.SetFloat("SpeedZ", speed);
             yield return new WaitForEndOfFrame();
         }
-        speed = 0f;
+        speed = targetSpeed;
         animator.SetFloat("SpeedZ", speed);
         yield break;
-    }*/
+    }
+
+    public IEnumerator SlowDownX(float targetSpeed)
+    {
+        float speed = animator.GetFloat("SpeedX");
+        while (speed > targetSpeed)
+        {
+            speed -= 0.01f;
+            animator.SetFloat("SpeedX", speed);
+            yield return new WaitForEndOfFrame();
+        }
+        speed = targetSpeed;
+        animator.SetFloat("SpeedX", speed);
+        yield break;
+    }
 
     #region Animation Events
     public void GoInToMovementLayer()

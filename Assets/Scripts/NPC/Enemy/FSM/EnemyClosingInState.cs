@@ -9,7 +9,7 @@ public class EnemyClosingInState : EnemyState
     EnemyNPCMovement movement;
     EnemyNPCEquipmentSystem equipmentSystem;
     NavMeshAgent agent;
-    private Coroutine currentCoroutine;
+    [SerializeField] private Coroutine currentCoroutine;
     public EnemyClosingInState(EnemyController enemy, EnemyStateMachine fsm) : base(enemy, fsm)
     {
         enemyObj = enemy.gameObject;
@@ -24,8 +24,9 @@ public class EnemyClosingInState : EnemyState
         base.EnterState();
         Debug.Log("Entered to closing in state");
         //agent.ResetPath();
-        movement.animator.SetFloat("SpeedZ", 0);
+        movement.animator.SetFloat("SpeedZ", 0);//don't make sudden cahnges to speed valuse in order to avoid feet jumps in anim
         movement.animator.SetFloat("SpeedX", 0);
+        //Debug.Break();
     }
 
     public override void ExitState()
@@ -50,7 +51,7 @@ public class EnemyClosingInState : EnemyState
                 movement.StopCoroutine(currentCoroutine);
                 movement.OnStopStrafing();
             }
-            fsm.ChangeState(enemy.idleState);
+            fsm.ChangeState(enemy.patrollingState);
             return;
         }
         if (movement.TargetOutOfRange())//if the target moved out of detection radius
@@ -61,7 +62,7 @@ public class EnemyClosingInState : EnemyState
                 movement.StopCoroutine(currentCoroutine);
                 movement.OnStopStrafing();
             }
-            fsm.ChangeState(enemy.idleState);
+            fsm.ChangeState(enemy.patrollingState);
             return;
         }
         if (distanceToTarget > movement.surroundingRadius + agent.stoppingDistance + 0.2f)
@@ -75,7 +76,7 @@ public class EnemyClosingInState : EnemyState
             fsm.ChangeState(enemy.chasingState);
             return;
         }
-        if (distanceToTarget < movement.attackRadius)
+        if (distanceToTarget <= movement.attackRadius)//feet jump must be happening in this transition
         {
             if (currentCoroutine != null)
             {
@@ -86,6 +87,10 @@ public class EnemyClosingInState : EnemyState
             return;
         }
 
-        if (!movement.isClosingIn) currentCoroutine = movement.StartCoroutine(movement.StrafeTowardsTarget());
+        if (!movement.isClosingIn || currentCoroutine == null)
+        {
+            currentCoroutine = movement.StartCoroutine(movement.StrafeTowardsTarget());
+            Debug.Log("New strafe towards target coroutine has started");
+        }
     }
 }

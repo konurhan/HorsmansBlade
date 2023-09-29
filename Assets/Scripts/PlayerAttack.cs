@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 using UnityEngine.SocialPlatforms.Impl;
+using Unity.Burst.CompilerServices;
 
 public class PlayerAttack : MonoBehaviour
 {
@@ -37,6 +38,8 @@ public class PlayerAttack : MonoBehaviour
 
     private GameObject recentMeleeWeapon;
     private GameObject recentRangedWeapon;
+    public GameObject recentOnCrossObject;
+    public Vector3 recentOnCrossObjectContactPoint;
 
     private Animator animator;
     private CameraController cameraController;
@@ -177,16 +180,44 @@ public class PlayerAttack : MonoBehaviour
     public void HandleSpineLookAt()
     {
         GameObject aimCam = cameraController.aimCamera.gameObject;
+        GameObject mainCam = cameraController.mainVCamera.gameObject;
 
-        RaycastHit hit;
+        /*RaycastHit hit;
         if (Physics.Raycast(aimCam.transform.position,aimCam.transform.forward, out hit))
         {
+            //spineLookAt.position = hit.point + Vector3.right * 5;
             spineLookAt.position = hit.point;
             Debug.Log(hit.transform.name+" is on crosshair");
         }
         else
         {
             spineLookAt.position = gameObject.transform.position + aimCam.transform.forward*5;
+        }*/
+
+        /*RaycastHit hit;
+        if (Physics.Raycast(aimCam.transform.position, cameraController.target.transform.forward, out hit))//bu crosshairin gosterdigi yeri gostermiyor, göstermesine de gerek yok
+        {
+            //spineLookAt.position = hit.point + Vector3.right * 5;            
+            spineLookAt.position = hit.point;
+            Debug.Log(hit.transform.name + " is on crosshair");
+        }
+        else
+        {
+            //spineLookAt.position = gameObject.transform.position + cameraController.target.transform.forward * 5;
+        }*/
+
+        spineLookAt.position = aimCam.transform.position + cameraController.target.transform.forward * 100;
+
+        RaycastHit hit;
+        int layerMask = ~(1 << 15 + 1 << 14);
+        if (Physics.Raycast(aimCam.transform.position, aimCam.transform.forward, out hit, 100, layerMask))
+        {
+            recentOnCrossObject = hit.collider.gameObject;
+            recentOnCrossObjectContactPoint = hit.point;
+        }
+        else
+        {
+            recentOnCrossObject = null;
         }
     }
 

@@ -12,6 +12,10 @@ public class PlayerHealth : MonoBehaviour
     public float legsHealth;
 
     public bool isDead;
+
+    PlayerController controller;
+    EnemyController enemyController;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -19,6 +23,9 @@ public class PlayerHealth : MonoBehaviour
         LoadPlayerHealth();
 
         InventoryUI.Instance.onGameSaved += SaveHealth;
+
+        if (GetComponent<PlayerController>() != null ) controller = GetComponent<PlayerController>();
+        if (GetComponent<EnemyController>() != null) enemyController = GetComponent<EnemyController>();
     }
 
     // Update is called once per frame
@@ -29,6 +36,43 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(string bodyPart, float damage)
     {
+        if (enemyController != null)
+        {
+            switch (bodyPart)
+            {
+                case "head":
+
+                    break;
+                case "torso":
+                    torsoHealth -= damage;
+                    break;
+                case "arm":
+                    armsHealth -= damage;
+                    break;
+                case "leg":
+                    legsHealth -= damage;
+                    break;
+            }
+        }
+        else
+        {
+            switch (bodyPart)
+            {
+                case "head":
+
+                    break;
+                case "torso":
+                    torsoHealth -= damage;
+                    break;
+                case "arm":
+                    armsHealth -= damage;
+                    break;
+                case "leg":
+                    legsHealth -= damage;
+                    break;
+            }
+        }
+        
         switch (bodyPart)
         {
             case "head":
@@ -73,7 +117,14 @@ public class PlayerHealth : MonoBehaviour
     private void Die()
     {
         isDead = true;
+
         GetComponent<Animator>().SetBool("Died", true);
+        GetComponent<CapsuleCollider>().isTrigger = true;
+        
+        Rigidbody rigidbody = GetComponent<Rigidbody>();
+        rigidbody.isKinematic = true;
+        rigidbody.freezeRotation = true;
+        
         if (GetComponent<PlayerAttack>())//if player died
         {
             GetComponent<PlayerAttack>().enabled = false;
@@ -84,8 +135,13 @@ public class PlayerHealth : MonoBehaviour
         {
             GetComponent<EnemyNPCAttack>().enabled = false;
             GetComponent<EnemyNPCMovement>().enabled = false;
+            
+            EnemyNPCEquipmentSystem enemyNPCEquipmentSystem = GetComponent<EnemyNPCEquipmentSystem>();
+            enemyNPCEquipmentSystem.DestroyEquippedWeapons();
+            enemyNPCEquipmentSystem.UnEquipAllArmours();
+            enemyNPCEquipmentSystem.enabled = false;
+
             GetComponent<EnemyController>().enabled = false;
-            GetComponent<EnemyNPCEquipmentSystem>().enabled = false;
             GetComponent<NavMeshAgent>().enabled = false;
         }
     }

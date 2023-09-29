@@ -2202,9 +2202,9 @@ GameObject:
   - component: {fileID: 116222303}
   - component: {fileID: 116222305}
   - component: {fileID: 116222304}
-  m_Layer: 8
+  m_Layer: 14
   m_Name: PlayerLegLeftLower
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2823,9 +2823,9 @@ GameObject:
   - component: {fileID: 140637412}
   - component: {fileID: 140637414}
   - component: {fileID: 140637413}
-  m_Layer: 8
+  m_Layer: 14
   m_Name: PlayerRightForearm
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3282,9 +3282,9 @@ GameObject:
   - component: {fileID: 156354653}
   - component: {fileID: 156354655}
   - component: {fileID: 156354654}
-  m_Layer: 9
+  m_Layer: 15
   m_Name: PlayerHead
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4354,7 +4354,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &220766868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4367,10 +4367,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82995aa8ae9cd634396327087d45f976, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sword: {fileID: 0}
+  meleeOneHanded: {fileID: 0}
+  meleeTwoHanded: {fileID: 0}
   shield: {fileID: 0}
-  SwordHandTransform: {fileID: 487194194}
-  SwordSheatTransform: {fileID: 1633221157}
+  MeleeHandTransform: {fileID: 487194194}
+  MeleeSheatTransform: {fileID: 1633221157}
   ShieldHandTransform: {fileID: 1042148178}
 --- !u!114 &220766869
 MonoBehaviour:
@@ -4412,6 +4413,8 @@ MonoBehaviour:
   legRightUpper: {fileID: 1283952303}
   legLeftLower: {fileID: 693662880}
   legRightLower: {fileID: 2036818967}
+  NakedParts: {fileID: 525404272}
+  ArmourSlots: {fileID: 1049314699}
   curState: 
 --- !u!114 &220766871
 MonoBehaviour:
@@ -4608,15 +4611,18 @@ MonoBehaviour:
   lootableFlag: 0
   isNPC: 1
   PrefabNames:
-  - ArcherGuantlets
-  - ArcherBoots
-  - ArcherPants
+  - KnightGuantlets
+  - KnightBoots
+  - KnightPants
+  - SimpleLongSword
+  isEquipped: 01010001
   PrefabPaths:
   - Prefabs/Armours/
   - Prefabs/Armours/
   - Prefabs/Armours/
-  ItemTypes: 030000000300000003000000
-  amount: 010000000100000001000000
+  - Prefabs/Weapons/Melee/
+  ItemTypes: 03000000030000000300000000000000
+  amount: 01000000010000000100000001000000
 --- !u!4 &221034175 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4842888263158114, guid: e6f343cc46467004f811ce2ba3a3841b,
@@ -4667,9 +4673,9 @@ GameObject:
   - component: {fileID: 227567148}
   - component: {fileID: 227567150}
   - component: {fileID: 227567149}
-  m_Layer: 9
+  m_Layer: 15
   m_Name: PlayerLegRightLower
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6010,7 +6016,7 @@ GameObject:
   - component: {fileID: 325259802}
   m_Layer: 9
   m_Name: LowPolyEnemy2
-  m_TagString: Untagged
+  m_TagString: EnemyNPC
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6036,12 +6042,15 @@ MonoBehaviour:
   - ArcherGuantlets
   - ArcherBoots
   - ArcherPants
+  - SimpleLongSword
+  isEquipped: 00000101
   PrefabPaths:
   - Prefabs/Armours/
   - Prefabs/Armours/
   - Prefabs/Armours/
-  ItemTypes: 030000000300000003000000
-  amount: 010000000100000001000000
+  - Prefabs/Weapons/Melee/
+  ItemTypes: 03000000030000000300000000000000
+  amount: 01000000010000000100000001000000
 --- !u!114 &325259803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6054,10 +6063,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82995aa8ae9cd634396327087d45f976, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sword: {fileID: 0}
+  meleeOneHanded: {fileID: 0}
+  meleeTwoHanded: {fileID: 0}
   shield: {fileID: 0}
-  SwordHandTransform: {fileID: 1985581713}
-  SwordSheatTransform: {fileID: 673643646}
+  MeleeHandTransform: {fileID: 1985581713}
+  MeleeSheatTransform: {fileID: 673643646}
   ShieldHandTransform: {fileID: 1616855513}
 --- !u!114 &325259804
 MonoBehaviour:
@@ -6099,6 +6109,8 @@ MonoBehaviour:
   legRightUpper: {fileID: 1949583934}
   legLeftLower: {fileID: 1881757275}
   legRightLower: {fileID: 227567147}
+  NakedParts: {fileID: 1782978044}
+  ArmourSlots: {fileID: 2084812433}
   curState: 
 --- !u!114 &325259806
 MonoBehaviour:
@@ -6115,7 +6127,7 @@ MonoBehaviour:
   target: {fileID: 0}
   detectionRadius: 5
   closingInRadius: 2.2
-  attackRadius: 1.7
+  attackRadius: 1.6
   surroundingRadius: 4
   triggerentryDistance: 0
   isMovementRoationalEnabled: 0
@@ -7647,10 +7659,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82995aa8ae9cd634396327087d45f976, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sword: {fileID: 0}
+  meleeOneHanded: {fileID: 0}
+  meleeTwoHanded: {fileID: 0}
   shield: {fileID: 0}
-  SwordHandTransform: {fileID: 1807642318}
-  SwordSheatTransform: {fileID: 941011675}
+  MeleeHandTransform: {fileID: 0}
+  MeleeSheatTransform: {fileID: 0}
   ShieldHandTransform: {fileID: 1932203225}
 --- !u!114 &392956743
 MonoBehaviour:
@@ -7675,6 +7688,8 @@ MonoBehaviour:
   legRightUpper: {fileID: 0}
   legLeftLower: {fileID: 0}
   legRightLower: {fileID: 0}
+  NakedParts: {fileID: 0}
+  ArmourSlots: {fileID: 0}
   curState: 
 --- !u!114 &392956744
 MonoBehaviour:
@@ -8116,7 +8131,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &425641859
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9878,9 +9893,9 @@ GameObject:
   - component: {fileID: 542690986}
   - component: {fileID: 542690988}
   - component: {fileID: 542690987}
-  m_Layer: 9
+  m_Layer: 15
   m_Name: PlayerTorso
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -10837,9 +10852,9 @@ GameObject:
   - component: {fileID: 669551494}
   - component: {fileID: 669551496}
   - component: {fileID: 669551495}
-  m_Layer: 9
+  m_Layer: 15
   m_Name: PlayerArmRightUpper
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -12664,7 +12679,7 @@ Transform:
   m_GameObject: {fileID: 820613628}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.345, z: 2}
+  m_LocalPosition: {x: 1.44, y: 1.345, z: 5.23}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12863,7 +12878,7 @@ Transform:
   m_GameObject: {fileID: 836669382}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -18.10595, y: 1.78, z: 10.533459}
+  m_LocalPosition: {x: -18.10595, y: 1.9, z: 10.250459}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -16045,8 +16060,8 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 1991131934067139952}
-  m_Follow: {fileID: 1991131934067139952}
+  m_LookAt: {fileID: 1837537916}
+  m_Follow: {fileID: 1837537916}
   m_Lens:
     FieldOfView: 15
     OrthographicSize: 5
@@ -16410,7 +16425,7 @@ Transform:
   m_GameObject: {fileID: 1084710349}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -18.10595, y: 1.78, z: 10.533459}
+  m_LocalPosition: {x: -18.10595, y: 1.9, z: 10.250459}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16696,9 +16711,9 @@ GameObject:
   - component: {fileID: 1102922049}
   - component: {fileID: 1102922051}
   - component: {fileID: 1102922050}
-  m_Layer: 9
+  m_Layer: 15
   m_Name: PlayerRightForearm
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -17377,9 +17392,9 @@ GameObject:
   - component: {fileID: 1168808889}
   - component: {fileID: 1168808891}
   - component: {fileID: 1168808890}
-  m_Layer: 9
+  m_Layer: 15
   m_Name: PlayerLegLeftUpper
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -19248,7 +19263,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Damping: {x: 1, y: 0.3, z: 0.5}
-  ShoulderOffset: {x: 0.5, y: -0.12, z: -1.57}
+  ShoulderOffset: {x: 0.5, y: 0, z: -2}
   VerticalArmLength: 0.4
   CameraSide: 0.553
   CameraDistance: 2
@@ -22573,9 +22588,9 @@ GameObject:
   - component: {fileID: 1536398677}
   - component: {fileID: 1536398679}
   - component: {fileID: 1536398678}
-  m_Layer: 9
+  m_Layer: 15
   m_Name: PlayerArmLeftUpper
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -23356,9 +23371,9 @@ GameObject:
   - component: {fileID: 1593990575}
   - component: {fileID: 1593990577}
   - component: {fileID: 1593990576}
-  m_Layer: 8
+  m_Layer: 14
   m_Name: PlayerLeftForearm
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -25995,9 +26010,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Damping: {x: 0, y: 0.3, z: 0.5}
-  ShoulderOffset: {x: 1.16, y: -0.24, z: -2.5}
+  ShoulderOffset: {x: 1.03, y: 0, z: -2.5}
   VerticalArmLength: 0.16
-  CameraSide: 0.79
+  CameraSide: 1
   CameraDistance: 2
   CameraCollisionFilter:
     serializedVersion: 2
@@ -27584,9 +27599,9 @@ GameObject:
   - component: {fileID: 1828139444}
   - component: {fileID: 1828139446}
   - component: {fileID: 1828139445}
-  m_Layer: 8
+  m_Layer: 14
   m_Name: PlayerLegRightLower
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -27687,6 +27702,37 @@ Transform:
   - {fileID: 782169917}
   m_Father: {fileID: 1893586054}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1837537915
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1837537916}
+  m_Layer: 8
+  m_Name: FollowTargetAim
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1837537916
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837537915}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: -0.42261827, z: 0, w: 0.9063079}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1991131934067139952}
+  m_LocalEulerAnglesHint: {x: 0, y: -50, z: 0}
 --- !u!1001 &1843785820
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28246,9 +28292,9 @@ GameObject:
   - component: {fileID: 1881757276}
   - component: {fileID: 1881757278}
   - component: {fileID: 1881757277}
-  m_Layer: 9
+  m_Layer: 15
   m_Name: PlayerLegLeftLower
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -29352,9 +29398,9 @@ GameObject:
   - component: {fileID: 1949583935}
   - component: {fileID: 1949583937}
   - component: {fileID: 1949583936}
-  m_Layer: 9
+  m_Layer: 15
   m_Name: PlayerLegRightUpper
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -29590,9 +29636,9 @@ GameObject:
   - component: {fileID: 1964383016}
   - component: {fileID: 1964383018}
   - component: {fileID: 1964383017}
-  m_Layer: 9
+  m_Layer: 15
   m_Name: PlayerLeftForearm
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -33373,9 +33419,9 @@ GameObject:
   - component: {fileID: 762131295840591586}
   - component: {fileID: 473167880554611188}
   - component: {fileID: 1963559884955002848}
-  m_Layer: 8
+  m_Layer: 14
   m_Name: PlayerLegLeftUpper
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -33541,6 +33587,8 @@ MonoBehaviour:
   downwardSlash: 0
   aiming: 0
   shooting: 0
+  recentOnCrossObject: {fileID: 0}
+  recentOnCrossObjectContactPoint: {x: 0, y: 0, z: 0}
 --- !u!114 &1949220681506378965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33621,11 +33669,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9040805985004690931}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.5, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0.147}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1837537916}
   m_Father: {fileID: 9108366141696821546}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!222 &2005262232732668665
@@ -34881,9 +34930,9 @@ GameObject:
   - component: {fileID: 3063765112732344258}
   - component: {fileID: 4208611678441967466}
   - component: {fileID: 1492230033912084252}
-  m_Layer: 8
+  m_Layer: 14
   m_Name: PlayerTorso
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -35617,9 +35666,9 @@ GameObject:
   - component: {fileID: 7318314758989894294}
   - component: {fileID: 7604905200609747096}
   - component: {fileID: 5446328049685421847}
-  m_Layer: 8
+  m_Layer: 14
   m_Name: PlayerLegRightUpper
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38012,7 +38061,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 1
-  angularSpeed: 2
+  angularSpeed: 0.2
   jumpHeight: 0
   strength: 10
   speedXP: 0
@@ -38755,6 +38804,7 @@ MonoBehaviour:
   - KnightBoots
   - KnightGuantlets
   - ArrowLongBow
+  isEquipped: 
   PrefabPaths:
   - Prefabs/Armours/
   - Prefabs/Armours/
@@ -39148,9 +39198,9 @@ GameObject:
   - component: {fileID: 7281003460279719245}
   - component: {fileID: 3590776470884069334}
   - component: {fileID: 7801020360365196821}
-  m_Layer: 8
+  m_Layer: 14
   m_Name: PlayerArmRightUpper
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -39247,9 +39297,9 @@ GameObject:
   - component: {fileID: 2070640642997357421}
   - component: {fileID: 8948191939511799375}
   - component: {fileID: 8634922737421829274}
-  m_Layer: 8
+  m_Layer: 14
   m_Name: PlayerArmLeftUpper
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -40092,9 +40142,9 @@ GameObject:
   - component: {fileID: 3639583483340612636}
   - component: {fileID: 1639443393982463595}
   - component: {fileID: 6730187827150352003}
-  m_Layer: 8
+  m_Layer: 14
   m_Name: PlayerHead
-  m_TagString: Untagged
+  m_TagString: BodyPart
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

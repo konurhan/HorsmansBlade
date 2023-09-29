@@ -38,6 +38,12 @@ public class Armour : InventoryItem
     {
         return armourType;
     }
+
+    /*private void OnDestroy()
+    {
+        Debug.Log(Name + " is going to be destroyed");
+        Debug.Break();
+    }*/
 }
 
 public enum ArmourType

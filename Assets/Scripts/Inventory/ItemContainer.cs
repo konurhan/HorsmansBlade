@@ -29,6 +29,7 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
 
     [Header("Item Descriptor Values")]//load these values from the save file
     [SerializeField] private List<string> PrefabNames;
+    [SerializeField] private List<bool> isEquipped;// use only if container belongs to an NPC
     [SerializeField] private List<string> PrefabPaths;
     [SerializeField] private List<ItemType> ItemTypes;
     [SerializeField] private List<int> amount;
@@ -46,6 +47,11 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
         player = InventoryUI.Instance.Player;
         playerInventory = player.GetComponent<InventoryController>();
         ContainerSlotsTransform = InventoryUI.Instance.ContainerSlotsTransform;
+
+        if(isNPC)
+        {
+            EquipMarkedItems();
+        }
     }
 
     
@@ -92,6 +98,31 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
             AddSlot(1, incoming);
         }
     }
+
+    #region NPC specific methods
+
+    public void EquipMarkedItems()
+    {
+        EnemyNPCEquipmentSystem equipmentSystem = GetComponent<EnemyNPCEquipmentSystem>();
+        for (int i = 0; i < isEquipped.Count; i++)
+        {
+            if (isEquipped[i])
+            {
+                ItemDescriptor itemDesc = FindDescriptionInWorldInventory(PrefabNames[i]);
+                if (itemDesc.itemType == ItemType.Weapon)
+                {
+                    equipmentSystem.EquipMeleeWeapon(itemDesc);
+                }
+                else if(itemDesc.itemType == ItemType.Armour)
+                {
+                    equipmentSystem.EquipArmour(itemDesc);
+                }
+            }
+        }
+    }
+
+    #endregion
+
 
     #region save/load
     private void LoadContainedItems()

@@ -128,7 +128,7 @@ public class InventoryUI : MonoBehaviour
         }
 
         closest = collectibles[0];
-        float dist = (closest.gameObject.transform.position - Player.transform.position).magnitude;
+        float dist = (closest.gameObject.transform.position - Player.transform.position).magnitude;//arrow için hata veriyor
 
         for (int i = 1; i < collectibles.Count; i++)
         {

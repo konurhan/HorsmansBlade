@@ -153,15 +153,25 @@ public class Bow : RangedWeapon
 
     public override void Loose()
     {
-        Vector3 camForward = owner.GetComponent<CameraController>().aimCamera.transform.forward;
-
+        Vector3 ammoForward;
+        if (owner.GetComponent<PlayerAttack>().recentOnCrossObject == null)
+        {
+            ammoForward = owner.GetComponent<CameraController>().aimCamera.transform.forward;
+        }
+        else
+        {
+            float magnitude = (owner.GetComponent<PlayerAttack>().recentOnCrossObjectContactPoint - gameObject.transform.position).magnitude;
+            ammoForward = (owner.GetComponent<PlayerAttack>().recentOnCrossObjectContactPoint - gameObject.transform.position) / magnitude;
+            Debug.DrawRay(gameObject.transform.position, ammoForward, Color.magenta);
+        }
+        
         base.Loose();
         owner.GetComponent<Animator>().SetTrigger("ReleaseArrow");
         GetComponent<Animator>().SetTrigger("ShootArrow");
         Invoke(nameof(SetDrawFalse), 0.1f);//so that animator doesn't go into abort draw state
 
         float skillMultiplier = owner.GetComponent<PlayerController>().rangedSkillLevel / 100f;
-        knockedAmmo.GetComponent<Ammo>().Shoot(maximumForce, skillMultiplier, camForward);
+        knockedAmmo.GetComponent<Ammo>().Shoot(maximumForce, skillMultiplier, ammoForward);
         knockedAmmo = null;
         hasNockedAmmo = false;
         hasDrawn = false;

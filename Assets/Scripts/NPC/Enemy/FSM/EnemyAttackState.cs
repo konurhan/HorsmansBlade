@@ -7,6 +7,7 @@ public class EnemyAttackState : EnemyState
 {
     GameObject enemyObj;
     EnemyNPCMovement movement;
+    EnemyNPCAttack attack;
     EnemyNPCEquipmentSystem equipmentSystem;
     NavMeshAgent agent;
     public EnemyAttackState(EnemyController enemy, EnemyStateMachine fsm) : base(enemy, fsm)
@@ -15,6 +16,7 @@ public class EnemyAttackState : EnemyState
         agent = enemyObj.GetComponent<NavMeshAgent>();
         equipmentSystem = enemyObj.GetComponent<EnemyNPCEquipmentSystem>();
         movement = enemyObj.GetComponent<EnemyNPCMovement>();
+        attack = enemyObj.GetComponent<EnemyNPCAttack>();
     }
 
     public override void EnterState()
@@ -36,23 +38,26 @@ public class EnemyAttackState : EnemyState
     public override void Update()
     {
         base.Update();
+
+        if (attack.attacking || attack.blocking) return;//if an attack action or coroutine is underway
+
         if(!movement.DoesHaveTarget())//target is destroyed
         {
             Debug.Log("doesnt have a target anymore");
-            fsm.ChangeState(enemy.idleState);
+            fsm.ChangeState(enemy.patrollingState);
             return;
         }
         if (movement.TargetOutOfRange())
         {
             Debug.Log("target is lost");
-            fsm.ChangeState(enemy.idleState);
+            fsm.ChangeState(enemy.patrollingState);
             return;
         }
-        if(movement.GetDistanceTotarget() > movement.attackRadius + 0.2f)
+        if(movement.GetDistanceTotarget() > movement.attackRadius + 0.5f)//this will only be called after strafe around is finished and speed has come down to 0, shouldn't cause feet to jump
         {
             Debug.Log("target moved outside of attack range, start closingIn.");
-            //agent.ResetPath();//actually no need, agent wont have any path during the attack state
-            fsm.ChangeState(enemy.closingInState);//draw will be triggered again in chasingState.EnterState()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            fsm.ChangeState(enemy.closingInState);
+            //Debug.Break();
             return;
         }
         //Debug.Log("close enough, enemy will attack now!!");

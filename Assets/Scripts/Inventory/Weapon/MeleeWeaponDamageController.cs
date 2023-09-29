@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.UI.GridLayoutGroup;
 
 public class MeleeWeaponDamageController : MonoBehaviour
 {
@@ -45,6 +46,8 @@ public class MeleeWeaponDamageController : MonoBehaviour
         animator = melee.owner.GetComponent<Animator>();
         GetTargetLayer();
 
+        if (melee.owner.GetComponent<PlayerController>() == null) return;
+
         melee.owner.GetComponent<PlayerController>().onLevelUp += UpdateDamage;//damage will be updated each time the user levels up
         UpdateDamage();//sets the initial damage
     }
@@ -53,6 +56,7 @@ public class MeleeWeaponDamageController : MonoBehaviour
     {
         canDealDamage = false;
         animator = null;
+        if (melee.owner.GetComponent<PlayerController>() == null) return;
         melee.owner.GetComponent<PlayerController>().onLevelUp -= UpdateDamage;
     }
 
@@ -75,8 +79,8 @@ public class MeleeWeaponDamageController : MonoBehaviour
 
     private void GetTargetLayer()
     {
-        if (melee.owner.layer == 8) targetLayer = 9;
-        else if (melee.owner.layer == 9) targetLayer = 8;
+        if (melee.owner.layer == 8) targetLayer = 15;
+        else if (melee.owner.layer == 9) targetLayer = 14;
     }
 
     private void OnTriggerEnter(Collider target)
@@ -142,7 +146,7 @@ public class MeleeWeaponDamageController : MonoBehaviour
     {
         foreach (GameObject obj in cutThroughObjects)
         {
-            Debug.Log(obj.name);
+            //Debug.Log(obj.name);
             obj.GetComponent<BodyPart>().TakeDamage(damage);
         }
         foreach (GameObject enemy in cutThroughEnemies)

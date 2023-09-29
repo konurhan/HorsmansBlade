@@ -27,6 +27,11 @@ public class WorldInventory : MonoBehaviour
         LoadContainers();
     }
 
+    public void AddNewItemDescriptor(ItemDescriptor itemDescriptor)
+    {
+        worldItemDescriptions.Add(itemDescriptor);
+    }
+
     #region save/load methods
     public void LoadWorldInventory()
     {
