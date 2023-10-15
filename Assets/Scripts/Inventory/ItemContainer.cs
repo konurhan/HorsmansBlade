@@ -117,6 +117,10 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
                 {
                     equipmentSystem.EquipArmour(itemDesc);
                 }
+                else if( itemDesc.itemType == ItemType.Shield)
+                {
+                    equipmentSystem.EquipShield(itemDesc);
+                }
             }
         }
     }

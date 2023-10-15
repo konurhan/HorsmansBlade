@@ -36,6 +36,9 @@ public class BodyPart : MonoBehaviour
         {
             float remainingDamage = armour.TakeDamage(effectiveDamage);
             effectiveDamage = remainingDamage;
+
+            GameObject sparkParticle = Instantiate(Resources.Load("Prefabs/Particles/Spark"), gameObject.transform) as GameObject;
+            sparkParticle.transform.localPosition = gameObject.GetComponentInChildren<BoxCollider>().center;
         }
 
         if(effectiveDamage > 0)//now the damage will affect the health

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6928254994963460062}
   - component: {fileID: 6087497224975159328}
   - component: {fileID: 1622619532945427185}
-  m_Layer: 8
+  m_Layer: 16
   m_Name: KnightBoots
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -147,6 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 534bb279a7120c946bff1635b8416545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
   owner: {fileID: 0}
   itemName: KnightBoots
   weight: 0.08

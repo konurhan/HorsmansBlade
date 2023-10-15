@@ -65,6 +65,7 @@ public class TutorialManager : MonoBehaviour
         {
             Debug.Log("Couldn't Find Path: Prefabs/Tutorials/Tutorial" + (lastCompletedTutorialNum + 1).ToString());
             currentTutorial = null;
+            Menu.instance.DeactivateTutorials();
             return;//no more tutorials left
         }
         currentTutorial = Instantiate(Resources.Load("Prefabs/Tutorials/Tutorial"+ (lastCompletedTutorialNum + 1).ToString()), TutorialsParentTransform) as GameObject;
@@ -79,9 +80,11 @@ public class TutorialManager : MonoBehaviour
         Destroy(currentTutorial);
         currentTutorialIsCompleted = false;
 
-        if (Resources.Load("Prefabs/Tutorials/Tutorial" + (lastCompletedTutorialNum).ToString()) == null)
+        if (Resources.Load("Prefabs/Tutorials/Tutorial" + (lastCompletedTutorialNum + 1).ToString()) == null)
         {
+            Debug.Log("no more tutorials left");//close tutorial system
             currentTutorial = null;
+            Menu.instance.DeactivateTutorials();
             return;//no more tutorials left
         }
         currentTutorial = Instantiate(Resources.Load("Prefabs/Tutorials/Tutorial" + (lastCompletedTutorialNum + 1).ToString()), TutorialsParentTransform) as GameObject;

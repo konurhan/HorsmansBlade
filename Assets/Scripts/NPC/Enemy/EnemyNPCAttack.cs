@@ -17,7 +17,7 @@ public class EnemyNPCAttack : MonoBehaviour
     public bool blocking;
     public bool attacking;
 
-    private Coroutine strafeAroundCoroutine;
+    public Coroutine strafeAroundCoroutine;
 
     private void Awake()
     {
@@ -50,6 +50,7 @@ public class EnemyNPCAttack : MonoBehaviour
         if (!IsTargetFacingToMe()) return;//if target is not swinging towards you, no need to block
         if (IsInSafeDistance(movement.attackRadius + 1f)) return;//if have a safe distance with the target, no need to block
         
+        if (GetComponent<EnemyNPCEquipmentSystem>().shield == null) return;
         if(CheckAttackDownward() || CheckAttackInward() || CheckAttackOutward())
         {
             //Debug.Log("angle is: " + GetAngleToTarget());
@@ -84,27 +85,24 @@ public class EnemyNPCAttack : MonoBehaviour
 
     public void DecideAndAttack()//enemy will decide which attack action to perform
     {
-        int rand = Random.Range(3, 4);
+        int rand = Random.Range(0, 100);
         switch (rand)
         {
-            case 0:
+            case <= 39 when rand >= 0:
                 attacking = true;
                 animator.SetTrigger("InwardSlash");
-                StartCoroutine(AttackCoolDown(2f));
+                StartCoroutine(AttackCoolDown(1.5f));
                 break;
-            case 1:
+            case <= 79 when rand >= 40:
                 attacking = true;
                 animator.SetTrigger("OutwardSlash");
-                StartCoroutine(AttackCoolDown(2f));
+                StartCoroutine(AttackCoolDown(1.5f));
                 break;
-            case 2:
-                attacking = true;
-                animator.SetTrigger("DownwardSlash");
-                StartCoroutine(AttackCoolDown(2f));
-                break;
-            case 3:
+            case <= 99 when rand >= 80:
                 //doing nothing: can strafe in this phase, or reposition
-                strafeAroundCoroutine = movement.StartCoroutine(movement.StrafeAroundTheTarget(3));
+                float speedX = UnityEngine.Random.Range(-1f, 1f);
+                speedX = speedX <= 0 ? -1f : 1f;
+                strafeAroundCoroutine = movement.StartCoroutine(movement.StrafeAroundTheTarget(2, speedX));
                 break;
         }
     }

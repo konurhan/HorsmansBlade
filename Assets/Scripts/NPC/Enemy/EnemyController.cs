@@ -48,7 +48,7 @@ public class EnemyController : MonoBehaviour
 
         SetbodyPartReferences();
         NPCManager.Instance.enemyNPCs.Add(this);
-        NPCManager.Instance.SetEnemyDestinationOffsets();
+        //NPCManager.Instance.SetEnemyDestinationOffsets();
     }
 
     void Start()

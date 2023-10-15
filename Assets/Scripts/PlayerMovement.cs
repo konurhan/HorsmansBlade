@@ -236,6 +236,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void DisableRotationalMovement()
     {
+        Debug.Log("DisableRotationalMovement is called");
         isMovementRoationalEnabled = false;
     }
 

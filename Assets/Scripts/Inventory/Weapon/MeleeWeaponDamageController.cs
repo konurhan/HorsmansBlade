@@ -102,6 +102,11 @@ public class MeleeWeaponDamageController : MonoBehaviour
             }
             else if(target.gameObject.layer == 10 || target.gameObject.layer == 11)//attack will get parried with sword and shield
             {
+                if (target.gameObject.layer == 11)
+                {
+                    //instantiate smoke particle
+                }
+                
                 //shouldn't get parried by it's own sword and shield, cover that case
                 float currentFrame = animator.GetCurrentAnimatorStateInfo(1).normalizedTime;//combat layer index is 1
                 if (animator.GetCurrentAnimatorStateInfo(1).IsName("InwardSlash"))
@@ -117,6 +122,12 @@ public class MeleeWeaponDamageController : MonoBehaviour
                     animator.Play("DownwardSlashGetParried", 1, 1 - currentFrame);
                 }
                 EndDealingDamage();
+            }
+
+            if (target.gameObject.layer == 10 || target.gameObject.layer == 11 || target.gameObject.layer == 16)
+            {
+                GameObject sparkParticle = Instantiate(Resources.Load("Prefabs/Particles/Spark"), target.gameObject.transform) as GameObject;
+                sparkParticle.transform.localPosition = target.gameObject.GetComponentInChildren<BoxCollider>().center;
             }
         }
     }
@@ -148,6 +159,9 @@ public class MeleeWeaponDamageController : MonoBehaviour
         {
             //Debug.Log(obj.name);
             obj.GetComponent<BodyPart>().TakeDamage(damage);
+            GameObject particle = Instantiate(Resources.Load("Prefabs/Particles/BloodSprayFX"), obj.transform) as GameObject;
+            particle.transform.localPosition = obj.GetComponent<BoxCollider>().center;
+            Destroy(particle,0.5f);
         }
         foreach (GameObject enemy in cutThroughEnemies)
         {

@@ -114,11 +114,18 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    /*
+     
+     
+     */
+
     private void Die()
     {
         isDead = true;
 
-        GetComponent<Animator>().SetBool("Died", true);
+        GetComponent<Animator>().SetTrigger("Died");
+        Invoke(nameof(SetIsDeadTrue), 0.1f);// delayed so that take hit has some time to get triggered
+
         GetComponent<CapsuleCollider>().isTrigger = true;
         
         Rigidbody rigidbody = GetComponent<Rigidbody>();
@@ -176,6 +183,11 @@ public class PlayerHealth : MonoBehaviour
             HealthData healthData = new HealthData(this);
             SaveSystem.SaveData("/PlayerHealthData.json", healthData);
         }
+    }
+
+    public void SetIsDeadTrue()
+    {
+        GetComponent<Animator>().SetBool("isDead", true);
     }
 }
 

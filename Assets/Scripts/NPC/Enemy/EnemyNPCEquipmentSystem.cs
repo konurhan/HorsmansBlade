@@ -16,7 +16,7 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
 
     private Animator animator;
 
-    private GameObject recentMeleeWeapon;
+    [SerializeField] private GameObject recentMeleeWeapon;
 
     private void Awake()
     {
@@ -30,6 +30,26 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
     void Update()
     {
         //HandleCombatActions();
+    }
+
+    public void EquipShield(ItemDescriptor itemDesc)
+    {
+        GameObject shieldNew = Instantiate(Resources.Load(itemDesc.itemPrefabPath + itemDesc.itemName)) as GameObject;
+        
+        if(shield != null)
+        {
+            shield.GetComponent<InventoryItem>().OnDropped();
+            Destroy(shield);
+        }
+
+        shield = shieldNew;
+
+        shield.GetComponent<InventoryItem>().SetOwnerReference(gameObject);
+        shield.GetComponentInChildren<Rigidbody>().isKinematic = true;
+        shield.GetComponentInChildren<BoxCollider>().isTrigger = true;
+
+        shield.gameObject.transform.SetParent(ShieldHandTransform, false);
+        shield.gameObject.SetActive(false);
     }
 
     public void EquipMeleeWeapon(ItemDescriptor itemDesc)
@@ -233,27 +253,49 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
                 break;
         }
 
-        Destroy(armour.gameObject);//destroying the object before returning it back to the inventory ==>> BUT HOW TO SAVE CONDITION, SHOULDN'T BE BROUGHT BACK BRAND-NEW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        Destroy(armour.gameObject);//destroying the object before returning it back to the inventory ==>> BUT HOW TO SAVE CONDITION, SHOULDN'T BE BROUGHT BACK IN PERFECT CONDITION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
-    public void Sheat()
+    public IEnumerator Sheat()
     {
-        if (CanSheatWeapon())
+        Debug.Log("Sheat coroutine has started");
+        float duration = 3f;
+        float time = 0f;
+        while (time < duration)
         {
-            animator.SetTrigger("Sheat");
-            //animator.SetBool("Shield", false);
+            Debug.Log("Sheat coroutine is running");
+            if (CanSheatWeapon())
+            {
+                Debug.Log("Sheat is triggered");
+                animator.SetTrigger("Sheat");
+                break;
+            }
+            time += 0.01f;
+            yield return new WaitForSecondsRealtime(0.01f);
         }
     }
 
-    public void Draw()
+    public IEnumerator Draw()
     {
-        if (CanDrawWeapon())
+        Debug.Log("Draw coroutine has started");
+        float duration = 3f;
+        float time = 0f;
+        while (time < duration)
         {
-            animator.ResetTrigger("InwardSlash");
-            animator.ResetTrigger("OutwardSlash");
-            animator.SetTrigger("Draw");
-            animator.SetLayerWeight(1, 1f);
-            animator.SetLayerWeight(2, 1f);
+            Debug.Log("Draw coroutine is running");
+            if (CanDrawWeapon())
+            {
+                animator.ResetTrigger("InwardSlash");
+                animator.ResetTrigger("OutwardSlash");
+                animator.SetTrigger("Draw");
+                animator.SetLayerWeight(1, 1f);
+                animator.SetLayerWeight(2, 1f);
+
+                Debug.Log("Draw is triggered");
+                break;
+            }
+            time += 0.01f;
+            yield return new WaitForSecondsRealtime(0.01f);
         }
     }
 
@@ -265,7 +307,18 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
         }
         else
         {
-            return true;
+            AnimatorStateInfo info1 = animator.GetCurrentAnimatorStateInfo(1);// state info of the combat layer
+            AnimatorStateInfo info2 = animator.GetCurrentAnimatorStateInfo(2);// state info of the combat-arms layer
+            if (info1.IsName("Idle") && info2.IsName("Idle"))
+            {
+                Debug.Log("draw will be allowed");
+                //Debug.Break();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
@@ -277,7 +330,30 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
         }
         else
         {
+            AnimatorStateInfo info1 = animator.GetCurrentAnimatorStateInfo(1);// state info of the combat layer
+            AnimatorStateInfo info2 = animator.GetCurrentAnimatorStateInfo(2);// state info of the combat-arms layer
+            if (info1.IsName("CombatLocomotionBlendTree") && info2.IsName("Combat"))
+            {
+                Debug.Log("sheat will be allowed");
+                //Debug.Break();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    public bool IsHoldingMelee()
+    {
+        if (recentMeleeWeapon.transform.parent == MeleeHandTransform)
+        {
             return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -294,6 +370,14 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
     }
 
     #region Animation Events
+    public void GoInToMovementLayer()
+    {
+        //animator.ResetTrigger("Sheat");//improper fix: 
+        animator.SetLayerWeight(1, 0f);
+        animator.SetLayerWeight(2, 0f);
+        animator.SetLayerWeight(0, 1f);
+    }
+
     public void MeleeStartDealingDamage()//animation event
     {
         if (recentMeleeWeapon == null) return;

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5697191951216316168}
   - component: {fileID: 611658586133194947}
   - component: {fileID: 4091195597475059214}
-  m_Layer: 8
+  m_Layer: 16
   m_Name: ArcherGuantlets
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -147,6 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 534bb279a7120c946bff1635b8416545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
   owner: {fileID: 0}
   itemName: ArcherGuantlets
   weight: 0.05

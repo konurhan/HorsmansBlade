@@ -128,10 +128,18 @@ public class InventoryUI : MonoBehaviour
         }
 
         closest = collectibles[0];
+        if (closest == null)
+        {
+            collectibles.RemoveAt(0);
+            closest = null;
+            return;
+        }
+
         float dist = (closest.gameObject.transform.position - Player.transform.position).magnitude;//arrow için hata veriyor
 
         for (int i = 1; i < collectibles.Count; i++)
         {
+            if (collectibles[i] == null) continue;
             float newDist = (collectibles[i].gameObject.transform.position - Player.transform.position).magnitude;
             if (newDist < dist)
             {

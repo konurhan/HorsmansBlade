@@ -25,13 +25,21 @@ public class EnemyPatrollingState : EnemyState
 
     public override void EnterState()
     {
+        Debug.Log("Entered to patrolling state");
         base.EnterState();
-        agent.ResetPath();
+        
         movement.animator.SetFloat("SpeedZ", 0);
         movement.animator.SetFloat("SpeedX", 0);
+        
+        agent.ResetPath();
+        agent.isStopped = false;
         agent.SetDestination(waypoints[0].position);//agent should start pattrolling from the first node
         currentWaypoint = 0;
-        equipmentSystem.Sheat();
+        
+        if (equipmentSystem.IsHoldingMelee())
+        {
+            equipmentSystem.StartCoroutine(equipmentSystem.Sheat());//problem occurs when chasing state draw is called right after this
+        }
     }
 
     public override void ExitState()

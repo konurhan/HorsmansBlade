@@ -47,6 +47,8 @@ public class PlayerController : MonoBehaviour
     public delegate void OnLevelUP();
     public event OnLevelUP onLevelUp;
 
+    public List<SurroundingDest> relativePos = new List<SurroundingDest>();
+
     private void Awake()
     {
         SetbodyPartReferences();
@@ -59,6 +61,8 @@ public class PlayerController : MonoBehaviour
 
         Menu.onGamePaused += ConfigureForPause;
         Menu.onGameResumed += ConfigureForResume;
+
+        SetNumberOfDestinations(10);
     }
 
     void Update()
@@ -213,6 +217,31 @@ public class PlayerController : MonoBehaviour
         SaveSystem.SaveData("/PlayerStats.json", playerStats);
     }
 
+    public void SetNumberOfDestinations(int num)
+    {
+        Transform parent = transform.GetChild(5);
+
+        float radius = NPCManager.Instance.enemyNPCs[0].GetComponent<EnemyNPCMovement>().surroundingRadius;
+        float angleStep = 360f / num;
+        float startAngle = 0;
+
+        for (int i = 0; i < num; i++)
+        {
+            SurroundingDest newDest = new SurroundingDest();
+            GameObject emptyObj = new GameObject("NPCdest-" + i);
+            //Instantiate(emptyObj, parent);
+            emptyObj.transform.parent = parent;
+            newDest.relativePosToPlayer = emptyObj;
+            
+            float angle = startAngle + i * angleStep;
+            Debug.Log("angle: " + angle);
+            float radians = angle * Mathf.Deg2Rad;
+            newDest.relativePosToPlayer.transform.localPosition = new Vector3(radius * Mathf.Cos(radians), 0, radius * Mathf.Sin(radians));
+            Debug.Log("local pos: " + newDest.relativePosToPlayer.transform.localPosition);
+            relativePos.Add(newDest);
+        }
+    }
+
 }
 
 [System.Serializable]
@@ -250,5 +279,17 @@ public class PlayerStats
         oneHandedSkillXP = controller.oneHandedSkillXP;
         twoHandedSkillXP = controller.twoHandedSkillXP;
         rangedSkillXP = controller.rangedSkillXP;
+    }
+}
+
+public class SurroundingDest
+{
+    public GameObject relativePosToPlayer;
+    public GameObject occupantNPC;
+
+    public SurroundingDest()
+    {
+        relativePosToPlayer = null;
+        occupantNPC = null;
     }
 }

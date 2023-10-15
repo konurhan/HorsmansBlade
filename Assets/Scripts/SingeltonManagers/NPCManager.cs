@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UIElements;
@@ -21,6 +22,7 @@ public class NPCManager : MonoBehaviour
     }
 
     public List<EnemyController> enemyNPCs = new List<EnemyController>();
+    
 
     private void Awake()
     {
@@ -43,9 +45,29 @@ public class NPCManager : MonoBehaviour
 
         Menu.onGamePaused += ConfigureForPause;
         Menu.onGameResumed += ConfigureForResume;
+
+        //SetDestinationLocalPositions();
+        //SetNumberOfDestinations(10);
     }
 
-    public void SetEnemyDestinationOffsets()//call it every time an enemy is added, through enemy controller
+    /*public void SetDestinationLocalPositions()
+    {
+        int count = enemyNPCs.Count;
+        float radius = enemyNPCs[0].GetComponent<EnemyNPCMovement>().surroundingRadius;
+        float angleStep = 360f / count;
+        float startAngle = angleStep / 2;
+
+        for (int i = 0; i < count; i++)
+        {
+            SurroundingDest newDest = new SurroundingDest();
+            float angle = startAngle + i * angleStep;
+            float radians = angle * Mathf.Deg2Rad;
+            newDest.relativePosToPlayer = new Vector3(radius * Mathf.Cos(radians), 0, radius * Mathf.Sin(radians));
+            relativePos.Add(newDest);
+        }
+    }*/
+
+    /*public void SetEnemyDestinationOffsets()//call it every time an enemy is added, through enemy controller
     {
         int count = enemyNPCs.Count;
         float npcSpan = 60 * count;// the angle in which the NPCs group in around the player, equally spaced
@@ -61,7 +83,7 @@ public class NPCManager : MonoBehaviour
             float radians = angle * Mathf.Deg2Rad;
             enemyNPCs[i].GetComponent<EnemyNPCMovement>().destinationOffset = new Vector3(radius*Mathf.Cos(radians), 0, radius * Mathf.Sin(radians));
         }
-    }
+    }*/
 
 
     public void ConfigureForPause()

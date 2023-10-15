@@ -25,7 +25,7 @@ public class EnemyIdleState : EnemyState
         agent.ResetPath();
         movement.animator.SetFloat("SpeedZ", 0);
         movement.animator.SetFloat("SpeedX", 0);
-        equipmentSystem.Sheat();
+        //equipmentSystem.StartCoroutine(equipmentSystem.Sheat());
     }
 
     public override void ExitState()
@@ -36,14 +36,14 @@ public class EnemyIdleState : EnemyState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        if (movement.waypoints.Count > 0)
-        {
-            fsm.ChangeState(enemy.patrollingState);
-            return;
-        }
         if (movement.DoesHaveTarget())
         {
             fsm.ChangeState(enemy.chasingState);
+            return;
+        }
+        if (movement.waypoints.Count > 0)
+        {
+            fsm.ChangeState(enemy.patrollingState);
             return;
         }
     }

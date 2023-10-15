@@ -67,7 +67,16 @@ public class PlayerAttack : MonoBehaviour
     void Update()
     {
         HandleCombatActions();
-        //UpdateRecentMeleeWeapon();
+        
+        /*AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(1);
+        if (info.IsName("CombatLocomotionBlendTree"))
+        {
+            Debug.Log("CombatLocomotionBlendTree is the current state");
+        }
+        else if (info.IsName("Idle"))
+        {
+            Debug.Log("Idle is the current state");
+        }*/
     }
 
     private void OnAnimatorIK(int layerIndex)
@@ -154,7 +163,7 @@ public class PlayerAttack : MonoBehaviour
         {
             //return;//debug later
             RangedWeapon rw = rangedWeapon.GetComponent<RangedWeapon>();
-            if (!rw.hasNockedAmmo) rw.Reload();//make active later
+            if (!rw.hasNockedAmmo) rw.Reload();
             if (!rw.hasNockedAmmo) return;
             if (Input.GetMouseButtonDown(1) && !rw.hasDrawn)
             {
@@ -182,30 +191,6 @@ public class PlayerAttack : MonoBehaviour
         GameObject aimCam = cameraController.aimCamera.gameObject;
         GameObject mainCam = cameraController.mainVCamera.gameObject;
 
-        /*RaycastHit hit;
-        if (Physics.Raycast(aimCam.transform.position,aimCam.transform.forward, out hit))
-        {
-            //spineLookAt.position = hit.point + Vector3.right * 5;
-            spineLookAt.position = hit.point;
-            Debug.Log(hit.transform.name+" is on crosshair");
-        }
-        else
-        {
-            spineLookAt.position = gameObject.transform.position + aimCam.transform.forward*5;
-        }*/
-
-        /*RaycastHit hit;
-        if (Physics.Raycast(aimCam.transform.position, cameraController.target.transform.forward, out hit))//bu crosshairin gosterdigi yeri gostermiyor, göstermesine de gerek yok
-        {
-            //spineLookAt.position = hit.point + Vector3.right * 5;            
-            spineLookAt.position = hit.point;
-            Debug.Log(hit.transform.name + " is on crosshair");
-        }
-        else
-        {
-            //spineLookAt.position = gameObject.transform.position + cameraController.target.transform.forward * 5;
-        }*/
-
         spineLookAt.position = aimCam.transform.position + cameraController.target.transform.forward * 100;
 
         RaycastHit hit;
@@ -219,6 +204,8 @@ public class PlayerAttack : MonoBehaviour
         {
             recentOnCrossObject = null;
         }
+
+        Debug.Log("Recent on cross object is "+ recentOnCrossObject);
     }
 
     public void FindDirectionAndHit()
@@ -245,15 +232,31 @@ public class PlayerAttack : MonoBehaviour
         }
         else
         {
-            return true;
+            AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(1);// state info of the combat layer
+            if (info.IsName("Idle"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
-    public bool CanSheatWeaponOneHanded()
+    public bool CanSheatWeaponOneHanded()//cannot sheat while swinging
     {
         if (usingOneHanded)
         {
-            return true;
+            AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(1);// state info of the combat layer
+            if (info.IsName("CombatLocomotionBlendTree"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {

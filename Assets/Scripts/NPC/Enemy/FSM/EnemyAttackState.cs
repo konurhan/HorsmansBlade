@@ -33,6 +33,8 @@ public class EnemyAttackState : EnemyState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
+        movement.AssignClosestEmptyDestination();
+        movement.CheckForStrafeDirectionChange();
     }
 
     public override void Update()

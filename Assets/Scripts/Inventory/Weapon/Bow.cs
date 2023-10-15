@@ -116,7 +116,6 @@ public class Bow : RangedWeapon
     {
         Debug.Log("Bow reload is called");
         base.Reload();
-        //if (hasNockedAmmo) return;
         if(ammos.Count > 0)
         {
             hasNockedAmmo = true;
@@ -162,7 +161,8 @@ public class Bow : RangedWeapon
         {
             float magnitude = (owner.GetComponent<PlayerAttack>().recentOnCrossObjectContactPoint - gameObject.transform.position).magnitude;
             ammoForward = (owner.GetComponent<PlayerAttack>().recentOnCrossObjectContactPoint - gameObject.transform.position) / magnitude;
-            Debug.DrawRay(gameObject.transform.position, ammoForward, Color.magenta);
+            //Debug.DrawRay(gameObject.transform.position, ammoForward*100, Color.magenta, 2);
+            Debug.DrawLine(gameObject.transform.position, owner.GetComponent<PlayerAttack>().recentOnCrossObjectContactPoint, Color.magenta, 3);
         }
         
         base.Loose();
@@ -186,8 +186,8 @@ public class Bow : RangedWeapon
 
     public IEnumerator SlowMoOnFireAmmo()
     {
-        Time.timeScale = 1f/10;
-        Time.fixedDeltaTime = 0.02f * Time.timeScale / 8;
+        Time.timeScale = 1f/40;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale / 10;
         float passedTime = 0;
         while (passedTime < 2)
         {

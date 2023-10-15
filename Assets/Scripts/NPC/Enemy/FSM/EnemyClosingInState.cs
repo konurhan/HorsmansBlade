@@ -37,6 +37,7 @@ public class EnemyClosingInState : EnemyState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
+        movement.AssignClosestEmptyDestination();
     }
 
     public override void Update()
@@ -51,6 +52,7 @@ public class EnemyClosingInState : EnemyState
                 movement.StopCoroutine(currentCoroutine);
                 movement.OnStopStrafing();
             }
+            //equipmentSystem.StartCoroutine(equipmentSystem.Sheat());
             fsm.ChangeState(enemy.patrollingState);
             return;
         }
@@ -62,6 +64,7 @@ public class EnemyClosingInState : EnemyState
                 movement.StopCoroutine(currentCoroutine);
                 movement.OnStopStrafing();
             }
+            //equipmentSystem.StartCoroutine(equipmentSystem.Sheat());
             fsm.ChangeState(enemy.patrollingState);
             return;
         }
@@ -76,7 +79,7 @@ public class EnemyClosingInState : EnemyState
             fsm.ChangeState(enemy.chasingState);
             return;
         }
-        if (distanceToTarget <= movement.attackRadius)//feet jump must be happening in this transition
+        if (distanceToTarget <= movement.attackRadius)
         {
             if (currentCoroutine != null)
             {

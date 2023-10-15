@@ -48,6 +48,9 @@ public class Menu : MonoBehaviour
     {
         if (gameObject.GetComponent<TutorialManager>().enabled) return;
         gameObject.GetComponent<TutorialManager>().enabled = true;
+
+        Transform parent = TutorialManager.instance.TutorialsParentTransform;
+        parent.gameObject.SetActive(false);
     }
 
     public void DeactivateTutorials()
@@ -60,6 +63,7 @@ public class Menu : MonoBehaviour
         {
             Destroy(parent.GetChild(0).gameObject);
         }
+        parent.gameObject.SetActive(false);
     }
 
     #endregion

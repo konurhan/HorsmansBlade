@@ -17,7 +17,7 @@ public class Ammo : InventoryItem
     private Animator animator;
     [SerializeField] private int targetLayer;
 
-    private GameObject lastOwner;
+    [SerializeField] private GameObject lastOwner;
 
     protected override void Awake()
     {
@@ -31,13 +31,21 @@ public class Ammo : InventoryItem
         
     }
 
-    protected override void Update()
+    private void FixedUpdate()
     {
-        base.Update();
-        if ( canDealDamage )
+        if (canDealDamage)
         {
             transform.rotation = Quaternion.LookRotation(rb.velocity);//making arrow head follow the projectile motion of the arrow
         }
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+        /*if (canDealDamage)
+        {
+            transform.rotation = Quaternion.LookRotation(rb.velocity);//making arrow head follow the projectile motion of the arrow
+        }*/
     }
 
     public void Shoot(float bowMaxForce , float skillMultiplier, Vector3 shootingDir)//skillMultiplier: float b/w [0,1] determined by the skill level of attacker and the maximum force of the ranged weapon
@@ -71,20 +79,21 @@ public class Ammo : InventoryItem
         {
             if (collider.gameObject.layer == targetLayer)//if hit to enemy
             {
+                //Debug.LogError("stop");
                 Debug.Log("arrow collided to " + collider.gameObject.name);
                 if (!collider.gameObject.GetComponent<BodyPart>()) return;
                 BodyPart part = collider.gameObject.GetComponent<BodyPart>();
                 DealDamage(part, effectiveDamage);
+                //Debug.Break();
                 StickIntoEnemy(part);
-                if (lastOwner.GetComponent<PlayerController>() != null)
-                {
-                    lastOwner.GetComponent<PlayerController>().GainRangedXP();
-                }
             }
-            else if (collider.gameObject.layer == 11)//attack will get parried with shield
+            else if (collider.gameObject.layer == 11 || collider.gameObject.layer == 10)//attack will get parried with shield
             {
                 //shouldn't get parried by it's own sword and shield, cover that case
+                if (collider.gameObject.GetComponent<InventoryItem>().owner == lastOwner) return;
                 GetDeflected();
+                GameObject sparkParticle = Instantiate(Resources.Load("Prefabs/Particles/Spark"), collider.gameObject.transform) as GameObject;
+                sparkParticle.transform.localPosition = collider.gameObject.GetComponentInChildren<BoxCollider>().center;
             }
             else if (collider.gameObject.layer == 12)
             {
@@ -115,13 +124,21 @@ public class Ammo : InventoryItem
 
     private void DealDamage(BodyPart part, float damageDealt) 
     {
+        if (lastOwner.GetComponent<PlayerController>() != null)
+        {
+            lastOwner.GetComponent<PlayerController>().GainRangedXP();
+        }
+
         part.TakeDamage(damageDealt);
         part.player.GetComponent<Animator>().SetTrigger("TakeHit");//play take hit anim
-        //successful hit, make player gain skill
+
+        GameObject particle = Instantiate(Resources.Load("Prefabs/Particles/BloodSprayFX"), part.gameObject.transform) as GameObject;
+        Destroy(particle, 0.5f);
     }
 
     private void StickIntoEnemy(BodyPart part)
     {
+        //Debug.Break();
         canDealDamage = false;
         rb.isKinematic = true;
         boxCollider.enabled = false;

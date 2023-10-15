@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -25,6 +26,7 @@ public class EnemyNPCMovement : MonoBehaviour
     public bool isClosingIn;
 
     public Vector3 destinationOffset;
+    public SurroundingDest surroundingDestination;
 
     [SerializeField] private float speed;
     public Vector3 angularVelocity;
@@ -103,10 +105,119 @@ public class EnemyNPCMovement : MonoBehaviour
         }
     }
 
+    public void AssignClosestEmptyDestination()
+    {
+        //find closest empty point to close-in
+        //surroundingDestination = null;
+        int index = -1;
+        for (int i = 0; i < target.GetComponent<PlayerController>().relativePos.Count; i++)
+        {
+            SurroundingDest surDest = target.GetComponent<PlayerController>().relativePos[i];
+            if (surDest.occupantNPC != null) continue;
+            if (surroundingDestination == null)
+            {
+                surroundingDestination = surDest;
+                surroundingDestination.occupantNPC = gameObject;
+                destinationOffset = surroundingDestination.relativePosToPlayer.transform.localPosition;
+                index = i;
+                continue;
+            }
+            if ((surroundingDestination.relativePosToPlayer.transform.position - gameObject.transform.position).magnitude > (surDest.relativePosToPlayer.transform.position - gameObject.transform.position).magnitude)
+            {
+                surroundingDestination.occupantNPC = null;
+                surroundingDestination = surDest;
+                surroundingDestination.occupantNPC = gameObject;
+                destinationOffset = surroundingDestination.relativePosToPlayer.transform.localPosition;
+                index = i;
+                continue;
+            }
+        }
+
+        Debug.Log("closest dest is: " + index);
+    }
+        
+
+    //Used to detect if NPC is occupying another NPC's region
+    public void CheckForStrafeDirectionChange()//call only after AssignClosestEmptyDestination method is called
+    {
+        SurroundingDest closestOccupiedDest = null;
+        foreach (SurroundingDest surDest in target.GetComponent<PlayerController>().relativePos)
+        {
+            if (surDest.occupantNPC == null) continue;
+            if (closestOccupiedDest == null)
+            {
+                closestOccupiedDest = surDest;
+                continue;
+            }
+            if ((closestOccupiedDest.relativePosToPlayer.transform.position - gameObject.transform.position).magnitude > (surDest.relativePosToPlayer.transform.position - gameObject.transform.position).magnitude)
+            {
+                closestOccupiedDest = surDest;
+                continue;
+            }
+        }
+
+        if (surroundingDestination == closestOccupiedDest) return;
+
+        EnemyNPCAttack attack = gameObject.GetComponent<EnemyNPCAttack>();
+        if (attack.strafeAroundCoroutine != null)
+        {
+            StopCoroutine(attack.strafeAroundCoroutine);
+            OnStopStrafeAroundTheTarget();
+        }
+
+        //Special Case: first and last  
+        if (surroundingDestination == target.GetComponent<PlayerController>().relativePos.Last() && closestOccupiedDest == target.GetComponent<PlayerController>().relativePos[0])
+        {
+            Debug.Log("Occupying another NPC's region, strafe left");
+            attack.strafeAroundCoroutine = StartCoroutine(StrafeAroundTheTarget(2, -1));//strafe to left
+            return;
+        }
+        else if (closestOccupiedDest == target.GetComponent<PlayerController>().relativePos.Last() && surroundingDestination == target.GetComponent<PlayerController>().relativePos[0])
+        {
+            Debug.Log("Occupying another NPC's region, strafe right");
+            attack.strafeAroundCoroutine = StartCoroutine(StrafeAroundTheTarget(2, 1));//strafe to right
+            return;
+        }
+
+        int indClosest = 0, indOriginal = 0;
+        for (int i = 0; i < target.GetComponent<PlayerController>().relativePos.Count; i++)
+        {
+            if (target.GetComponent<PlayerController>().relativePos[i] == closestOccupiedDest)
+            {
+                indClosest = i;
+            }
+            if (target.GetComponent<PlayerController>().relativePos[i] == surroundingDestination)
+            {
+                indOriginal = i;
+            }
+        }
+
+        if (indClosest == indOriginal - 1)
+        {
+            Debug.Log("Occupying another NPC's region, strafe right");
+            attack.strafeAroundCoroutine = StartCoroutine(StrafeAroundTheTarget(2, 1));//strafe to right
+            return;
+        }
+        else if (indOriginal == indClosest - 1)
+        {
+            Debug.Log("Occupying another NPC's region, strafe left");
+            attack.strafeAroundCoroutine = StartCoroutine(StrafeAroundTheTarget(2, -1));//strafe to left
+            return;
+        }
+    }
+
     public bool TargetOutOfRange()//call in chase
     {
         float buffer = 0.2f;
-        if(GetDistanceTotarget() > triggerentryDistance+buffer || target == null)
+        if (triggerentryDistance < detectionRadius)
+        {
+            if (GetDistanceTotarget() > detectionRadius+buffer || target == null)
+            {
+                target = null;
+                return true;
+            }
+        }
+        else if(GetDistanceTotarget() > triggerentryDistance+buffer || target == null)
         { 
             target = null;
             return true;
@@ -150,7 +261,7 @@ public class EnemyNPCMovement : MonoBehaviour
         }
     }
 
-    public IEnumerator StrafeAroundTheTarget(float duration)
+    public IEnumerator StrafeAroundTheTarget(float duration, float direction)
     {
         attack.attacking = true;
         GameObject cachedTarget = target;
@@ -167,37 +278,7 @@ public class EnemyNPCMovement : MonoBehaviour
         {
             StartSlowDownZ(0);
         }
-        //animator.SetFloat("SpeedZ", 0);//bring this down gradually; buradaaa speedUp ve slowdown coroutinelerini kontrol edip onlari durdur
-        float speedX = UnityEngine.Random.Range(-1f, 1f);
-        speedX = speedX <= 0 ? -1f : 1f;//change this gradually
-
-        /*Func<float, float, float> speedModel;
-        if (speedX > 0)
-        {
-            speedModel = NegativeParabolicBy2PeakSpeed;
-        }
-        else
-        {
-            speedModel = ParabolicBy2PeakSpeed;
-        }
-
-        float strafeDur = duration;
-        float time = 0f;
-        //float lerpSpeed = 15f;
-
-        while (time < strafeDur)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position, Vector3.up);
-            //transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lerpSpeed);
-            transform.rotation = lookRotation;
-            float xAxPos = ((time / (strafeDur/2)) - 1);//progress of speedup/slow-down fitted on [-1,1] interval on the x axis
-            float curSpeedX = speedModel(speedX, xAxPos);
-
-            animator.SetFloat("SpeedX", curSpeedX);
-            time += Time.deltaTime;
-            yield return new WaitForSeconds(Time.deltaTime);
-        }*/
-
+        float speedX = direction;
         if (changeSpeedX != null)
         {
             StopCoroutine(changeSpeedX);
@@ -217,10 +298,8 @@ public class EnemyNPCMovement : MonoBehaviour
         while (time < strafeDur)
         {
             Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position, Vector3.up);
-            //transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lerpSpeed);
             transform.rotation = lookRotation;
 
-            
             time += Time.deltaTime;
             yield return new WaitForSeconds(Time.deltaTime);
         }
@@ -481,14 +560,6 @@ public class EnemyNPCMovement : MonoBehaviour
     }
 
     #region Animation Events
-    public void GoInToMovementLayer()
-    {
-        animator.ResetTrigger("Sheat");//improper fix: 
-        animator.SetLayerWeight(1, 0f);
-        animator.SetLayerWeight(2, 0f);
-        animator.SetLayerWeight(0, 1f);
-    }
-
     public void EnableRotationalMovement()
     {
         isMovementRoationalEnabled = true;
