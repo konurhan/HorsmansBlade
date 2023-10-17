@@ -18,6 +18,7 @@ public class EnemyNPCAttack : MonoBehaviour
     public bool attacking;
 
     public Coroutine strafeAroundCoroutine;
+    public Coroutine turnTowardsTheTargetCoroutine;
 
     private void Awake()
     {
@@ -70,7 +71,7 @@ public class EnemyNPCAttack : MonoBehaviour
         }
     }
 
-    public void HandleAttack()
+    public void HandleAttack()//turn to enemy here
     {
         if (blocking) return;
         if (attacking) return;
@@ -85,25 +86,41 @@ public class EnemyNPCAttack : MonoBehaviour
 
     public void DecideAndAttack()//enemy will decide which attack action to perform
     {
+        HandleAngleToTarget();//turn to enemy here
+
         int rand = Random.Range(0, 100);
         switch (rand)
         {
             case <= 39 when rand >= 0:
                 attacking = true;
                 animator.SetTrigger("InwardSlash");
-                StartCoroutine(AttackCoolDown(1.5f));
+                StartCoroutine(AttackCoolDown(1.2f));
                 break;
             case <= 79 when rand >= 40:
                 attacking = true;
                 animator.SetTrigger("OutwardSlash");
-                StartCoroutine(AttackCoolDown(1.5f));
+                StartCoroutine(AttackCoolDown(1.2f));
                 break;
             case <= 99 when rand >= 80:
-                //doing nothing: can strafe in this phase, or reposition
                 float speedX = UnityEngine.Random.Range(-1f, 1f);
                 speedX = speedX <= 0 ? -1f : 1f;
-                strafeAroundCoroutine = movement.StartCoroutine(movement.StrafeAroundTheTarget(2, speedX));
+                strafeAroundCoroutine = movement.StartCoroutine(movement.StrafeAroundTheTarget(2, speedX));//sets attacking first true, then false at the end
                 break;
+        }
+    }
+
+    public void HandleAngleToTarget()
+    {
+        Debug.Log("angle is: " + GetAngleToTarget());
+        if (turnTowardsTheTargetCoroutine != null)
+        {
+            Debug.Log("turnTowardsTheTargetCoroutine is not null");
+            return;
+        }
+
+        if (GetAngleToTarget() >= 30 || GetAngleToTarget() <= -30)
+        {
+            turnTowardsTheTargetCoroutine = StartCoroutine(TurnTowardsTheTarget(0.2f));
         }
     }
 
@@ -140,6 +157,29 @@ public class EnemyNPCAttack : MonoBehaviour
             break;
         }
         LowerShield();
+    }
+
+    public IEnumerator TurnTowardsTheTarget(float duration)
+    {
+        Debug.Log("TurnTowardsTheTarget is called");
+        attacking = true;
+
+        float lerpSpeed = 2f;
+        GameObject cachedTarget = target;
+
+        float passed = 0f;
+
+        while (passed < duration)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lerpSpeed);
+            passed += Time.deltaTime;
+            //Debug.Log("passed time: " + passed);
+            yield return new WaitForEndOfFrame();
+        }
+        attacking = false;
+        turnTowardsTheTargetCoroutine = null;
+        Debug.Log("TurnTowardsTheTarget is finished");
     }
 
     public IEnumerator TurnLeftToBlock(float angle)
@@ -197,7 +237,6 @@ public class EnemyNPCAttack : MonoBehaviour
     {
         if (!target) return 0;
         Vector3 relativeToTarget = target.transform.position - transform.position;
-        //Vector3 axis = Vector3.Cross(relativeToTarget, transform.forward);//changes its sign with the sign of the angle, so it causes sign to be always negative or always positive
         return Vector3.SignedAngle(transform.forward, relativeToTarget.normalized, Vector3.up);
     }
 

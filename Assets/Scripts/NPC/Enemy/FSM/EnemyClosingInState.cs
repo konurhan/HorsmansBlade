@@ -9,14 +9,13 @@ public class EnemyClosingInState : EnemyState
     EnemyNPCMovement movement;
     EnemyNPCEquipmentSystem equipmentSystem;
     NavMeshAgent agent;
-    [SerializeField] private Coroutine currentCoroutine;
+    //[SerializeField] private Coroutine currentCoroutine;
     public EnemyClosingInState(EnemyController enemy, EnemyStateMachine fsm) : base(enemy, fsm)
     {
         enemyObj = enemy.gameObject;
         agent = enemyObj.GetComponent<NavMeshAgent>();
         equipmentSystem = enemyObj.GetComponent<EnemyNPCEquipmentSystem>();
         movement = enemyObj.GetComponent<EnemyNPCMovement>();
-        currentCoroutine = null;
     }
 
     public override void EnterState()
@@ -47,9 +46,9 @@ public class EnemyClosingInState : EnemyState
         if (!movement.DoesHaveTarget())//if the target destroyed
         {
             Debug.Log("doesnt have a target anymore");
-            if (currentCoroutine != null)
+            if (movement.strafingRoutine != null)
             {
-                movement.StopCoroutine(currentCoroutine);
+                movement.StopCoroutine(movement.strafingRoutine);
                 movement.OnStopStrafing();
             }
             //equipmentSystem.StartCoroutine(equipmentSystem.Sheat());
@@ -59,9 +58,9 @@ public class EnemyClosingInState : EnemyState
         if (movement.TargetOutOfRange())//if the target moved out of detection radius
         {
             Debug.Log("target is lost");
-            if (currentCoroutine != null)
+            if (movement.strafingRoutine != null)
             {
-                movement.StopCoroutine(currentCoroutine);
+                movement.StopCoroutine(movement.strafingRoutine);
                 movement.OnStopStrafing();
             }
             //equipmentSystem.StartCoroutine(equipmentSystem.Sheat());
@@ -71,9 +70,9 @@ public class EnemyClosingInState : EnemyState
         if (distanceToTarget > movement.surroundingRadius + agent.stoppingDistance + 0.2f)
         {
             Debug.Log("Target is too far to close in, start chasing again.");
-            if(currentCoroutine != null)
+            if(movement.strafingRoutine != null)
             {
-                movement.StopCoroutine(currentCoroutine);
+                movement.StopCoroutine(movement.strafingRoutine);
                 movement.OnStopStrafing();
             }
             fsm.ChangeState(enemy.chasingState);
@@ -81,18 +80,18 @@ public class EnemyClosingInState : EnemyState
         }
         if (distanceToTarget <= movement.attackRadius)
         {
-            if (currentCoroutine != null)
+            if (movement.strafingRoutine != null)
             {
-                movement.StopCoroutine(currentCoroutine);
+                movement.StopCoroutine(movement.strafingRoutine);
                 movement.OnStopStrafing();
             }
             fsm.ChangeState(enemy.attackState);
             return;
         }
 
-        if (!movement.isClosingIn || currentCoroutine == null)
+        if (!movement.isClosingIn || movement.strafingRoutine == null)//ikinci ifadeye gerek yok
         {
-            currentCoroutine = movement.StartCoroutine(movement.StrafeTowardsTarget());
+            movement.strafingRoutine = movement.StartCoroutine(movement.StrafeTowardsTarget());
             Debug.Log("New strafe towards target coroutine has started");
         }
     }

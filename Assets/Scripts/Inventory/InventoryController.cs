@@ -25,7 +25,7 @@ public class InventoryController : MonoBehaviour
     {
         //LoadInventoryTest();
         LoadInventory();
-
+        InventoryUI.Instance.CreateInventorySlotsForAllItems();
         InventoryUI.Instance.onGameSaved += SaveInventory;
     }
 
@@ -266,7 +266,7 @@ public class InventoryController : MonoBehaviour
     {
         InventoryUI.Instance.DestroySlot(itemDesc);
     }
-
+    
     public void AddSlot(int amount, ItemDescriptor itemDesc)
     {
         InventoryUI.Instance.AddSlot(amount, itemDesc);
@@ -283,7 +283,7 @@ public class InventoryController : MonoBehaviour
         else
         {
             items.Add(itemDesc, 1);
-            InventoryUI.Instance.AddSlot(1, itemDesc);
+            AddSlot(1, itemDesc);
             if (FindDescriptionInWorldInventory(itemDesc.itemName) == null)
             {
                 WorldInventory.Instance.worldItemDescriptions.Add(itemDesc);
@@ -308,9 +308,7 @@ public class InventoryController : MonoBehaviour
 
     public void CollectSingleItem(GameObject gathered)
     {
-        //check weight limitation
-
-        //trigger gathering animation
+        //collected itms slot might be under armour slots or weapon slots
 
 
         if(gathered.GetComponent<InventoryItem>() != null)
@@ -344,9 +342,6 @@ public class InventoryController : MonoBehaviour
 
     public void LoadInventory()
     {
-        //implement after saveload system
-        //load dict of itemdescriptors
-
         InventoryData data = SaveSystem.LoadData<InventoryData>("/PlayerInventoryData.json"); 
         if (data == null) return;
 
@@ -362,7 +357,7 @@ public class InventoryController : MonoBehaviour
     }
 
 
-    public void LoadInventoryTest()//assign longsword to inventory
+    /*public void LoadInventoryTest()//assign longsword to inventory
     {
         ItemDescriptor longSword = new ItemDescriptor("SimpleLongSword","Prefabs/Weapons/Melee/", ItemType.Weapon);
         items.Add(longSword, 1);
@@ -396,7 +391,7 @@ public class InventoryController : MonoBehaviour
         WorldInventory.Instance.worldItemDescriptions.Add(simpleLongBow);
         WorldInventory.Instance.worldItemDescriptions.Add(longBowArrow);
 
-    }
+    }*/
 
     public ItemDescriptor FindDescriptionInPlayerInventory(string itemName)
     {

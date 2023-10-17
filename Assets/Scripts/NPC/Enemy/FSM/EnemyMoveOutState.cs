@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyAttackState : EnemyState
+public class EnemyMoveOutState : EnemyState
 {
     GameObject enemyObj;
     EnemyNPCMovement movement;
     EnemyNPCAttack attack;
     EnemyNPCEquipmentSystem equipmentSystem;
     NavMeshAgent agent;
-    public EnemyAttackState(EnemyController enemy, EnemyStateMachine fsm) : base(enemy, fsm)
+    public EnemyMoveOutState(EnemyController enemy, EnemyStateMachine fsm) : base(enemy, fsm)
     {
         enemyObj = enemy.gameObject;
         agent = enemyObj.GetComponent<NavMeshAgent>();
@@ -22,7 +22,7 @@ public class EnemyAttackState : EnemyState
     public override void EnterState()
     {
         base.EnterState();
-        Debug.Log("Entered to attack state");
+        Debug.Log("Entered to moveOut state");
     }
 
     public override void ExitState()
@@ -41,9 +41,7 @@ public class EnemyAttackState : EnemyState
     {
         base.Update();
 
-        if (attack.attacking || attack.blocking) return;//if an attack action or coroutine is underway
-
-        if(!movement.DoesHaveTarget())//target is destroyed
+        if (!movement.DoesHaveTarget())//target is destroyed
         {
             Debug.Log("doesnt have a target anymore");
             fsm.ChangeState(enemy.patrollingState);
@@ -55,25 +53,22 @@ public class EnemyAttackState : EnemyState
             fsm.ChangeState(enemy.patrollingState);
             return;
         }
-        if(movement.GetDistanceTotarget() > movement.attackRadius + 0.5f)//this will only be called after strafe around is finished and speed has come down to 0, shouldn't cause feet to jump
+        if (movement.GetDistanceTotarget() >= movement.attackRadius)
         {
-            Debug.Log("target moved outside of attack range, start closingIn.");
-            fsm.ChangeState(enemy.closingInState);
-            //Debug.Break();
-            return;
-        }
-        if(movement.GetDistanceTotarget() < movement.attackRadius - 0.2f)//too close to target, move out a bit
-        {
-            if(movement.strafingRoutine != null)
+            //burada attack.strafeAroundRoutine'i de durdurmali mi????
+            if (movement.strafingRoutine != null)
             {
                 movement.StopCoroutine(movement.strafingRoutine);
                 movement.OnStopStrafing();
             }
-            fsm.ChangeState(enemy.moveOutState);
+            fsm.ChangeState(enemy.attackState);
             return;
         }
-
-        enemyObj.GetComponent<EnemyNPCAttack>().HandleDefence();
-        enemyObj.GetComponent<EnemyNPCAttack>().HandleAttack();
+        
+        if (!movement.isMovingOut)
+        {
+            movement.strafingRoutine = movement.StartCoroutine(movement.KeepAttackingDistanceFromTarget());
+            Debug.Log("New move out coroutine has started");
+        }
     }
 }

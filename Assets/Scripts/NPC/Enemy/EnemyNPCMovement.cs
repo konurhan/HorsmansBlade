@@ -24,6 +24,7 @@ public class EnemyNPCMovement : MonoBehaviour
     public float triggerentryDistance;
     public bool isMovementRoationalEnabled;
     public bool isClosingIn;
+    public bool isMovingOut;
 
     public Vector3 destinationOffset;
     public SurroundingDest surroundingDestination;
@@ -39,6 +40,7 @@ public class EnemyNPCMovement : MonoBehaviour
 
     private Coroutine changeSpeedX;
     private Coroutine changeSpeedZ;
+    public Coroutine strafingRoutine;
 
     private void Awake()
     {
@@ -50,11 +52,14 @@ public class EnemyNPCMovement : MonoBehaviour
 
         isMovementRoationalEnabled = true;
         isClosingIn = false;
+        isMovingOut = false;
 
         for (int i = 0; i < WaypointGraphParent.childCount; i++)
         {
             waypoints.Add(WaypointGraphParent.GetChild(i).gameObject.transform);
         }
+
+        strafingRoutine = null;
     }
 
     void Start()
@@ -206,7 +211,7 @@ public class EnemyNPCMovement : MonoBehaviour
         }
     }
 
-    public bool TargetOutOfRange()//call in chase
+    public bool TargetOutOfRange()
     {
         float buffer = 0.2f;
         if (triggerentryDistance < detectionRadius)
@@ -225,7 +230,7 @@ public class EnemyNPCMovement : MonoBehaviour
         return false;
     }
 
-    public bool DoesHaveTarget()//call in idle
+    public bool DoesHaveTarget()
     {
         return target != null;
     }
@@ -241,16 +246,32 @@ public class EnemyNPCMovement : MonoBehaviour
         return ((destination) - transform.position).magnitude;
     }
 
-    public IEnumerator StrafeTowardsTarget()//used for closing in to target 
+    public IEnumerator KeepAttackingDistanceFromTarget()
+    {
+        float lerpSpeed = 5f;
+        GameObject cachedTarget = target;
+        isMovingOut = true;
+
+        float speedZ = -0.5f;
+
+        animator.SetFloat("SpeedZ", speedZ);
+        while (true)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lerpSpeed);
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    public IEnumerator StrafeTowardsTarget()
     {
         float lerpSpeed = 5f;
         GameObject cachedTarget = target;
         isClosingIn = true;
 
-        float speedZ = 0.5f;//bring this up/down gradually
-        float speedX = 1.5f;//bring this up/down gradually
+        float speedZ = 0.5f;
+        float speedX = 1.5f;
 
-        //speedX = speedX <= 0 ? 1.5f : 1.5f;//animations are not enough, walking left and approaching doesn't work together
         animator.SetFloat("SpeedZ", speedZ);
         animator.SetFloat("SpeedX", speedX);
         while (true)
@@ -285,7 +306,7 @@ public class EnemyNPCMovement : MonoBehaviour
         }
         if (animator.GetFloat("SpeedX") < speedX)
         {
-            StartSpeedUpX(speedX);//bunun ne kadar surecegini hesapla, onu total sureden dus ve o kadar sure 
+            StartSpeedUpX(speedX);
         }
         else if (animator.GetFloat("SpeedX") > speedX)
         {
@@ -350,10 +371,8 @@ public class EnemyNPCMovement : MonoBehaviour
         {
             StartSlowDownX(0);
         }
-
-        //animator.SetFloat("SpeedZ", 0);//bring down slowly
-        //animator.SetFloat("SpeedX", 0);//bring down slowly
         isClosingIn = false;
+        isMovingOut = false;
     }
 
     public float NegativeParabolicBy2PeakSpeed(float peakSpeed, float xAxPos)//peakSpeed - x^2, called if peakSpeed > 0

@@ -31,6 +31,7 @@ public class EnemyController : MonoBehaviour
     public EnemyChasingState chasingState;
     public EnemyClosingInState closingInState;
     public EnemyAttackState attackState;
+    public EnemyMoveOutState moveOutState;
     public EnemyFleeState fleeState;
     #endregion
 
@@ -44,6 +45,7 @@ public class EnemyController : MonoBehaviour
         chasingState = new EnemyChasingState(this, stateMachine);
         closingInState = new EnemyClosingInState(this, stateMachine);
         attackState = new EnemyAttackState(this, stateMachine);
+        moveOutState = new EnemyMoveOutState(this, stateMachine);
         fleeState = new EnemyFleeState(this, stateMachine);
 
         SetbodyPartReferences();

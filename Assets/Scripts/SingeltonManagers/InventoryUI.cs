@@ -46,6 +46,7 @@ public class InventoryUI : MonoBehaviour
 
     public void AddSlot(int amount, ItemDescriptor itemDesc)
     {
+        ArrangeSlotPositions();
         int rowCount = InventorySlotsTransform.childCount;
         for(int i = 0; i < rowCount; i++)
         {
@@ -88,7 +89,14 @@ public class InventoryUI : MonoBehaviour
 
     public void DestroySlot(ItemDescriptor itemDesc)//call FindSlotByItemDescriptor
     {
-        foreach (InventorySlot slot in slots.ToList())
+        InventorySlot toBeDestroyed = FindSlotByItemDescriptor(itemDesc);
+        if (toBeDestroyed != null)
+        {
+            slots.Remove(toBeDestroyed);
+            Destroy(toBeDestroyed.gameObject);
+            return;
+        }
+        /*foreach (InventorySlot slot in slots.ToList())
         {
             if (slot.itemDescriptor.itemName == itemDesc.itemName)
             {
@@ -97,8 +105,7 @@ public class InventoryUI : MonoBehaviour
                 Destroy(slotObj);
                 return;
             }
-        }
-        
+        }*/
     }
 
     public void UpdateSlotAmount(int newVal, ItemDescriptor itemDesc)
@@ -203,7 +210,7 @@ public class InventoryUI : MonoBehaviour
             collectText.gameObject.SetActive(false);
 
             InventorySlotsTransform.parent.gameObject.SetActive(true);
-            RecreateInventorySlots();
+            //RecreateInventorySlots();
         }
     }
 
@@ -211,9 +218,27 @@ public class InventoryUI : MonoBehaviour
     {
         foreach (InventorySlot inventorySlot in slots)
         {
-            if (inventorySlot.itemDescriptor == itemDescriptor)
+            if (inventorySlot.itemDescriptor.itemName == itemDescriptor.itemName)
             {
                 return inventorySlot;
+            }
+        }
+        //search for WeaponSlotsParent
+        for (int i = 0; i < 4; i++) 
+        {
+            if (WeaponSlotsParent.GetChild(i).childCount == 0) continue;
+            if (WeaponSlotsParent.GetChild(i).GetChild(0).gameObject.GetComponent<InventorySlot>().itemDescriptor.itemName == itemDescriptor.itemName)
+            {
+                return WeaponSlotsParent.GetChild(i).GetChild(0).gameObject.GetComponent<InventorySlot>();
+            }
+        }
+        //search for ArmourSlotsParent
+        for (int i = 0; i < 5; i++)
+        {
+            if (ArmourSlotsParent.GetChild(i).childCount == 0) continue;
+            if (ArmourSlotsParent.GetChild(i).GetChild(0).gameObject.GetComponent<InventorySlot>().itemDescriptor.itemName == itemDescriptor.itemName)
+            {
+                return ArmourSlotsParent.GetChild(i).GetChild(0).gameObject.GetComponent<InventorySlot>();
             }
         }
         return null;
@@ -224,24 +249,24 @@ public class InventoryUI : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I) && InventorySlotsTransform.parent.gameObject.activeInHierarchy)
         {
             InventorySlotsTransform.parent.gameObject.SetActive(false);
-            ClearInventoryPanel();
+            //ClearInventoryPanel();
         }else if (Input.GetKeyDown(KeyCode.I) && !InventorySlotsTransform.parent.gameObject.activeInHierarchy)
         {
             InventorySlotsTransform.parent.gameObject.SetActive(true);
-            RecreateInventorySlots();
+            //RecreateInventorySlots();
         }
     }
 
-    public void OnContainerPanelClosedByPlayer()//call from container close button
+    public void OnContainerPanelClosedByPlayer()//call from container panel close button
     {
         ContainerSlotsTransform.parent.gameObject.SetActive(false);
-        DestroyAllSlots();
+        DestroyAllContainerSlots();
 
         InventorySlotsTransform.parent.gameObject.SetActive(false);
-        ClearInventoryPanel();
+        //ClearInventoryPanel();
     }
 
-    public void DestroyAllSlots()//same ui panel will be used for all containers in the game so it has to be reset each time the panel is deactivated in the canvas
+    public void DestroyAllContainerSlots()//same ui panel will be used for all containers in the game so it has to be reset each time the panel is deactivated in the canvas
     {
         foreach (ContainerSlot slot in containerSlots.ToList())
         {
@@ -259,7 +284,7 @@ public class InventoryUI : MonoBehaviour
         slots.Clear();
     }
 
-    public void RecreateInventorySlots()
+    public void CreateInventorySlotsForAllItems()
     {
         Dictionary<ItemDescriptor, int> items = Player.GetComponent<InventoryController>().items;
         foreach (ItemDescriptor item in items.Keys)

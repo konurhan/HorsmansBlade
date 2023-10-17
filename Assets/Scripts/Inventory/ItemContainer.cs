@@ -217,7 +217,7 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
     public void OnOpenedByPlayer()//call from key downs when container message is displayed on the canvas
     {
         ContainerSlotsTransform.parent.gameObject.SetActive(true);
-        CreateSlotsForAllItems();
+        CreateContainerSlotsForAllItems();
     }
 
     public void AddSlot(int amount, ItemDescriptor itemDesc)
@@ -248,9 +248,9 @@ public class ItemContainer : MonoBehaviour//attach this script to a chest
         }
     }
 
-    public void CreateSlotsForAllItems()//call when panel is activated
+    public void CreateContainerSlotsForAllItems()//call when panel is activated
     {
-        InventoryUI.Instance.DestroyAllSlots();
+        InventoryUI.Instance.DestroyAllContainerSlots();
 
         foreach (ItemDescriptor item in containedItems.Keys)
         {

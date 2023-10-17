@@ -133,7 +133,7 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         //slots reappear on inventory tab after being moved to weapon or armour slots, when inventory is reopened
         Debug.Log("action button is pressed");
-        if (itemInstance != null)
+        if (itemInstance != null)// if slot of an equipped item is pressed
         {
             if (itemDescriptor.itemType == ItemType.Weapon)
             {
@@ -147,8 +147,8 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             {
                 inventoryController.UnequipArmour(itemInstance.GetComponent<Armour>());
             }
-            InventoryUI.Instance.AddSlot(gameObject);
 
+            InventoryUI.Instance.AddSlot(gameObject);//add slot back to inventory slots
             RemoveButton.gameObject.SetActive(true);//reactivate remove button
             Amount.gameObject.SetActive(true);//reactivate amount
 
@@ -156,8 +156,6 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         }
         else
         {
-            //if an item of the same type is already equipped bring back the occupying slot first
-
             InventoryUI.Instance.slots.Remove(this);//move the slot to corresponding equipped item panel
             RemoveButton.gameObject.SetActive(false);//deactivate remove button
             Amount.gameObject.SetActive(false);//deactivate amount

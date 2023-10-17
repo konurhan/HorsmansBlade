@@ -36,12 +36,13 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(string bodyPart, float damage)
     {
-        if (enemyController != null)
+        if (isDead) return;
+        /*if (enemyController != null)
         {
             switch (bodyPart)
             {
                 case "head":
-
+                    headHealth -= damage;
                     break;
                 case "torso":
                     torsoHealth -= damage;
@@ -59,7 +60,7 @@ public class PlayerHealth : MonoBehaviour
             switch (bodyPart)
             {
                 case "head":
-
+                    headHealth -= damage;
                     break;
                 case "torso":
                     torsoHealth -= damage;
@@ -71,7 +72,7 @@ public class PlayerHealth : MonoBehaviour
                     legsHealth -= damage;
                     break;
             }
-        }
+        }*/
         
         switch (bodyPart)
         {
@@ -88,6 +89,7 @@ public class PlayerHealth : MonoBehaviour
                 legsHealth -= damage;
                 break;
         }
+
         if (headHealth < 0)
         {
             headHealth = 0;
@@ -114,17 +116,12 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    /*
-     
-     
-     */
-
     private void Die()
     {
         isDead = true;
 
         GetComponent<Animator>().SetTrigger("Died");
-        Invoke(nameof(SetIsDeadTrue), 0.1f);// delayed so that take hit has some time to get triggered
+        Invoke(nameof(SetIsDeadParameterTrue), 0.1f);// delayed so that take hit has some time to get triggered
 
         GetComponent<CapsuleCollider>().isTrigger = true;
         
@@ -151,6 +148,11 @@ public class PlayerHealth : MonoBehaviour
             GetComponent<EnemyController>().enabled = false;
             GetComponent<NavMeshAgent>().enabled = false;
         }
+    }
+
+    public void SetIsDeadParameterTrue()
+    {
+        GetComponent<Animator>().SetBool("isDead", true);
     }
 
     public void SetHealthData(HealthData healthData)
@@ -185,10 +187,6 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    public void SetIsDeadTrue()
-    {
-        GetComponent<Animator>().SetBool("isDead", true);
-    }
 }
 
 [System.Serializable]

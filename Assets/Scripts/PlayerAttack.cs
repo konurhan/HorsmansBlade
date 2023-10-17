@@ -97,6 +97,7 @@ public class PlayerAttack : MonoBehaviour
         {
             usingOneHanded = true;
             recentMeleeWeapon = meleeWeaponOneHanded;
+            animator.SetBool("usingWeapon", true);
             animator.ResetTrigger("InwardSlash");
             animator.ResetTrigger("OutwardSlash");
             animator.SetTrigger("Draw");
@@ -106,6 +107,7 @@ public class PlayerAttack : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha1) && CanSheatWeaponOneHanded())
         {
             usingOneHanded = false;
+            animator.SetBool("usingWeapon", false);
             animator.SetTrigger("Sheat");
         }
 
@@ -113,6 +115,7 @@ public class PlayerAttack : MonoBehaviour
         {
             usingTwoHanded = true;
             recentMeleeWeapon = meleeWeaponTwoHanded;
+            animator.SetBool("usingWeapon", true);
             animator.ResetTrigger("InwardSlash");
             animator.ResetTrigger("OutwardSlash");
             animator.SetTrigger("Draw");
@@ -122,6 +125,7 @@ public class PlayerAttack : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha2) && CanSheatWeaponTwoHanded())
         {
             usingTwoHanded = false;
+            animator.SetBool("usingWeapon", false);
             animator.SetTrigger("Sheat");
         }
 
@@ -129,6 +133,7 @@ public class PlayerAttack : MonoBehaviour
         {
             usingRanged = true;
             recentRangedWeapon = rangedWeapon;
+            animator.SetBool("usingWeapon", true);
             animator.SetTrigger("EquipBow");
             animator.SetLayerWeight(5, 1f);
             animator.SetLayerWeight(6, 1f);
@@ -139,6 +144,7 @@ public class PlayerAttack : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha3) && CanSheatWeaponRanged())
         {
             usingRanged = false;
+            animator.SetBool("usingWeapon", false);
             animator.SetTrigger("DisarmBow");
 
             RemoveSpeedLimit();
@@ -361,6 +367,7 @@ public class PlayerAttack : MonoBehaviour
 
     public void SheatMeleeWeapon()//call in both one handed and two handed layers
     {
+        if (recentMeleeWeapon == null) return;
         recentMeleeWeapon.transform.SetParent(MeleeSheatTransform, false);
     }
 

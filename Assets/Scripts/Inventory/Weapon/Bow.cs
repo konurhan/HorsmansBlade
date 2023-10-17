@@ -146,7 +146,7 @@ public class Bow : RangedWeapon
     {
         base.UnAim();
         owner.GetComponent<Animator>().SetTrigger("AbortDrawArrow");
-        GetComponent<Animator>().SetBool("Draw", false);
+        GetComponent<Animator>().SetTrigger("AbortDrawString");
         hasDrawn = false;
     }
 
@@ -168,7 +168,7 @@ public class Bow : RangedWeapon
         base.Loose();
         owner.GetComponent<Animator>().SetTrigger("ReleaseArrow");
         GetComponent<Animator>().SetTrigger("ShootArrow");
-        Invoke(nameof(SetDrawFalse), 0.1f);//so that animator doesn't go into abort draw state
+        GetComponent<Animator>().SetBool("Draw", false);
 
         float skillMultiplier = owner.GetComponent<PlayerController>().rangedSkillLevel / 100f;
         knockedAmmo.GetComponent<Ammo>().Shoot(maximumForce, skillMultiplier, ammoForward);
@@ -186,10 +186,11 @@ public class Bow : RangedWeapon
 
     public IEnumerator SlowMoOnFireAmmo()
     {
-        Time.timeScale = 1f/40;
-        Time.fixedDeltaTime = 0.02f * Time.timeScale / 10;
+        Time.timeScale = 1/2f;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale / 50f;
         float passedTime = 0;
-        while (passedTime < 2)
+        //WaitForSecondsRealtime travelTime = new WaitForSecondsRealtime(0.1f);
+        while (passedTime < 0.2f)
         {
             passedTime += 0.1f;
             yield return new WaitForSecondsRealtime(0.1f);
