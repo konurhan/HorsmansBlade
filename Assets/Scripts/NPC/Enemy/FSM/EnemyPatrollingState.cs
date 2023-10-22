@@ -28,8 +28,8 @@ public class EnemyPatrollingState : EnemyState
         Debug.Log("Entered to patrolling state");
         base.EnterState();
         
-        movement.animator.SetFloat("SpeedZ", 0);
-        movement.animator.SetFloat("SpeedX", 0);
+        movement.animator.SetFloat(AnimatorController.Instance.SpeedZ, 0);
+        movement.animator.SetFloat(AnimatorController.Instance.SpeedX, 0);
         
         agent.ResetPath();
         agent.isStopped = false;

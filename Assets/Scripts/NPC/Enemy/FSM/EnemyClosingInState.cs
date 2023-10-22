@@ -23,8 +23,8 @@ public class EnemyClosingInState : EnemyState
         base.EnterState();
         Debug.Log("Entered to closing in state");
         //agent.ResetPath();
-        movement.animator.SetFloat("SpeedZ", 0);//don't make sudden cahnges to speed valuse in order to avoid feet jumps in anim
-        movement.animator.SetFloat("SpeedX", 0);
+        movement.animator.SetFloat(AnimatorController.Instance.SpeedZ, 0);//don't make sudden cahnges to speed valuse in order to avoid feet jumps in anim
+        movement.animator.SetFloat(AnimatorController.Instance.SpeedX, 0);
         //Debug.Break();
     }
 

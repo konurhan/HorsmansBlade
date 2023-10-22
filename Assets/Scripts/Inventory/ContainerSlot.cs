@@ -44,7 +44,7 @@ public class ContainerSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     public void SetupItemInfo()
     {
-        itemInfo.transform.position = gameObject.transform.position + new Vector3(-155, 50, 0);
+        itemInfo.transform.position = gameObject.transform.position + new Vector3(155, 50, 0);
 
         GameObject instance;
         if (itemInstance == null)

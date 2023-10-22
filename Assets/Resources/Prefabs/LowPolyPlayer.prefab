@@ -1176,6 +1176,7 @@ GameObject:
   - component: {fileID: 3523249593626767911}
   - component: {fileID: 1626493216491599857}
   - component: {fileID: 4418772246678337724}
+  - component: {fileID: 2426763730841618171}
   m_Layer: 8
   m_Name: LowPolyPlayer
   m_TagString: Player
@@ -1248,6 +1249,7 @@ MonoBehaviour:
   angularSpeed: 1
   isGrounded: 0
   isMovementRoationalEnabled: 0
+  timeSlice: 15
 --- !u!136 &2318850077041827498
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1420,6 +1422,18 @@ MonoBehaviour:
   player: {fileID: 0}
   collectibleItems: []
   lootableContainers: []
+--- !u!114 &2426763730841618171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1936855992445895873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcac0a297481bdb44946a206a8ac2042, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2025177135060273351
 GameObject:
   m_ObjectHideFlags: 0

@@ -23,8 +23,8 @@ public class EnemyIdleState : EnemyState
         base.EnterState();
         Debug.Log("Entered to idle state");
         agent.ResetPath();
-        movement.animator.SetFloat("SpeedZ", 0);
-        movement.animator.SetFloat("SpeedX", 0);
+        movement.animator.SetFloat(AnimatorController.Instance.SpeedZ, 0);
+        movement.animator.SetFloat(AnimatorController.Instance.SpeedX, 0);
         //equipmentSystem.StartCoroutine(equipmentSystem.Sheat());
     }
 

@@ -1,11 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
-using UnityEditor.Events;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -173,7 +167,10 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                 {
                     if (InventoryUI.Instance.WeaponSlotsParent.GetChild(0).childCount != 0)
                     {
-                        InventoryUI.Instance.AddSlot(InventoryUI.Instance.WeaponSlotsParent.GetChild(0).GetChild(0).gameObject);
+                        GameObject returnedSlot = InventoryUI.Instance.WeaponSlotsParent.GetChild(0).GetChild(0).gameObject;
+                        InventoryUI.Instance.AddSlot(returnedSlot);
+                        returnedSlot.GetComponent<InventorySlot>().RemoveButton.gameObject.SetActive(true);
+                        returnedSlot.GetComponent<InventorySlot>().Amount.gameObject.SetActive(true);
                     }
                     gameObject.transform.SetParent(InventoryUI.Instance.WeaponSlotsParent.GetChild(0), false);
                 }
@@ -181,7 +178,10 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                 {
                     if (InventoryUI.Instance.WeaponSlotsParent.GetChild(1).childCount != 0)
                     {
-                        InventoryUI.Instance.AddSlot(InventoryUI.Instance.WeaponSlotsParent.GetChild(1).GetChild(0).gameObject);
+                        GameObject returnedSlot = InventoryUI.Instance.WeaponSlotsParent.GetChild(1).GetChild(0).gameObject;
+                        InventoryUI.Instance.AddSlot(returnedSlot);
+                        returnedSlot.GetComponent<InventorySlot>().RemoveButton.gameObject.SetActive(true);
+                        returnedSlot.GetComponent<InventorySlot>().Amount.gameObject.SetActive(true);
                     }
                     gameObject.transform.SetParent(InventoryUI.Instance.WeaponSlotsParent.GetChild(1), false);
                 }
@@ -189,7 +189,10 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                 {
                     if (InventoryUI.Instance.WeaponSlotsParent.GetChild(2).childCount != 0)
                     {
-                        InventoryUI.Instance.AddSlot(InventoryUI.Instance.WeaponSlotsParent.GetChild(2).GetChild(0).gameObject);
+                        GameObject returnedSlot = InventoryUI.Instance.WeaponSlotsParent.GetChild(2).GetChild(0).gameObject;
+                        InventoryUI.Instance.AddSlot(returnedSlot);
+                        returnedSlot.GetComponent<InventorySlot>().RemoveButton.gameObject.SetActive(true);
+                        returnedSlot.GetComponent<InventorySlot>().Amount.gameObject.SetActive(true);
                     }
                     gameObject.transform.SetParent(InventoryUI.Instance.WeaponSlotsParent.GetChild(2), false);
                 }
@@ -205,7 +208,10 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                 
                 if (InventoryUI.Instance.WeaponSlotsParent.GetChild(3).childCount != 0)
                 {
-                    InventoryUI.Instance.AddSlot(InventoryUI.Instance.WeaponSlotsParent.GetChild(3).GetChild(0).gameObject);
+                    GameObject returnedSlot = InventoryUI.Instance.WeaponSlotsParent.GetChild(3).GetChild(0).gameObject;
+                    InventoryUI.Instance.AddSlot(returnedSlot);
+                    returnedSlot.GetComponent<InventorySlot>().RemoveButton.gameObject.SetActive(true);
+                    returnedSlot.GetComponent<InventorySlot>().Amount.gameObject.SetActive(true);
                 }
                 gameObject.transform.SetParent(InventoryUI.Instance.WeaponSlotsParent.GetChild(3), false);
             }
@@ -231,35 +237,50 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                     case ArmourType.Head:
                         if (InventoryUI.Instance.ArmourSlotsParent.GetChild(0).childCount != 0)
                         {
-                            InventoryUI.Instance.AddSlot(InventoryUI.Instance.ArmourSlotsParent.GetChild(0).GetChild(0).gameObject);
+                            GameObject returnedSlot = InventoryUI.Instance.ArmourSlotsParent.GetChild(0).GetChild(0).gameObject;
+                            InventoryUI.Instance.AddSlot(returnedSlot);
+                            returnedSlot.GetComponent<InventorySlot>().RemoveButton.gameObject.SetActive(true);
+                            returnedSlot.GetComponent<InventorySlot>().Amount.gameObject.SetActive(true);
                         }
                         gameObject.transform.SetParent(InventoryUI.Instance.ArmourSlotsParent.GetChild(0), false);
                         break;
                     case ArmourType.Torso:
                         if (InventoryUI.Instance.ArmourSlotsParent.GetChild(1).childCount != 0)
                         {
-                            InventoryUI.Instance.AddSlot(InventoryUI.Instance.ArmourSlotsParent.GetChild(1).GetChild(0).gameObject);
+                            GameObject returnedSlot = InventoryUI.Instance.ArmourSlotsParent.GetChild(1).GetChild(0).gameObject;
+                            InventoryUI.Instance.AddSlot(returnedSlot);
+                            returnedSlot.GetComponent<InventorySlot>().RemoveButton.gameObject.SetActive(true);
+                            returnedSlot.GetComponent<InventorySlot>().Amount.gameObject.SetActive(true);
                         }
                         gameObject.transform.SetParent(InventoryUI.Instance.ArmourSlotsParent.GetChild(1), false);
                         break;
                     case ArmourType.Hands:
                         if (InventoryUI.Instance.ArmourSlotsParent.GetChild(2).childCount != 0)
                         {
-                            InventoryUI.Instance.AddSlot(InventoryUI.Instance.ArmourSlotsParent.GetChild(2).GetChild(0).gameObject);
+                            GameObject returnedSlot = InventoryUI.Instance.ArmourSlotsParent.GetChild(2).GetChild(0).gameObject;
+                            InventoryUI.Instance.AddSlot(returnedSlot);
+                            returnedSlot.GetComponent<InventorySlot>().RemoveButton.gameObject.SetActive(true);
+                            returnedSlot.GetComponent<InventorySlot>().Amount.gameObject.SetActive(true);
                         }
                         gameObject.transform.SetParent(InventoryUI.Instance.ArmourSlotsParent.GetChild(2), false);
                         break;
                     case ArmourType.Legs:
                         if (InventoryUI.Instance.ArmourSlotsParent.GetChild(3).childCount != 0)
                         {
-                            InventoryUI.Instance.AddSlot(InventoryUI.Instance.ArmourSlotsParent.GetChild(3).GetChild(0).gameObject);
+                            GameObject returnedSlot = InventoryUI.Instance.ArmourSlotsParent.GetChild(3).GetChild(0).gameObject;
+                            InventoryUI.Instance.AddSlot(returnedSlot);
+                            returnedSlot.GetComponent<InventorySlot>().RemoveButton.gameObject.SetActive(true);
+                            returnedSlot.GetComponent<InventorySlot>().Amount.gameObject.SetActive(true);
                         }
                         gameObject.transform.SetParent(InventoryUI.Instance.ArmourSlotsParent.GetChild(3), false);
                         break;
                     case ArmourType.Feet:
                         if (InventoryUI.Instance.ArmourSlotsParent.GetChild(4).childCount != 0)
                         {
-                            InventoryUI.Instance.AddSlot(InventoryUI.Instance.ArmourSlotsParent.GetChild(4).GetChild(0).gameObject);
+                            GameObject returnedSlot = InventoryUI.Instance.ArmourSlotsParent.GetChild(4).GetChild(0).gameObject;
+                            InventoryUI.Instance.AddSlot(returnedSlot);
+                            returnedSlot.GetComponent<InventorySlot>().RemoveButton.gameObject.SetActive(true);
+                            returnedSlot.GetComponent<InventorySlot>().Amount.gameObject.SetActive(true);
                         }
                         gameObject.transform.SetParent(InventoryUI.Instance.ArmourSlotsParent.GetChild(4), false);
                         break; 
@@ -270,14 +291,13 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                 //fill
             }
             gameObject.transform.localPosition = Vector3.zero;
-            InventoryUI.Instance.ArrangeSlotPositions();
         }
+        InventoryUI.Instance.ArrangeSlotPositions();
     }
 
     public void RemoveCallback()
     {
         //what will happen to equipped items
-
         if (itemDescriptor.itemType == ItemType.Armour && itemInstance != null)
         {
             itemInstance.GetComponent<Rigidbody>().isKinematic = false;
@@ -304,8 +324,7 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             inventoryController.DropUninstantiatedSlot(itemDescriptor);
             inventoryController.RemoveSlot(itemDescriptor);//this won't work for equipped items because their slots are already removed from inventoryui.slots
         }
-        
-        
+        InventoryUI.Instance.ArrangeSlotPositions();
     }
 
     public void DropSingleItemCallback()

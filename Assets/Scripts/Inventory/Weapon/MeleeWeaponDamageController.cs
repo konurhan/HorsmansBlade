@@ -176,7 +176,7 @@ public class MeleeWeaponDamageController : MonoBehaviour
                     melee.owner.GetComponent<PlayerController>().GainTwoHandedXP();
                 }
             }
-            enemy.GetComponent<Animator>().SetTrigger("TakeHit");
+            enemy.GetComponent<Animator>().SetTrigger(AnimatorController.Instance.TakeHit);
         }
     }
 }

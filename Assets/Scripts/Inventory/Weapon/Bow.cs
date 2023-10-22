@@ -7,7 +7,7 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class Bow : RangedWeapon
 {
-
+    WaitForSecondsRealtime travelTime;
     Coroutine currentSlowMoRoutine;
 
     protected override void Awake()
@@ -16,6 +16,7 @@ public class Bow : RangedWeapon
         hasNockedAmmo = false;
         knockedAmmo = null;
 
+        travelTime = new WaitForSecondsRealtime(0.1f);
         ammos = new List<Ammo>();
     }
 
@@ -129,8 +130,8 @@ public class Bow : RangedWeapon
     public override void Aim()
     {
         base.Aim();
-        owner.GetComponent<Animator>().SetTrigger("DrawArrow");
-        GetComponent<Animator>().SetBool("Draw", true);
+        owner.GetComponent<Animator>().SetTrigger(AnimatorController.Instance.DrawArrow);
+        GetComponent<Animator>().SetBool(AnimatorController.Instance.Draw, true);
         hasDrawn = true;
 
         if (currentSlowMoRoutine != null)
@@ -145,8 +146,9 @@ public class Bow : RangedWeapon
     public override void UnAim()
     {
         base.UnAim();
-        owner.GetComponent<Animator>().SetTrigger("AbortDrawArrow");
-        GetComponent<Animator>().SetTrigger("AbortDrawString");
+        owner.GetComponent<Animator>().SetTrigger(AnimatorController.Instance.AbortDrawArrow);
+        GetComponent<Animator>().SetTrigger(AnimatorController.Instance.AbortDrawString);
+        GetComponent<Animator>().SetBool(AnimatorController.Instance.Draw, false);
         hasDrawn = false;
     }
 
@@ -166,9 +168,9 @@ public class Bow : RangedWeapon
         }
         
         base.Loose();
-        owner.GetComponent<Animator>().SetTrigger("ReleaseArrow");
-        GetComponent<Animator>().SetTrigger("ShootArrow");
-        GetComponent<Animator>().SetBool("Draw", false);
+        owner.GetComponent<Animator>().SetTrigger(AnimatorController.Instance.ReleaseArrow);
+        GetComponent<Animator>().SetTrigger(AnimatorController.Instance.ShootArrow);
+        GetComponent<Animator>().SetBool(AnimatorController.Instance.Draw, false);
 
         float skillMultiplier = owner.GetComponent<PlayerController>().rangedSkillLevel / 100f;
         knockedAmmo.GetComponent<Ammo>().Shoot(maximumForce, skillMultiplier, ammoForward);
@@ -181,7 +183,7 @@ public class Bow : RangedWeapon
 
     public void SetDrawFalse()
     {
-        GetComponent<Animator>().SetBool("Draw", false);
+        GetComponent<Animator>().SetBool(AnimatorController.Instance.Draw, false);
     }
 
     public IEnumerator SlowMoOnFireAmmo()
@@ -189,11 +191,11 @@ public class Bow : RangedWeapon
         Time.timeScale = 1/2f;
         Time.fixedDeltaTime = 0.02f * Time.timeScale / 50f;
         float passedTime = 0;
-        //WaitForSecondsRealtime travelTime = new WaitForSecondsRealtime(0.1f);
+        
         while (passedTime < 0.2f)
         {
             passedTime += 0.1f;
-            yield return new WaitForSecondsRealtime(0.1f);
+            yield return travelTime;
         }
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;

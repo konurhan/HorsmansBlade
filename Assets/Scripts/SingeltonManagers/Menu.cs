@@ -50,7 +50,7 @@ public class Menu : MonoBehaviour
         gameObject.GetComponent<TutorialManager>().enabled = true;
 
         Transform parent = TutorialManager.instance.TutorialsParentTransform;
-        parent.gameObject.SetActive(false);
+        parent.gameObject.SetActive(true);
     }
 
     public void DeactivateTutorials()

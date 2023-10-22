@@ -1,9 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -35,8 +33,14 @@ public class InventoryUI : MonoBehaviour
         slots = new List<InventorySlot>();
         LoadSlots();
         collectText.gameObject.SetActive(false);
+#if UNITY_EDITOR
+        Debug.unityLogger.logEnabled = true;
+#else
+        Debug.unityLogger.logEnabled = false;
+#endif
     }
 
+    private int timeSlice = 4;
     private void Update()
     {
         CollectClosestItem();
@@ -78,34 +82,32 @@ public class InventoryUI : MonoBehaviour
         int rowCount = InventorySlotsTransform.childCount;
         foreach (InventorySlot slot in slots)
         {
+            slot.gameObject.transform.SetParent(null);
+        }
+        //Debug.Break();
+        foreach (InventorySlot slot in slots)
+        {
             for(int i = 0; i < rowCount; i++)
             {
-                if (InventorySlotsTransform.GetChild(i).childCount == 4) continue;
+                if (InventorySlotsTransform.GetChild(i).childCount >= 4) continue;
                 slot.gameObject.transform.SetParent(InventorySlotsTransform.GetChild(i), false);
                 break;
             }
         }
+        Debug.Log("arrange slots has finished");
     }
 
     public void DestroySlot(ItemDescriptor itemDesc)//call FindSlotByItemDescriptor
     {
         InventorySlot toBeDestroyed = FindSlotByItemDescriptor(itemDesc);
+        toBeDestroyed.transform.SetParent(null);
         if (toBeDestroyed != null)
         {
             slots.Remove(toBeDestroyed);
             Destroy(toBeDestroyed.gameObject);
+            Debug.Log("removed slot is destroyed");
             return;
         }
-        /*foreach (InventorySlot slot in slots.ToList())
-        {
-            if (slot.itemDescriptor.itemName == itemDesc.itemName)
-            {
-                GameObject slotObj = slot.gameObject;
-                slots.Remove(slot);
-                Destroy(slotObj);
-                return;
-            }
-        }*/
     }
 
     public void UpdateSlotAmount(int newVal, ItemDescriptor itemDesc)
@@ -142,7 +144,14 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
-        float dist = (closest.gameObject.transform.position - Player.transform.position).magnitude;//arrow için hata veriyor
+        if (closest.GetComponent<Ammo>() != null && closest.GetComponent<Ammo>().CanDealDamage()) 
+        {
+            collectibles.RemoveAt(0);
+            closest = null;
+            return;
+        }
+
+        float dist = (closest.gameObject.transform.position - Player.transform.position).magnitude;
 
         for (int i = 1; i < collectibles.Count; i++)
         {
@@ -249,11 +258,9 @@ public class InventoryUI : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I) && InventorySlotsTransform.parent.gameObject.activeInHierarchy)
         {
             InventorySlotsTransform.parent.gameObject.SetActive(false);
-            //ClearInventoryPanel();
         }else if (Input.GetKeyDown(KeyCode.I) && !InventorySlotsTransform.parent.gameObject.activeInHierarchy)
         {
             InventorySlotsTransform.parent.gameObject.SetActive(true);
-            //RecreateInventorySlots();
         }
     }
 

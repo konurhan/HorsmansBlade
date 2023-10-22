@@ -28,6 +28,10 @@ public class InventoryItem : MonoBehaviour
 
     protected virtual void Update()
     {
+        /*if(Time.frameCount % 15 == 0)
+        {
+            HandleCollection();
+        }*/
         HandleCollection();
     }
 

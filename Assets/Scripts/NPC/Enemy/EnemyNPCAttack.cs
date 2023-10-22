@@ -20,6 +20,9 @@ public class EnemyNPCAttack : MonoBehaviour
     public Coroutine strafeAroundCoroutine;
     public Coroutine turnTowardsTheTargetCoroutine;
 
+    WaitForEndOfFrame waitNextFrame = new WaitForEndOfFrame();
+    WaitForSeconds waitAScaledSecond = new WaitForSeconds(1);
+
     private void Awake()
     {
         blocking = false;
@@ -93,12 +96,12 @@ public class EnemyNPCAttack : MonoBehaviour
         {
             case <= 39 when rand >= 0:
                 attacking = true;
-                animator.SetTrigger("InwardSlash");
+                animator.SetTrigger(AnimatorController.Instance.InwardSlash);
                 StartCoroutine(AttackCoolDown(1.2f));
                 break;
             case <= 79 when rand >= 40:
                 attacking = true;
-                animator.SetTrigger("OutwardSlash");
+                animator.SetTrigger(AnimatorController.Instance.OutwardSlash);
                 StartCoroutine(AttackCoolDown(1.2f));
                 break;
             case <= 99 when rand >= 80:
@@ -130,7 +133,7 @@ public class EnemyNPCAttack : MonoBehaviour
         while (passed < duration)
         {
             passed += Time.deltaTime;
-            yield return new WaitForEndOfFrame();
+            yield return waitNextFrame;
         }
         attacking = false;
     }
@@ -151,11 +154,14 @@ public class EnemyNPCAttack : MonoBehaviour
     public IEnumerator Shieldblock()
     {
         RaiseShield();
-        while(true)
+
+        float passed = 0f;
+        while (passed < 1)
         {
-            yield return new WaitForSeconds(1);
-            break;
+            passed += Time.deltaTime;
+            yield return waitNextFrame;
         }
+
         LowerShield();
     }
 
@@ -175,7 +181,7 @@ public class EnemyNPCAttack : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lerpSpeed);
             passed += Time.deltaTime;
             //Debug.Log("passed time: " + passed);
-            yield return new WaitForEndOfFrame();
+            yield return waitNextFrame;
         }
         attacking = false;
         turnTowardsTheTargetCoroutine = null;
@@ -194,7 +200,7 @@ public class EnemyNPCAttack : MonoBehaviour
             float step = angle * Time.deltaTime * speed;
             transform.Rotate(new Vector3(0, -step, 0));
             rotated += step;
-            yield return new WaitForEndOfFrame();
+            yield return waitNextFrame;
         }
         LowerShield();
         agent.updateRotation = true;
@@ -212,7 +218,7 @@ public class EnemyNPCAttack : MonoBehaviour
             float step = angle * Time.deltaTime * speed;
             transform.Rotate(new Vector3(0,step,0));
             rotated += step;
-            yield return new WaitForEndOfFrame();
+            yield return waitNextFrame;
         }
         LowerShield();
         agent.updateRotation = true;
@@ -224,13 +230,13 @@ public class EnemyNPCAttack : MonoBehaviour
     {
         blocking = true;
         Debug.Log("RaiseShield is called");
-        animator.SetBool("Shield", true);
+        animator.SetBool(AnimatorController.Instance.Shield, true);
     }
 
     public void LowerShield()
     {
         blocking = false;
-        animator.SetBool("Shield", false);
+        animator.SetBool(AnimatorController.Instance.Shield, false);
     }
 
     public float GetAngleToTarget()
@@ -253,7 +259,7 @@ public class EnemyNPCAttack : MonoBehaviour
 
     public bool CheckShieldUp()
     {
-        if (targetAnimator.GetBool("Shield"))
+        if (targetAnimator.GetBool(AnimatorController.Instance.Shield))
         {
             return true;
         }

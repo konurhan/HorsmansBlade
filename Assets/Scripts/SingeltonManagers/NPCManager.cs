@@ -45,59 +45,23 @@ public class NPCManager : MonoBehaviour
 
         Menu.onGamePaused += ConfigureForPause;
         Menu.onGameResumed += ConfigureForResume;
-
-        //SetDestinationLocalPositions();
-        //SetNumberOfDestinations(10);
     }
-
-    /*public void SetDestinationLocalPositions()
-    {
-        int count = enemyNPCs.Count;
-        float radius = enemyNPCs[0].GetComponent<EnemyNPCMovement>().surroundingRadius;
-        float angleStep = 360f / count;
-        float startAngle = angleStep / 2;
-
-        for (int i = 0; i < count; i++)
-        {
-            SurroundingDest newDest = new SurroundingDest();
-            float angle = startAngle + i * angleStep;
-            float radians = angle * Mathf.Deg2Rad;
-            newDest.relativePosToPlayer = new Vector3(radius * Mathf.Cos(radians), 0, radius * Mathf.Sin(radians));
-            relativePos.Add(newDest);
-        }
-    }*/
-
-    /*public void SetEnemyDestinationOffsets()//call it every time an enemy is added, through enemy controller
-    {
-        int count = enemyNPCs.Count;
-        float npcSpan = 60 * count;// the angle in which the NPCs group in around the player, equally spaced
-        if (npcSpan > 360) npcSpan = 360;
-
-        float middleNPC = 90; //angle in which the npc in the middle of the array will face the enemy
-        float startAngle = middleNPC - npcSpan / 2;
-        
-        for (int i=0; i < count; i++)
-        {
-            float radius = enemyNPCs[i].GetComponent<EnemyNPCMovement>().surroundingRadius;
-            float angle = i/count * npcSpan + startAngle;
-            float radians = angle * Mathf.Deg2Rad;
-            enemyNPCs[i].GetComponent<EnemyNPCMovement>().destinationOffset = new Vector3(radius*Mathf.Cos(radians), 0, radius * Mathf.Sin(radians));
-        }
-    }*/
-
 
     public void ConfigureForPause()
     {
         foreach(EnemyController enemyController in enemyNPCs)
         {
             GameObject enemy = enemyController.gameObject;
+
+            enemy.GetComponent<PlayerHealth>().enabled = false;
+            enemy.GetComponent<ItemContainer>().enabled = false;
+
+            if (enemy.GetComponent<PlayerHealth>().isDead) return;
             enemy.GetComponent<Animator>().enabled = false;
             enemy.GetComponent<EnemyNPCMovement>().enabled = false;
             enemy.GetComponent<EnemyNPCAttack>().enabled = false;
             enemy.GetComponent<Rigidbody>().isKinematic = true;
-            enemy.GetComponent<PlayerHealth>().enabled = false;
             enemy.GetComponent<NavMeshAgent>().enabled = false;
-            enemy.GetComponent<ItemContainer>().enabled = false;
             enemy.GetComponent<EnemyNPCEquipmentSystem>().enabled = false;
             enemy.GetComponent<EnemyController>().enabled = false;
         }
@@ -108,13 +72,16 @@ public class NPCManager : MonoBehaviour
         foreach (EnemyController enemyController in enemyNPCs)
         {
             GameObject enemy = enemyController.gameObject;
+
+            enemy.GetComponent<PlayerHealth>().enabled = true;
+            enemy.GetComponent<ItemContainer>().enabled = true;
+
+            if (enemy.GetComponent<PlayerHealth>().isDead) return;
             enemy.GetComponent<Animator>().enabled = true;
             enemy.GetComponent<EnemyNPCMovement>().enabled = true;
             enemy.GetComponent<EnemyNPCAttack>().enabled = true;
             enemy.GetComponent<Rigidbody>().isKinematic = false;
-            enemy.GetComponent<PlayerHealth>().enabled = true;
             enemy.GetComponent<NavMeshAgent>().enabled = true;
-            enemy.GetComponent<ItemContainer>().enabled = true;
             enemy.GetComponent<EnemyNPCEquipmentSystem>().enabled = true;
             enemy.GetComponent<EnemyController>().enabled = true;
         } 

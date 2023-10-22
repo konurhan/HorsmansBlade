@@ -1,13 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
-using UnityEditor;
 using UnityEngine;
-using static UnityEditor.Progress;
-using static UnityEngine.UI.GridLayoutGroup;
 
 public class ItemContainer : MonoBehaviour//attach this script to a chest
 {

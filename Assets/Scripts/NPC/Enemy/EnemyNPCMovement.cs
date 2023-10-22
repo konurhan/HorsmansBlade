@@ -42,6 +42,9 @@ public class EnemyNPCMovement : MonoBehaviour
     private Coroutine changeSpeedZ;
     public Coroutine strafingRoutine;
 
+    WaitForEndOfFrame waitNextFrame = new WaitForEndOfFrame();
+    WaitForSeconds waitForSpeedChange = new WaitForSeconds(0.008f);
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -72,16 +75,21 @@ public class EnemyNPCMovement : MonoBehaviour
         lastYEulerAngle = transform.rotation.eulerAngles.y;
     }
 
+    private void OnEnable()
+    {
+        Debug.Log(gameObject.name + " is enabled");
+    }
+
     void Update()
     {
         if (agent.hasPath && controller.stateMachine.currentstate != controller.patrollingState)
         {
-            animator.SetFloat("SpeedZ", agent.velocity.magnitude);//refactor this so that animation speed, agent speed and character speeds all together work in a conforming way
+            animator.SetFloat(AnimatorController.Instance.SpeedZ, agent.velocity.magnitude);//refactor this so that animation speed, agent speed and character speeds all together work in a conforming way
         }else if (agent.hasPath && controller.stateMachine.currentstate == controller.patrollingState)
         {
             float clamped = agent.velocity.magnitude;
             if (clamped > 1) clamped = 1;
-            animator.SetFloat("SpeedZ", clamped);
+            animator.SetFloat(AnimatorController.Instance.SpeedZ, clamped);
         }
         sphereCollider.radius = detectionRadius;//move this into a method
         angularVelocity = rb.angularVelocity;
@@ -252,14 +260,14 @@ public class EnemyNPCMovement : MonoBehaviour
         GameObject cachedTarget = target;
         isMovingOut = true;
 
-        float speedZ = -0.5f;
+        float speedZ = -1.5f;
 
-        animator.SetFloat("SpeedZ", speedZ);
+        animator.SetFloat(AnimatorController.Instance.SpeedZ, speedZ);
         while (true)
         {
             Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lerpSpeed);
-            yield return new WaitForEndOfFrame();
+            yield return waitNextFrame;
         }
     }
 
@@ -272,13 +280,13 @@ public class EnemyNPCMovement : MonoBehaviour
         float speedZ = 0.5f;
         float speedX = 1.5f;
 
-        animator.SetFloat("SpeedZ", speedZ);
-        animator.SetFloat("SpeedX", speedX);
+        animator.SetFloat(AnimatorController.Instance.SpeedZ, speedZ);
+        animator.SetFloat(AnimatorController.Instance.SpeedX, speedX);
         while (true)
         {
             Quaternion lookRotation = Quaternion.LookRotation(cachedTarget.transform.position - transform.position, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime*lerpSpeed);
-            yield return new WaitForEndOfFrame();
+            yield return waitNextFrame;
         }
     }
 
@@ -291,11 +299,11 @@ public class EnemyNPCMovement : MonoBehaviour
         {
             StopCoroutine(changeSpeedZ);
         }
-        if (animator.GetFloat("SpeedZ") < 0)
+        if (animator.GetFloat(AnimatorController.Instance.SpeedZ) < 0)
         {
             StartSpeedUpZ(0);
         }
-        else if (animator.GetFloat("SpeedZ") > 0)
+        else if (animator.GetFloat(AnimatorController.Instance.SpeedZ) > 0)
         {
             StartSlowDownZ(0);
         }
@@ -304,11 +312,11 @@ public class EnemyNPCMovement : MonoBehaviour
         {
             StopCoroutine(changeSpeedX);
         }
-        if (animator.GetFloat("SpeedX") < speedX)
+        if (animator.GetFloat(AnimatorController.Instance.SpeedX) < speedX)
         {
             StartSpeedUpX(speedX);
         }
-        else if (animator.GetFloat("SpeedX") > speedX)
+        else if (animator.GetFloat(AnimatorController.Instance.SpeedX) > speedX)
         {
             StartSlowDownX(speedX);
         }
@@ -322,7 +330,7 @@ public class EnemyNPCMovement : MonoBehaviour
             transform.rotation = lookRotation;
 
             time += Time.deltaTime;
-            yield return new WaitForSeconds(Time.deltaTime);
+            yield return waitNextFrame;
         }
 
         OnStopStrafeAroundTheTarget();
@@ -342,11 +350,11 @@ public class EnemyNPCMovement : MonoBehaviour
             StopCoroutine (changeSpeedZ);
         }
 
-        if (animator.GetFloat("SpeedX") < 0)
+        if (animator.GetFloat(AnimatorController.Instance.SpeedX) < 0)
         {
             StartSpeedUpX(0);//bunun ne kadar surecegini hesapla, onu total sureden dus ve o kadar sure 
         }
-        else if (animator.GetFloat("SpeedX") > 0)
+        else if (animator.GetFloat(AnimatorController.Instance.SpeedX) > 0)
         {
             StartSlowDownX(0);
         }
@@ -354,20 +362,20 @@ public class EnemyNPCMovement : MonoBehaviour
 
     public void OnStopStrafing()//when closing in stops
     {
-        if (animator.GetFloat("SpeedZ") < 0)
+        if (animator.GetFloat(AnimatorController.Instance.SpeedZ) < 0)
         {
             StartSpeedUpZ(0);
         }
-        else if (animator.GetFloat("SpeedZ") > 0)
+        else if (animator.GetFloat(AnimatorController.Instance.SpeedZ) > 0)
         {
             StartSlowDownZ(0);
         }
 
-        if (animator.GetFloat("SpeedX") < 0)
+        if (animator.GetFloat(AnimatorController.Instance.SpeedX) < 0)
         {
             StartSpeedUpX(0);
         }
-        else if (animator.GetFloat("SpeedX") > 0)
+        else if (animator.GetFloat(AnimatorController.Instance.SpeedX) > 0)
         {
             StartSlowDownX(0);
         }
@@ -407,7 +415,7 @@ public class EnemyNPCMovement : MonoBehaviour
             float step = sign * angle * Time.deltaTime * speed;
             transform.Rotate(new Vector3(0, sign * step, 0));
             rotated += step;
-            yield return new WaitForEndOfFrame();
+            yield return waitNextFrame;
         }
         //agentRotationY += angle;
         agent.updateRotation = true;
@@ -415,10 +423,10 @@ public class EnemyNPCMovement : MonoBehaviour
 
     public void PlayFootAnimOnRotation()
     {
-        if (agent.updateRotation || animator.GetFloat("SpeedZ") > 0.01f)//animation will only be played while the npc rotation is being manually updated
+        if (agent.updateRotation || animator.GetFloat(AnimatorController.Instance.SpeedZ) > 0.01f)//animation will only be played while the npc rotation is being manually updated
         {
-            animator.SetBool("TurnLeft", false);
-            animator.SetBool("TurnRight", false);
+            animator.SetBool(AnimatorController.Instance.TurnLeft, false);
+            animator.SetBool(AnimatorController.Instance.TurnRight, false);
             return;
         }
 
@@ -426,22 +434,22 @@ public class EnemyNPCMovement : MonoBehaviour
 
         if (Mathf.Abs(newAngle - lastYEulerAngle) < 0.05f)
         {
-            animator.SetBool("TurnLeft", false);
-            animator.SetBool("TurnRight", false);
+            animator.SetBool(AnimatorController.Instance.TurnLeft, false);
+            animator.SetBool(AnimatorController.Instance.TurnRight, false);
             return;
         }
 
         if (newAngle > lastYEulerAngle)
         {
             //Debug.Log("turning right");
-            animator.SetBool("TurnLeft", false);
-            if (!animator.GetBool("TurnRight")) animator.SetBool("TurnRight", true);
+            animator.SetBool(AnimatorController.Instance.TurnLeft, false);
+            if (!animator.GetBool(AnimatorController.Instance.TurnRight)) animator.SetBool(AnimatorController.Instance.TurnRight, true);
         }
         else if (newAngle < lastYEulerAngle)
         {
             //Debug.Log("turning left");
-            animator.SetBool("TurnRight", false);
-            if (!animator.GetBool("TurnLeft")) animator.SetBool("TurnLeft", true);
+            animator.SetBool(AnimatorController.Instance.TurnRight, false);
+            if (!animator.GetBool(AnimatorController.Instance.TurnLeft)) animator.SetBool(AnimatorController.Instance.TurnLeft, true);
         }
         lastYEulerAngle = newAngle;
     }
@@ -493,11 +501,11 @@ public class EnemyNPCMovement : MonoBehaviour
         while (speed < 1f)//speed up will take 0.8 seconds
         {
             speed += 0.01f;
-            animator.SetFloat("SpeedX", speed);
-            yield return new WaitForSeconds(0.008f);
+            animator.SetFloat(AnimatorController.Instance.SpeedX, speed);
+            yield return waitForSpeedChange;
         }
         speed = 1f;
-        animator.SetFloat("SpeedX", speed);
+        animator.SetFloat(AnimatorController.Instance.SpeedX, speed);
         StartCoroutine(SlowDownStrafe());
         yield break;
     }
@@ -508,73 +516,73 @@ public class EnemyNPCMovement : MonoBehaviour
         while (speed > 0)//slow down will take 0.8 seconds
         {
             speed -= 0.01f;
-            animator.SetFloat("SpeedX", speed);
-            yield return new WaitForSeconds(0.008f);
+            animator.SetFloat(AnimatorController.Instance.SpeedX, speed);
+            yield return waitForSpeedChange;
         }
         speed = 0f;
-        animator.SetFloat("SpeedX", speed);
+        animator.SetFloat(AnimatorController.Instance.SpeedX, speed);
         yield break;
     }
 
     public IEnumerator SpeedUpZ(float targetSpeed)
     {
         //Debug.Log("speeding up");
-        float speed = animator.GetFloat("SpeedZ");
+        float speed = animator.GetFloat(AnimatorController.Instance.SpeedZ);
         //Debug.Log("speedZ is: " + speed);
 
         while (speed < targetSpeed)
         {
             speed += 0.01f;
-            animator.SetFloat("SpeedZ", speed);
-            yield return new WaitForEndOfFrame();
+            animator.SetFloat(AnimatorController.Instance.SpeedZ, speed);
+            yield return waitNextFrame;
         }
         speed = targetSpeed;
-        animator.SetFloat("SpeedZ", speed);
+        animator.SetFloat(AnimatorController.Instance.SpeedZ, speed);
         yield break;
     }
 
     public IEnumerator SpeedUpX(float targetSpeed)//do this in real time, not by frames
     {
         //Debug.Log("speeding up");
-        float speed = animator.GetFloat("SpeedX");
+        float speed = animator.GetFloat(AnimatorController.Instance.SpeedX);
         //Debug.Log("SpeedX is: " + speed);
 
         while (speed < targetSpeed)
         {
             speed += 0.01f;
-            animator.SetFloat("SpeedX", speed);
-            yield return new WaitForEndOfFrame();
+            animator.SetFloat(AnimatorController.Instance.SpeedX, speed);
+            yield return waitNextFrame;
         }
         speed = targetSpeed;
-        animator.SetFloat("SpeedX", speed);
+        animator.SetFloat(AnimatorController.Instance.SpeedX, speed);
         yield break;
     }
 
     public IEnumerator SlowDownZ(float targetSpeed)
     {
-        float speed = animator.GetFloat("SpeedZ");
+        float speed = animator.GetFloat(AnimatorController.Instance.SpeedZ);
         while (speed > targetSpeed)
         {
             speed -= 0.01f;
-            animator.SetFloat("SpeedZ", speed);
-            yield return new WaitForEndOfFrame();
+            animator.SetFloat(AnimatorController.Instance.SpeedZ, speed);
+            yield return waitNextFrame;
         }
         speed = targetSpeed;
-        animator.SetFloat("SpeedZ", speed);
+        animator.SetFloat(AnimatorController.Instance.SpeedZ, speed);
         yield break;
     }
 
     public IEnumerator SlowDownX(float targetSpeed)
     {
-        float speed = animator.GetFloat("SpeedX");
+        float speed = animator.GetFloat(AnimatorController.Instance.SpeedX);
         while (speed > targetSpeed)
         {
             speed -= 0.01f;
-            animator.SetFloat("SpeedX", speed);
-            yield return new WaitForEndOfFrame();
+            animator.SetFloat(AnimatorController.Instance.SpeedX, speed);
+            yield return waitNextFrame;
         }
         speed = targetSpeed;
-        animator.SetFloat("SpeedX", speed);
+        animator.SetFloat(AnimatorController.Instance.SpeedX, speed);
         yield break;
     }
 

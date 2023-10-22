@@ -130,7 +130,7 @@ public class Ammo : InventoryItem
         }
 
         part.TakeDamage(damageDealt);
-        part.player.GetComponent<Animator>().SetTrigger("TakeHit");//play take hit anim
+        part.player.GetComponent<Animator>().SetTrigger(AnimatorController.Instance.TakeHit);//play take hit anim
 
         GameObject particle = Instantiate(Resources.Load("Prefabs/Particles/BloodSprayFX"), part.gameObject.transform) as GameObject;
         Destroy(particle, 0.5f);
@@ -167,5 +167,8 @@ public class Ammo : InventoryItem
         rb.isKinematic = false;
     }
 
-    
+    public bool CanDealDamage() 
+    {
+        return canDealDamage;
+    }
 }

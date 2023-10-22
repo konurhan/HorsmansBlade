@@ -1,10 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Events;
-using static UnityEditor.Progress;
 
 public class InventoryController : MonoBehaviour
 {
@@ -13,12 +9,15 @@ public class InventoryController : MonoBehaviour
     public Dictionary<ItemDescriptor,int> items = new Dictionary<ItemDescriptor,int>();
 
     public PlayerController player;
+    public Animator animator;
+
     public List<InventoryItem> collectibleItems;
     public List<ItemContainer> lootableContainers;
 
     private void Awake()
     {
         player = GetComponent<PlayerController>();
+        animator = GetComponent<Animator>();
     }
 
     void Start()
@@ -313,7 +312,7 @@ public class InventoryController : MonoBehaviour
 
         if(gathered.GetComponent<InventoryItem>() != null)
         {
-            gameObject.GetComponent<Animator>().SetTrigger("Gather");//when knee is down collect the item or set active false
+            animator.SetTrigger(AnimatorController.Instance.Gather);//when knee is down collect the item or set active false
 
             InventoryItem invItem = gathered.GetComponent<InventoryItem>();
             invItem.SetOwnerReference(gameObject);

@@ -18,6 +18,8 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
 
     [SerializeField] private GameObject recentMeleeWeapon;
 
+    WaitForSecondsRealtime waitTime = new WaitForSecondsRealtime(0.01f);
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -267,11 +269,11 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
             if (CanSheatWeapon())
             {
                 Debug.Log("Sheat is triggered");
-                animator.SetTrigger("Sheat");
+                animator.SetTrigger(AnimatorController.Instance.Sheat);
                 break;
             }
             time += 0.01f;
-            yield return new WaitForSecondsRealtime(0.01f);
+            yield return waitTime;
         }
     }
 
@@ -285,9 +287,9 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
             Debug.Log("Draw coroutine is running");
             if (CanDrawWeapon())
             {
-                animator.ResetTrigger("InwardSlash");
-                animator.ResetTrigger("OutwardSlash");
-                animator.SetTrigger("Draw");
+                animator.ResetTrigger(AnimatorController.Instance.InwardSlash);
+                animator.ResetTrigger(AnimatorController.Instance.OutwardSlash);
+                animator.SetTrigger(AnimatorController.Instance.Draw);
                 animator.SetLayerWeight(1, 1f);
                 animator.SetLayerWeight(2, 1f);
 
@@ -295,7 +297,7 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
                 break;
             }
             time += 0.01f;
-            yield return new WaitForSecondsRealtime(0.01f);
+            yield return waitTime;
         }
     }
 
@@ -361,11 +363,11 @@ public class EnemyNPCEquipmentSystem : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1))
         {
-            animator.SetBool("Shield", true);
+            animator.SetBool(AnimatorController.Instance.Shield, true);
         }
         if (Input.GetMouseButtonUp(1))
         {
-            animator.SetBool("Shield", false);
+            animator.SetBool(AnimatorController.Instance.Shield, false);
         }
     }
 
